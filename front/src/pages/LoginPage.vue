@@ -63,7 +63,7 @@
                 <div class="col-12 col-md-2"></div>
                 <div class="col-12 col-md-8 text-subtitle q-pt-lg">
                   <q-separator />
-                  Copyright © {{ new Date().getFullYear() }} Providencia. Todos los derechos reservados.
+                  Copyright © {{ new Date().getFullYear() }} Cine aventura. Todos los derechos reservados.
                 </div>
                 <div class="col-12 col-md-2"></div>
               </div>

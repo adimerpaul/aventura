@@ -17,6 +17,7 @@
           <div class="col-auto q-ml-auto">
             <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" />
           </div>
+<!--          <pre>{{seleccionadas}}</pre>-->
         </div>
 
         <q-markup-table wrap-cells dense bordered flat separator="cell">
@@ -69,6 +70,7 @@
             <q-input v-model="nombre" label="Nombre" dense outlined class="" :rules="[val => !!val || 'Por favor, ingresa un nombre.']" />
             <q-input v-model.number="personas" type="number" label="Número de Personas" dense outlined class="" :rules="[val => val > 0 || 'Por favor, ingresa un número válido.']" />
             <q-input v-model.number="adelanto" type="number" label="Adelanto" dense outlined class="" :rules="[val => val >= 0 || 'Por favor, ingresa un número válido.']" />
+            <q-input v-model="observacion" label="Observación" dense outlined class="" hint="" type="textarea" />
             <q-badge color="blue" class="q-pa-sm">
               Tiempo Total: {{ tiempoSeleccionado }}
             </q-badge>
@@ -101,6 +103,7 @@ const dialogoReservar = ref(false);
 const nombre = ref("");
 const personas = ref(1);
 const adelanto = ref(0);
+const observacion = ref("");
 
 // Formatear tiempo total en HH:mm
 const tiempoSeleccionado = computed(() => {
