@@ -18,7 +18,7 @@
             <q-btn color="red" label="Limpiar" @click="limpiar" no-caps icon="clear" size="11px" v-if="Object.keys(seleccionadas).length > 0" />
           </div>
           <div class="col-6 col-md-3 text-right">
-            <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" />
+            <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" :loading="loading" />
           </div>
 <!--          <pre>{{seleccionadas}}</pre>-->
         </div>
@@ -335,7 +335,7 @@ const confirmarReserva = () => {
     horario: `${horaMinima.value} - ${horaMaxima.value}`,
     fecha: fecha.value,
   }).then(res => {
-    proxy.$alert.success("Reserva confirmada");
+    proxy.$alert.success("Reserva confirmada", "Reserva");
     limpiar();
     // reservasGet();
     proxy.$socket.emit("reservas");

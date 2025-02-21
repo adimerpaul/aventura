@@ -58,7 +58,7 @@
           header
           class="text-center"
         >
-          <q-img src="logo.png" width="100px" />
+          <q-img src="/logo.png" width="100px" />
         </q-item-label>
 
 <!--        <EssentialLink-->
@@ -109,8 +109,8 @@ const {proxy} = getCurrentInstance()
 const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
   { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
-  // { title: 'Fraternos', icon: 'people', link: '/fraternos', can: 'Fraternos' },
   { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Reservas' },
+  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Reservas' }
 ]
 
 const leftDrawerOpen = ref(false)

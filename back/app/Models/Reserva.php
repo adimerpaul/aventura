@@ -44,4 +44,5 @@ class Reserva extends Model{
             return 'red';
         }
     }
+    protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
 }

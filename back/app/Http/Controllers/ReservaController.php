@@ -6,6 +6,15 @@ use App\Models\Reserva;
 use Illuminate\Http\Request;
 
 class ReservaController extends Controller{
+    function reservasAll(Request $request){
+        $fechaInicio = $request->fechaInicio;
+        $fechaFin = $request->fechaFin;
+        $reservas = Reserva::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->whereRaw('(estado = "Reservado" OR estado = "Finalizado")')
+            ->orderBy('id', 'desc')
+            ->get();
+        return response()->json($reservas);
+    }
     function index(Request $request) {
         $fecha = $request->fecha;
         $reservas = Reserva::whereDate('fecha', $fecha)
