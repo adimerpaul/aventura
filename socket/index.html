@@ -27,11 +27,11 @@
     $(function () {
         var socket = io();
         $('form').submit(function(){
-            socket.emit('chat message', $('#input').val());
+            socket.emit('reservas', $('#input').val());
             $('#input').val('');
             return false;
         });
-        socket.on('chat message', function(msg){
+        socket.on('reservas', function(msg){
             $('#messages').append($('<li>').text(msg));
             window.scrollTo(0, document.body.scrollHeight);
         });

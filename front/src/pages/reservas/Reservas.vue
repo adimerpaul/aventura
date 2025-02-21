@@ -139,6 +139,13 @@ onMounted(() => {
 
   calcularTotalMinutos();
   reservasGet();
+
+  if (!proxy.$store.socketReservas) {
+    proxy.$socket.on("reservas", () => {
+      reservasGet();
+    });
+    proxy.$store.socketReservas = true;
+  }
 });
 function reservasGet() {
   loading.value = true;
@@ -167,19 +174,29 @@ function limpiar() {
 // Obtener la hora mínima seleccionada
 const horaMinima = computed(() => {
   if (Object.keys(seleccionadas.value).length === 0) return "-";
-  const horasSeleccionadas = Object.values(seleccionadas.value).sort();
-  return horasSeleccionadas[0]; // Primera hora seleccionada
+
+  // Extraer y ordenar correctamente los valores de hora
+  const horasSeleccionadas = Object.values(seleccionadas.value)
+    .map(h => moment(h, "H:mm")) // Convertir a objetos moment
+    .sort((a, b) => a.diff(b)); // Ordenar por diferencia de tiempo
+
+  return horasSeleccionadas[0].format("H:mm"); // Retornar la primera hora formateada
 });
+
 // Obtener la hora máxima seleccionada
 const horaMaxima = computed(() => {
   if (Object.keys(seleccionadas.value).length === 0) return "-";
 
-  const horasSeleccionadas = Object.values(seleccionadas.value).sort();
+  const horasSeleccionadas = Object.values(seleccionadas.value)
+    .map(h => moment(h, "H:mm")) // Convertir a objetos moment
+    .sort((a, b) => a.diff(b)); // Ordenar por diferencia de tiempo
+
   const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
 
-  // Sumar 30 minutos usando moment.js
-  return moment(ultimaHora, "H:mm").add(30, "minutes").format("H:mm");
+  // Sumar 30 minutos y formatear
+  return ultimaHora.add(30, "minutes").format("H:mm");
 });
+
 function clickReserva() {
   if (totalMinutos.value === 0) {
     proxy.$alert.error("Por favor","selecciona al menos 30 minutos.");
@@ -321,6 +338,7 @@ const confirmarReserva = () => {
     proxy.$alert.success("Reserva confirmada");
     limpiar();
     // reservasGet();
+    proxy.$socket.emit("reservas");
     dialogoReservar.value = false;
   }).catch(error => {
     proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");
