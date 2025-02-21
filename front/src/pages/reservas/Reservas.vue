@@ -105,7 +105,8 @@ const fecha = ref(moment().format("YYYY-MM-DD"));
 const salas = ref([]);
 const horarios = ref([]);
 const seleccionadas = ref({});
-const reservas = ref(JSON.parse(localStorage.getItem("reservas")) || {});
+// const reservas = ref(JSON.parse(localStorage.getItem("reservas")) || {});
+const reservas = ref( {});
 const totalMinutos = ref(0);
 const dialogoReservar = ref(false);
 const nombre = ref("");
@@ -137,7 +138,7 @@ onMounted(() => {
   }
 
   calcularTotalMinutos();
-  // reservasGet();
+  reservasGet();
 });
 function reservasGet() {
   loading.value = true;
@@ -291,9 +292,9 @@ const confirmarReserva = () => {
   const sala = salas.value[salaIndex]?.sala || "Desconocida"; // Obtenemos el nombre de la sala
 
   // Guardar en localStorage
-  localStorage.setItem("reservas", JSON.stringify(reservas.value));
-  dialogoReservar.value = false;
-  limpiar();
+  // localStorage.setItem("reservas", JSON.stringify(reservas.value));
+  // dialogoReservar.value = false;
+  // limpiar();
 
 
   // alert(`Reserva confirmada para ${nombre.value} con ${personas.value} persona(s). Monto: ${montoTotal.value} Bs.`);
@@ -304,27 +305,27 @@ const confirmarReserva = () => {
   // nombre.value = "";
   // personas.value = 1;
   // dialogoReservar.value = false;
-  // loading.value = true;
-  // proxy.$axios.post('/reservas', {
-  //   nombre: nombre.value,
-  //   numero_personas: personas.value,
-  //   observaciones: observacion.value,
-  //   json: JSON.stringify(seleccionadas.value),
-  //   sala: sala,
-  //   total: montoTotal.value,
-  //   adelanto: adelanto.value,
-  //   tiempo: tiempoSeleccionado.value,
-  //   horario: `${horaMinima.value} - ${horaMaxima.value}`,
-  //   fecha: fecha.value,
-  // }).then(res => {
-  //   proxy.$alert.success("Reserva confirmada");
-  //   limpiar();
-  //   reservasGet();
-  //   dialogoReservar.value = false;
-  // }).catch(error => {
-  //   proxy.$alert.error("Error al confirmar reserva");
-  // }).finally(() => {
-  //   loading.value = false;
-  // });
+  loading.value = true;
+  proxy.$axios.post('/reservas', {
+    nombre: nombre.value,
+    numero_personas: personas.value,
+    observaciones: observacion.value,
+    json: JSON.stringify(seleccionadas.value),
+    sala: sala,
+    total: montoTotal.value,
+    adelanto: adelanto.value,
+    tiempo: tiempoSeleccionado.value,
+    horario: `${horaMinima.value} - ${horaMaxima.value}`,
+    fecha: fecha.value,
+  }).then(res => {
+    proxy.$alert.success("Reserva confirmada");
+    limpiar();
+    reservasGet();
+    dialogoReservar.value = false;
+  }).catch(error => {
+    proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");
+  }).finally(() => {
+    loading.value = false;
+  });
 };
 </script>

@@ -8,20 +8,37 @@ use Illuminate\Http\Request;
 class ReservaController extends Controller{
     function index(Request $request) {
         $fecha = $request->fecha;
-        $reservas = Reserva::whereDate('fecha', $fecha)->get();
+        $reservas = Reserva::whereDate('fecha', $fecha)
+            ->whereRaw('(estado = "Reservado" OR estado = "Finalizado")')
+            ->get();
         $jsonReservas = [];
 
         foreach ($reservas as $reserva) {
             $data = json_decode($reserva->json, true); // Convertir JSON a array asociativo
             foreach ($data as $key => $value) {
-                $jsonReservas[$key] = $value; // Aplanar el array
+                $jsonReservas[$key] = [
+                    'nombre' => $reserva->nombre,
+                    'color' => $reserva->color,
+                ];
             }
         }
 
         return response()->json($jsonReservas);
     }
 
-    function store(Request $request){
+    function store(Request $request) {
+        $reservasResponse = $this->index($request);
+        $reservas = $reservasResponse->getData(true);
+
+        $data = json_decode($request->json, true);
+
+        foreach ($data as $key => $value) {
+            if (isset($reservas[$key])) {
+                return response()->json(['message' => 'Ya existe una reserva en este horario'], 400);
+            }
+        }
+
+        // Guardar la nueva reserva
         $user = $request->user();
         $reserva = new Reserva();
         $reserva->nombre = $request->nombre;
@@ -37,6 +54,8 @@ class ReservaController extends Controller{
         $reserva->fecha = $request->fecha;
         $reserva->user_id = $user->id;
         $reserva->save();
+
         return response()->json($reserva);
     }
+
 }
