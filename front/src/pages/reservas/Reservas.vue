@@ -320,12 +320,12 @@ const confirmarReserva = () => {
   }).then(res => {
     proxy.$alert.success("Reserva confirmada");
     limpiar();
-    reservasGet();
+    // reservasGet();
     dialogoReservar.value = false;
   }).catch(error => {
     proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");
   }).finally(() => {
-    loading.value = false;
+    // loading.value = false;
   });
 };
 </script>
