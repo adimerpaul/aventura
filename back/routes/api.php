@@ -17,4 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update']);
     Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy']);
     Route::put('/updatePassword/{user}', [App\Http\Controllers\UserController::class, 'updatePassword']);
+
+    Route::get('/reservas', [App\Http\Controllers\ReservaController::class, 'index']);
+    Route::post('/reservas', [App\Http\Controllers\ReservaController::class, 'store']);
 });

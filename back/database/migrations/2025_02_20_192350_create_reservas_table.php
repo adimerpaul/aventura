@@ -21,8 +21,9 @@ return new class extends Migration
             $table->string('sala')->nullable();
             $table->string('motivo_cancelacion')->nullable();
             $table->decimal('total', 10, 2);
-            $table->integer('adelanto');
-            $table->integer('tiempo')->nullable();
+            $table->integer('adelanto')->nullable();
+            $table->string('tiempo')->nullable();
+            $table->string('horario')->nullable();
 
             $table->dateTime('fecha');
             $table->dateTime('fecha_confirmacion')->nullable();
@@ -32,7 +33,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_cancelado_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('user_cancelado_id')->references('id')->on('users');
-            $table->unsignedBigInteger('mesa_id')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
