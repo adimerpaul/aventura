@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->dateTime('fecha');
             $table->double('total', 8, 2);
-            $table->integer('nombre');
+            $table->string('nombre');
+            $table->boolean('anulada')->default(false);
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->softDeletes();

@@ -112,6 +112,7 @@ const linksList = [
   { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Reservas' },
   { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Reservas' },
   { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Productos' },
+  { title: 'Ventas', icon: 'shopping_cart', link: '/ventas', can: 'Ventas' },
 ]
 
 const leftDrawerOpen = ref(false)

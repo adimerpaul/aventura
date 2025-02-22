@@ -29,4 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/productos', [App\Http\Controllers\ProductoController::class, 'store']);
     Route::put('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'update']);
     Route::delete('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'destroy']);
+
+    Route::get('/ventas', [App\Http\Controllers\VentaController::class, 'index']);
+    Route::post('/ventas', [App\Http\Controllers\VentaController::class, 'store']);
+    Route::put('/anular/{venta}', [App\Http\Controllers\VentaController::class, 'anular']);
 });

@@ -16,4 +16,7 @@ class Producto extends Model{
     function ventas(){
         return $this->hasMany(Detalle::class);
     }
+    function productoCombo(){
+        return $this->belongsTo(ProductoCombo::class);
+    }
 }
