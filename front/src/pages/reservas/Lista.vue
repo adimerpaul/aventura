@@ -83,7 +83,6 @@
             <tr>
               <th>Opcion</th>
               <th>Nombre</th>
-<!--              sala fecha hora total adelanto saldo-->
               <th>Sala</th>
               <th>Fecha</th>
               <th>Hora</th>
@@ -92,6 +91,7 @@
               <th>Saldo</th>
               <th>Estado</th>
               <th>Observaciones</th>
+              <th>Usuario</th>
             </tr>
           </thead>
           <tbody>
@@ -105,7 +105,10 @@
                   Finalizado
                 </div>
                 <div v-else class="text-red text-bold text-center">
-                  Anulado
+                  Anulado <br>
+                  <div style="font-size: 10px">
+                    {{reserva.user_cancelado?.name}}
+                  </div>
                 </div>
 <!--                <q-btn-dropdown dense label="Opciones" no-caps size="9px" color="primary">-->
 <!--                  <q-item v-close-popup>-->
@@ -141,6 +144,11 @@
                 <q-chip :color="reserva.color" dense size="10px">{{reserva.estado}}</q-chip>
               </td>
               <td>{{reserva.observaciones}}</td>
+              <td>
+                <div style="font-size: 10px;width: 80px; white-space: normal; overflow-wrap: break-word;">
+                  {{reserva.user?.name}}
+                </div>
+              </td>
             </tr>
           </tbody>
         </q-markup-table>

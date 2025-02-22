@@ -28,6 +28,7 @@ class ReservaController extends Controller{
         $reservas = Reserva::whereBetween('fecha', [$fechaInicio, $fechaFin])
 //            ->whereRaw('(estado = "Reservado" OR estado = "Finalizado")')
             ->orderBy('id', 'desc')
+            ->with('user', 'user_cancelado')
             ->get();
         return response()->json($reservas);
     }

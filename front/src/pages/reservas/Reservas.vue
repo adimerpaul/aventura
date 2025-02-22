@@ -346,7 +346,7 @@ const confirmarReserva = () => {
   }).catch(error => {
     proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");
   }).finally(() => {
-    // loading.value = false;
+    loading.value = false;
   });
 };
 </script>

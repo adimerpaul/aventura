@@ -94,7 +94,7 @@ function login() {
       proxy.$store.isLogged = true
       proxy.$store.user = user
       localStorage.setItem('tokenProvidencia', token)
-      proxy.$alert.success('Bienvenido ' + user.name)
+      proxy.$alert.success('Bienvenido ', user.name)
       proxy.$router.push('/')
     })
     .catch(error => {
