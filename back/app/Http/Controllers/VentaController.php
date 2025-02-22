@@ -32,7 +32,7 @@ class VentaController extends Controller{
         $total = 0;
         foreach ($productos as $producto){
             $productoCombo = ProductoCombo::where('producto_padre_id', $producto['id'])->get();
-            error_log($productoCombo);
+//            error_log($productoCombo);
             if(count($productoCombo) > 0){
                 foreach ($productoCombo as $productoHijo){
                     $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
@@ -63,6 +63,23 @@ class VentaController extends Controller{
     function anular(Request $request, Venta $venta){
         $venta->anulada = true;
         $venta->save();
+
+        $detalles = Detalle::where('venta_id', $venta->id)->get();
+        foreach ($detalles as $producto){
+            $productoCombo = ProductoCombo::where('producto_padre_id', $producto['id'])->get();
+            if(count($productoCombo) > 0){
+                foreach ($productoCombo as $productoHijo){
+                    $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
+                    $productoHijoFind->stock += $producto['cantidad'] * $productoHijo->cantidad;
+                    $productoHijoFind->save();
+                }
+            }else{
+                $productoFind = Producto::find($producto['producto_id']);
+                $productoFind->stock += $producto['cantidad'];
+                $productoFind->save();
+            }
+        }
+
         return $venta;
     }
 }
