@@ -19,17 +19,6 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-//$table->id();
-//$table->string('name');
-//$table->string('avatar')->nullable()->default('default.png');
-//$table->string('username')->unique();
-//$table->string('email')->unique()->nullable();
-//$table->string('role')->default('Vendedor');
-//$table->timestamp('email_verified_at')->nullable();
-//$table->string('password');
-//$table->rememberToken();
-//$table->softDeletes();
-//$table->timestamps();
     protected $fillable = [
         'name',
         'avatar',
@@ -47,6 +36,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'deleted_at',
+        'created_at',
+        'updated_at',
     ];
 
     /**

@@ -1,6 +1,10 @@
 <template>
   <q-page class="q-pa-xs">
     <div class="row">
+      <div class="col-12">
+<!--        btn atras-->
+        <q-btn label="Atras" color="primary" @click="$router.push('/ventas')" no-caps icon="arrow_back" />
+      </div>
       <div class="col-12 col-md-7">
         <q-card flat bordered class="q-ma-xs">
           <q-card-section>

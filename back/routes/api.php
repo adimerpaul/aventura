@@ -32,5 +32,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/ventas', [App\Http\Controllers\VentaController::class, 'index']);
     Route::post('/ventas', [App\Http\Controllers\VentaController::class, 'store']);
-    Route::put('/anular/{venta}', [App\Http\Controllers\VentaController::class, 'anular']);
+    Route::put('/ventas/{venta}/anular', [App\Http\Controllers\VentaController::class, 'anular']);
 });

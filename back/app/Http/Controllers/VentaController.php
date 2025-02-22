@@ -9,13 +9,15 @@ use App\Models\Venta;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller{
-//Route::get('/ventas', [App\Http\Controllers\VentaController::class, 'index']);
-//Route::post('/ventas', [App\Http\Controllers\VentaController::class, 'store']);
-//Route::put('/ventas/{venta}', [App\Http\Controllers\VentaController::class, 'update']);
     function index(Request $request){
         $fechaInicio = $request->fechaInicio;
+        error_log($fechaInicio);
         $fechaFin = $request->fechaFin;
-        $ventas = Venta::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
+        $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
+            ->whereDate('fecha', '<=', $fechaFin)
+            ->orderBy('id', 'desc')
+            ->with('detalles','user')
+            ->get();
         return $ventas;
     }
     function store(Request $request){
@@ -41,16 +43,15 @@ class VentaController extends Controller{
                 $productoFind = Producto::find($producto['id']);
                 $productoFind->stock -= $producto['cantidadVenta'];
                 $productoFind->save();
-
-                $detalle = new Detalle();
-                $detalle->cantidad = $producto['cantidadVenta'];
-                $detalle->producto = $producto['nombre'];
-                $detalle->precio = $producto['precioVenta'];
-                $detalle->producto_id = $producto['id'];
-                $detalle->venta_id = $venta->id;
-                $detalle->user_id = $request->user()->id;
-                $detalle->save();
             }
+            $detalle = new Detalle();
+            $detalle->cantidad = $producto['cantidadVenta'];
+            $detalle->producto = $producto['nombre'];
+            $detalle->precio = $producto['precioVenta'];
+            $detalle->producto_id = $producto['id'];
+            $detalle->venta_id = $venta->id;
+            $detalle->user_id = $request->user()->id;
+            $detalle->save();
 
             $total += $producto['cantidadVenta'] * $producto['precioVenta'];
         }
