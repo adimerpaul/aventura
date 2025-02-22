@@ -110,7 +110,8 @@ const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
   { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
   { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Reservas' },
-  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Reservas' }
+  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Reservas' },
+  { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Productos' },
 ]
 
 const leftDrawerOpen = ref(false)

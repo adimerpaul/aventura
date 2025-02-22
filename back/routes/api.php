@@ -23,4 +23,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reservasAll', [App\Http\Controllers\ReservaController::class, 'reservasAll']);
     Route::post('/reservasAnular', [App\Http\Controllers\ReservaController::class, 'anular']);
     Route::post('/reservasConfirmar', [App\Http\Controllers\ReservaController::class, 'confirmar']);
+
+
+    Route::get('/productos', [App\Http\Controllers\ProductoController::class, 'index']);
+    Route::post('/productos', [App\Http\Controllers\ProductoController::class, 'store']);
+    Route::put('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'update']);
+    Route::delete('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'destroy']);
 });
