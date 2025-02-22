@@ -47,9 +47,12 @@
                     class="text-center cursor-pointer"
                     @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"
                   >
-                      <span v-if="reservas[`${horaIndex}-${salaIndex}`]">
+                      <div v-if="reservas[`${horaIndex}-${salaIndex}`]">
                         {{ reservas[`${horaIndex}-${salaIndex}`].nombre }}
-                      </span>
+                      </div>
+                      <div v-if="reservas[`${horaIndex}-${salaIndex}`] && reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
+                        {{ reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
+                      </div>
                   </td>
                 </template>
               </template>

@@ -21,4 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reservas', [App\Http\Controllers\ReservaController::class, 'index']);
     Route::post('/reservas', [App\Http\Controllers\ReservaController::class, 'store']);
     Route::get('/reservasAll', [App\Http\Controllers\ReservaController::class, 'reservasAll']);
+    Route::post('/reservasAnular', [App\Http\Controllers\ReservaController::class, 'anular']);
+    Route::post('/reservasConfirmar', [App\Http\Controllers\ReservaController::class, 'confirmar']);
 });

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('tiempo')->nullable();
             $table->string('horario')->nullable();
 
-            $table->dateTime('fecha');
+            $table->date('fecha');
             $table->dateTime('fecha_confirmacion')->nullable();
             $table->dateTime('fecha_cancelacion')->nullable();
 

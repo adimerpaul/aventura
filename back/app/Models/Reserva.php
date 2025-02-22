@@ -31,7 +31,6 @@ class Reserva extends Model{
     function user_cancelado(){
         return $this->belongsTo(User::class);
     }
-//$table->enum('estado', ['Reservado', 'Cancelado', 'Finalizado'])->default('Reservado');
     protected $appends = ['color'];
     function getColorAttribute(){
         if($this->estado == 'Reservado'){

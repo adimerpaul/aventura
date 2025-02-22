@@ -94,5 +94,39 @@ export class Alert{
       }
     })
   }
+  static dialogAnular(message) {
+    return Dialog.create({
+      title: 'Anular Pago',
+      message,
+      html: true,
+      // position: 'top',
+      color: 'negative',
+      ok: {
+        label: 'Aceptar',
+        color: 'negative'
+      },
+      cancel: {
+        label: 'Cancelar',
+        color: 'positive'
+      },
+    })
+  }
+  static dialogConfirm(message) {
+    return Dialog.create({
+      title: 'Confirmación',
+      message,
+      html: true,
+      // position: 'top',
+      color: 'positive',
+      ok: {
+        label: 'Aceptar',
+        color: 'positive'
+      },
+      cancel: {
+        label: 'Cancelar',
+        color: 'negative'
+      },
+    })
+  }
 
 }
