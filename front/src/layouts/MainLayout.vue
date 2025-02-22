@@ -73,7 +73,18 @@
                    active-class="menu"
                    dense
                    v-close-popup
+                   v-if="link.can === 'Todos' || $store.user.role === link.can"
           >
+<!--            {-->
+<!--            "id": 1,-->
+<!--            "name": "Adimer Paul Chambi Ajata",-->
+<!--            "avatar": "default.png",-->
+<!--            "username": "admin",-->
+<!--            "email": null,-->
+<!--            "role": "Admin",-->
+<!--            "email_verified_at": null,-->
+<!--            "color": "red"-->
+<!--            }-->
             <q-item-section avatar>
               <q-icon :name="$route.path === link.link ? 'o_' + link.icon : link.icon"
                       :class="$route.path === link.link ? 'text-black' : ''"/>
@@ -108,11 +119,11 @@ import {getCurrentInstance, ref} from 'vue'
 const {proxy} = getCurrentInstance()
 const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
-  { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
-  { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Reservas' },
-  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Reservas' },
-  { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Productos' },
-  { title: 'Ventas', icon: 'shopping_cart', link: '/ventas', can: 'Ventas' },
+  { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
+  { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Todos' },
+  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Todos' },
+  { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
+  { title: 'Ventas', icon: 'shopping_cart', link: '/ventas', can: 'Todos' },
 ]
 
 const leftDrawerOpen = ref(false)

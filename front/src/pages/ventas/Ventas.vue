@@ -117,7 +117,7 @@
           </tr>
           </tbody>
         </q-markup-table>
-        <pre>{{ventas}}</pre>
+<!--        <pre>{{ventas}}</pre>-->
 <!--        [-->
 <!--        {-->
 <!--        "id": 31,-->
