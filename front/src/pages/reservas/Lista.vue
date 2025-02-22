@@ -10,8 +10,11 @@
           <div class="col-6 col-md-2">
             <q-input v-model="fechaFin" label="Fecha Fin" type="date" outlined dense />
           </div>
-          <div class="col-6 col-md-2 flex flex-center">
+          <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
+          </div>
+          <div class="col-12 col-md-4">
+            <q-input v-model="filter" label="Filtro" outlined dense @update:modelValue="filtroReservas" />
           </div>
         </div>
         </q-form>
@@ -175,17 +178,25 @@ const {proxy} = getCurrentInstance()
 const fechaInicio = ref(moment().format('YYYY-MM-DD'))
 const fechaFin = ref(moment().format('YYYY-MM-DD'))
 const reservas = ref([])
+const reservasAll = ref([])
 const loading = ref(false)
+const filter = ref('')
 
 onMounted(() => {
   getReservas()
 })
+function filtroReservas() {
+  reservas.value = reservasAll.value.filter(reserva => {
+    return reserva.nombre.toLowerCase().includes(filter.value.toLowerCase())
+  })
+}
 function confirmar(id) {
   proxy.$alert.dialogConfirm('<span style="color: blue;font-size: 20px;font-weight: bold">¿Desea confirmar la reserva?</span>')
     .onOk(() => {
       loading.value = true
       proxy.$axios.post('reservasConfirmar', {id})
         .then(response => {
+          proxy.$socket.emit("reservas");
           getReservas()
         })
         .catch(error => {
@@ -199,6 +210,7 @@ function anular(id) {
       loading.value = true
       proxy.$axios.post('reservasAnular', {id})
         .then(response => {
+          proxy.$socket.emit("reservas");
           getReservas()
         })
         .catch(error => {
@@ -215,6 +227,7 @@ function getReservas() {
     }
   }).then(response => {
     reservas.value = response.data
+    reservasAll.value = response.data
   })
   .catch(error => {
     console.log(error)
