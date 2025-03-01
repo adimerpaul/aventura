@@ -14,13 +14,17 @@
               <q-btn style="width: 150px" label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
             </div>
             <div class="col-12 col-md-2">
-              <q-select v-model="user" label="Usuario" outlined dense :options="users" option-label="name" option-value="id" />
+              <q-select v-model="user" label="Usuario" outlined dense :options="users"
+                        option-label="name" option-value="id" emit-value map-options />
+<!--              <pre>{{user}}</pre>-->
             </div>
             <div class="col-12 col-md-2">
               <q-select v-model="reporte" label="Tipo Reporte" outlined dense :options="reportes" />
             </div>
             <div class="col-12 col-md-2 flex flex-center">
-              <q-btn style="width: 150px" label="Imprimir" color="indigo" icon="print" no-caps :loading="loading" />
+              <q-btn style="width: 150px" label="Imprimir" color="indigo" icon="print" no-caps :loading="loading"
+                     @click="imprimir"
+              />
             </div>
             <div class="col-12 col-md-12 flex flex-center">
             </div>
@@ -190,11 +194,14 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+<!--  myElement-->
+  <div id="myElement"></div>
 </template>
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from "vue";
 import moment from "moment";
+import {Impresion} from "src/addons/Impresion.js";
 
 const { proxy } = getCurrentInstance();
 const fechaInicio = ref(moment().format("YYYY-MM-DD"));
@@ -205,7 +212,7 @@ const loading = ref(false);
 const filter = ref("");
 const users = ref([]);
 const user = ref('');
-const reporte = ref('');
+const reporte = ref('CAJA');
 const dialogCaja = ref(false);
 const caja = ref({});
 const reportes = ref([
@@ -217,6 +224,29 @@ const reportes = ref([
 onMounted(() => {
   getVentas();
 });
+
+function imprimir() {
+  // if selecionar reporte
+  if (!user.value) {
+    proxy.$alert.error("Seleccione un usuario", "Error");
+    return;
+  }
+  const userFind = users.value.find(usuario => usuario.id === user.value);
+  loading.value = true;
+  proxy.$axios.post("/ventas/imprimir", {
+    user_id: user.value,
+    fechaInicio: fechaInicio.value,
+    fechaFin: fechaFin.value,
+    reporte: reporte.value
+  }).then((res) => {
+    // console.log(reporte.value);
+    if (reporte.value === 'CAJA') {
+      Impresion.imprimirCaja(res.data,fechaInicio.value,fechaFin.value,userFind.name);
+    }
+  }).finally(() => {
+    loading.value = false;
+  });
+}
 
 function cerraCaja() {
   dialogCaja.value = true;
@@ -273,6 +303,9 @@ function getVentas() {
       if (!find) {
         users.value.push({ id: venta.user_id, name: venta.user?.name });
       }
+    }
+    if (ventas.value.length > 0) {
+      user.value = ventas.value[0].user_id;
     }
     ventasAll.value = response.data;
   }).finally(() => {

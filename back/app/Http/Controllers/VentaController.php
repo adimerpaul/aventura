@@ -2,13 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use App\Models\Detalle;
 use App\Models\Producto;
 use App\Models\ProductoCombo;
+use App\Models\Reserva;
 use App\Models\Venta;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller{
+    function imprimir(Request $request){
+        //    proxy.$axios.post("/ventas/imprimir", {
+//    user_id: user.value,
+//    fechaInicio: fechaInicio.value,
+//    fechaFin: fechaFin.value,
+//    reporte: reporte.value
+//  }).then((res) => {
+//        console.log(res.data);
+//    });
+        $user_id = $request->user_id;
+        $fechaInicio = $request->fechaInicio;
+        $fechaFin = $request->fechaFin;
+        $reporte = $request->reporte;
+        if ($reporte == 'CAJA'){
+            $ventasSum = Venta::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_id', $user_id)
+                ->where('anulada', 0)
+                ->sum('total');
+            $reservasSum = Reserva::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_id', $user_id)
+                ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
+                ->sum('total');
+            $cajas = Caja::whereDate('fecha_cierre', '>=', $fechaInicio)
+                ->whereDate('fecha_cierre', '<=', $fechaFin)
+                ->where('user_id', $user_id)
+                ->get();
+            return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
+        }else{
+            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->orderBy('id', 'desc')
+                ->with('detalles','user')
+                ->get();
+        }
+    }
     function index(Request $request){
         $fechaInicio = $request->fechaInicio;
         error_log($fechaInicio);
