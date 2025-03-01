@@ -121,9 +121,10 @@ const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
   { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
   { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Todos' },
-  { title: 'Lista', icon: 'event', link: '/reservas/lista', can: 'Todos' },
+  { title: 'Lista', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
   { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
-  { title: 'Ventas', icon: 'shopping_cart', link: '/ventas', can: 'Todos' },
+  { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
+  { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
 ]
 
 const leftDrawerOpen = ref(false)

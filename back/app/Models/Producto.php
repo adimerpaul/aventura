@@ -17,6 +17,6 @@ class Producto extends Model{
         return $this->hasMany(Detalle::class);
     }
     function productoCombo(){
-        return $this->belongsTo(ProductoCombo::class);
+        return $this->hasMany(ProductoCombo::class, 'producto_padre_id')->with('producto_hijo');
     }
 }

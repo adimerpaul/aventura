@@ -11,7 +11,7 @@ class ProductoController extends Controller{
     //    Route::put('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'update']);
     //    Route::delete('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'destroy']);
     function index(){
-        return Producto::all();
+        return Producto::orderBy('nombre')->with('productoCombo')->get();
     }
     function store(Request $request){
         $producto = new Producto();

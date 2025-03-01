@@ -46,12 +46,12 @@
                   <q-input v-model.number="item.cantidadVenta" type="number" dense outlined />
                 </td>
                 <td>
-<!--                  {{ item.precio }} Bs-->
-                  <q-input v-model.number="item.precioVenta" type="number" dense outlined />
+                  {{ item.precio }} Bs
+<!--                  <q-input v-model.number="item.precioVenta" type="number" dense outlined />-->
                 </td>
                 <td>{{ (item.cantidadVenta * item.precioVenta).toFixed(2) }} Bs</td>
                 <td>
-                  <q-btn icon="delete" color="red" dense @click="eliminarDelCarrito(index)" :loading="loading" />
+                  <q-btn icon="delete" color="red" dense @click="eliminarDelCarrito(index)" :loading="loading" size="10px" />
                 </td>
               </tr>
               </tbody>
@@ -88,6 +88,9 @@
 
 <script setup>
 import {ref, computed, getCurrentInstance, onMounted} from "vue";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const { proxy } = getCurrentInstance();
 const venta = ref({ nombre: "", fecha: new Date().toISOString().slice(0, 10) });
@@ -157,7 +160,8 @@ function realizarVentaPost() {
     venta.value = {nombre: "", fecha: new Date().toISOString().slice(0, 10)};
     dialogVenta.value = false;
     proxy.$alert.success("Venta realizada con éxito", "Éxito");
-    await getProductos();
+    router.push("/ventas");
+    // await getProductos();
     buscarProducto.value = "";
   }).finally(() => {
     loading.value = false;
