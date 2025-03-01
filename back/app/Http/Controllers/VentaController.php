@@ -52,6 +52,13 @@ class VentaController extends Controller{
                 ->groupBy('productos.nombre', 'productos.precio')
                 ->get();
             return $ventas;
+        }else if ($reporte == 'SALA'){
+            $ventas = Reserva::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_id', $user_id)
+                ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
+                ->get();
+            return $ventas;
         }
     }
     function index(Request $request){

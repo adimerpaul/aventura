@@ -212,7 +212,7 @@ const loading = ref(false);
 const filter = ref("");
 const users = ref([]);
 const user = ref('');
-const reporte = ref('PRODUCTOS');
+const reporte = ref('SALA');
 const dialogCaja = ref(false);
 const caja = ref({});
 const reportes = ref([
@@ -243,6 +243,9 @@ function imprimir() {
     }
     if (reporte.value === 'PRODUCTOS') {
       Impresion.imprimirProductos(res.data,fechaInicio.value,fechaFin.value,userFind.name);
+    }
+    if (reporte.value === 'SALA') {
+      Impresion.imprimirSalas(res.data,fechaInicio.value,fechaFin.value,userFind.name);
     }
   }).finally(() => {
     loading.value = false;

@@ -4,44 +4,153 @@ import { Printd } from 'printd'
 import moment from 'moment'
 import {useCounterStore} from "stores/example-store";
 export class Impresion {
+  static imprimirSalas (salas, fechaInicio, fechaFin, userFind) {
+    // [
+    //   {
+    //     "id": 10,
+    //     "nombre": "chamib",
+    //     "numero_personas": 2,
+    //     "observaciones": null,
+    //     "estado": "Finalizado",
+    //     "json": "{\"2-10\":\"9:00 a 9:30\",\"3-10\":\"9:30 a 10:00\",\"4-10\":\"10:00 a 10:30\",\"5-10\":\"10:30 a 11:00\",\"6-10\":\"11:00 a 11:30\"}",
+    //     "sala": "Sala 11",
+    //     "motivo_cancelacion": null,
+    //     "total": "50.00",
+    //     "adelanto": 20,
+    //     "tiempo": "02:30",
+    //     "horario": "9:00 - 11:30",
+    //     "fecha": "2025-03-01",
+    //     "fecha_confirmacion": "2025-03-01 07:16:00",
+    //     "fecha_cancelacion": null,
+    //     "user_id": 2,
+    //     "user_cancelado_id": null,
+    //     "color": "red"
+    //   },
+    //   {
+    //     "id": 11,
+    //     "nombre": "Angela",
+    //     "numero_personas": 2,
+    //     "observaciones": null,
+    //     "estado": "Reservado",
+    //     "json": "{\"4-8\":\"10:00 a 10:30\",\"5-8\":\"10:30 a 11:00\",\"6-8\":\"11:00 a 11:30\"}",
+    //     "sala": "Sala 9",
+    //     "motivo_cancelacion": null,
+    //     "total": "30.00",
+    //     "adelanto": 20,
+    //     "tiempo": "01:30",
+    //     "horario": "10:00 - 11:30",
+    //     "fecha": "2025-03-01",
+    //     "fecha_confirmacion": null,
+    //     "fecha_cancelacion": null,
+    //     "user_id": 2,
+    //     "user_cancelado_id": null,
+    //     "color": "yellow"
+    //   },
+    //   {
+    //     "id": 12,
+    //     "nombre": "sara",
+    //     "numero_personas": 2,
+    //     "observaciones": null,
+    //     "estado": "Finalizado",
+    //     "json": "{\"4-5\":\"10:00 a 10:30\",\"5-5\":\"10:30 a 11:00\",\"6-5\":\"11:00 a 11:30\"}",
+    //     "sala": "Sala 6",
+    //     "motivo_cancelacion": null,
+    //     "total": "30.00",
+    //     "adelanto": 20,
+    //     "tiempo": "01:30",
+    //     "horario": "10:00 - 11:30",
+    //     "fecha": "2025-03-01",
+    //     "fecha_confirmacion": "2025-03-01 07:15:56",
+    //     "fecha_cancelacion": null,
+    //     "user_id": 2,
+    //     "user_cancelado_id": null,
+    //     "color": "red"
+    //   },
+    //   {
+    //     "id": 13,
+    //     "nombre": "adalid",
+    //     "numero_personas": 2,
+    //     "observaciones": null,
+    //     "estado": "Finalizado",
+    //     "json": "{\"3-3\":\"9:30 a 10:00\",\"4-3\":\"10:00 a 10:30\",\"5-3\":\"10:30 a 11:00\",\"6-3\":\"11:00 a 11:30\"}",
+    //     "sala": "Sala 4",
+    //     "motivo_cancelacion": null,
+    //     "total": "40.00",
+    //     "adelanto": 20,
+    //     "tiempo": "02:00",
+    //     "horario": "9:30 - 11:30",
+    //     "fecha": "2025-03-01",
+    //     "fecha_confirmacion": "2025-03-01 07:16:07",
+    //     "fecha_cancelacion": null,
+    //     "user_id": 2,
+    //     "user_cancelado_id": null,
+    //     "color": "red"
+    //   }
+    // ]
+    let textoSalas = '<table class="table">'
+    let sumaTotal = 0
+    salas.forEach((element) => {
+      textoSalas += `
+        <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+          <td>${element.nombre}</td>
+          <td>${element.sala}</td>
+          <td>${element.horario}</td>
+          <td>${element.estado}</td>
+          <td class="text-right">${element.total}</td>
+        </tr>
+      `
+      sumaTotal += parseInt(element.total)
+    })
+    textoSalas += `
+      <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right text-bold">Total</td>
+        <td class="text-right">${sumaTotal.toFixed(2)}</td>
+      </tr>
+    `
+    textoSalas += '</table>'
+    const cadena = `
+    <style>
+        .text-right {
+            text-align: right;
+        }
+        .text-h6 {
+            font-size: 10px;
+        }
+        .text-h5 {
+            font-size: 12px;
+        }
+        .text-h4 {
+            font-size: 14px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+    </style>
+    <div>
+      <div class="text-right text-h6">Fecha: ${moment().format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-right text-h6">${useCounterStore().user.name}</div>
+      <div class="text-center text-bold">CONTROL SALAS</div>
+      <div><span class="text-bold">Fecha</span> ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
+      <div><span class="text-bold">Usuario:</span> ${userFind}</div>
+      <div><span class="text-bold">Salas:</span> ${textoSalas}</div>
+    </div>
+    `
+    document.getElementById('myElement').innerHTML = cadena
+    const d = new Printd()
+    d.print(document.getElementById('myElement'))
+
+  }
   static imprimirProductos (productos, fechaInicio, fechaFin, userFind) {
-      // [
-      // {
-      //   "nombre": "AGUA 750 ML",
-      //   "precio": 6,
-      //   "cantidad_total": "1"
-      // },
-      //   {
-      //     "nombre": "BELDENT",
-      //     "precio": 4,
-      //     "cantidad_total": "1"
-      //   },
-      //   {
-      //     "nombre": "CHOCOLATE MOMENTO",
-      //     "precio": 3,
-      //     "cantidad_total": "1"
-      //   },
-      //   {
-      //     "nombre": "CICLON",
-      //     "precio": 7,
-      //     "cantidad_total": "2"
-      //   },
-      //   {
-      //     "nombre": "COMBO CUMPLEA\u00d1ERO",
-      //     "precio": 0,
-      //     "cantidad_total": "2"
-      //   },
-      //   {
-      //     "nombre": "COMBO FRAPPES",
-      //     "precio": 19,
-      //     "cantidad_total": "1"
-      //   },
-      //   {
-      //     "nombre": "COMBO PAPITAS",
-      //     "precio": 30,
-      //     "cantidad_total": "1"
-      //   }
-      // ]
     let textoProductos = '<div class="text-h5"><table class="table">'
     let sumaTotal = 0
     productos.forEach((element) => {
