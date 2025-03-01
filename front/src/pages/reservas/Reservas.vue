@@ -4,10 +4,13 @@
       <q-card-section class="q-pa-xs">
         <div class="row">
           <div class="col-6 col-md-2">
-            <q-input v-model="fecha" type="date" label="Fecha" dense outlined />
+            <q-input v-model="fecha" type="date" label="Fecha" dense outlined
+                     @update:modelValue="reservasGet"
+            />
           </div>
           <div class="col-6 col-md-2 flex flex-center">
-            <q-btn color="primary" label="Consultar" @click="reservasGet" size="11px" no-caps icon="search" :loading="loading" />
+            <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" :loading="loading" />
+<!--            <q-btn color="primary" label="Consultar" @click="reservasGet" size="11px" no-caps icon="search" :loading="loading" />-->
           </div>
           <div class="col-6 col-md-2">
             <q-badge color="primary" class="q-pa-sm">
@@ -18,41 +21,40 @@
             <q-btn color="red" label="Limpiar" @click="limpiar" no-caps icon="clear" size="11px" v-if="Object.keys(seleccionadas).length > 0" />
           </div>
           <div class="col-6 col-md-3 text-right">
-            <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" :loading="loading" />
           </div>
 <!--          <pre>{{seleccionadas}}</pre>-->
         </div>
 
-        <q-markup-table wrap-cells dense bordered flat separator="cell">
+        <q-markup-table wrap-cells dense bordered flat separator="cell" class="tabla-reservas">
           <thead>
           <tr>
-            <th>Hora</th>
-            <th v-for="sala in salas" :key="sala.sala">{{ sala.sala }}</th>
+            <q-th class="bg-grey text-white">Hora</q-th>
+            <q-th class="bg-primary text-white" v-for="sala in salas" :key="sala.sala">{{ sala.sala }}</q-th>
           </tr>
           </thead>
-          <tbody>
+          <tbody class="scroll-body">
           <template v-for="(hora, horaIndex) in horarios" :key="horaIndex">
             <tr>
-              <td class="text-right">{{ hora.hora }}</td>
+              <q-td style="font-size: 10px;padding: 0;margin: 0;width: 70px">{{ hora.hora }}</q-td>
               <template v-for="(sala, salaIndex) in salas" :key="salaIndex">
                 <template v-if="shouldShowCell(horaIndex, salaIndex)">
                   <td
                     :rowspan="getRowspan(horaIndex, salaIndex)"
                     :class="{
-                        'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`],
-                        'bg-red text-white': reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
-                        'bg-yellow text-black': reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
-                        'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`]
-                      }"
+                  'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`],
+                  'bg-red text-white': reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
+                  'bg-yellow text-black': reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
+                  'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`]
+                }"
                     class="text-center cursor-pointer"
                     @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"
                   >
-                      <div v-if="reservas[`${horaIndex}-${salaIndex}`]">
-                        {{ reservas[`${horaIndex}-${salaIndex}`].nombre }}
-                      </div>
-                      <div v-if="reservas[`${horaIndex}-${salaIndex}`] && reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
-                        {{ reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
-                      </div>
+                    <div v-if="reservas[`${horaIndex}-${salaIndex}`]">
+                      {{ reservas[`${horaIndex}-${salaIndex}`].nombre }}
+                    </div>
+                    <div v-if="reservas[`${horaIndex}-${salaIndex}`] && reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
+                      {{ reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
+                    </div>
                   </td>
                 </template>
               </template>
@@ -85,8 +87,11 @@
             <q-badge color="blue" class="q-pa-sm">
               Tiempo Total: {{ tiempoSeleccionado }}
             </q-badge>
-            <div class="q-mt-md text-bold">
+            <div class="text-bold">
               Monto Total: {{ montoTotal }} Bs
+            </div>
+            <div :class="{'text-red': adelanto > montoTotal}">
+              Saldo: {{ montoTotal - adelanto }}
             </div>
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" v-close-popup no-caps :loading="loading" />
@@ -136,8 +141,13 @@ onMounted(() => {
   }
 
   for (let i = 8; i < 23; i++) {
-    horarios.value.push({hora: `${i}:00`});
-    horarios.value.push({hora: `${i}:30`});
+    let horaInicio = `${i}:00`;
+    let horaFin = `${i}:30`;
+    horarios.value.push({ hora: `${horaInicio} a ${horaFin}` });
+
+    horaInicio = `${i}:30`;
+    horaFin = `${i + 1}:00`;
+    horarios.value.push({ hora: `${horaInicio} a ${horaFin}` });
   }
 
   calcularTotalMinutos();
@@ -207,8 +217,8 @@ function clickReserva() {
   }
   dialogoReservar.value = true;
   nombre.value = "";
-  personas.value = 1;
-  adelanto.value = 0;
+  personas.value = 2;
+  adelanto.value = 20;
   observacion.value = "";
 }
 function consultarReservas() {
@@ -350,3 +360,17 @@ const confirmarReserva = () => {
   });
 };
 </script>
+<style>
+.tabla-reservas {
+  max-height: 500px; /* Ajusta según sea necesario */
+  overflow-y: auto;
+  display: block;
+}
+.tabla-reservas thead {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 2;
+}
+
+</style>

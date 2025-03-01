@@ -13,7 +13,7 @@
           <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
           </div>
-          <div class="col-12 col-md-4">
+          <div class="col-12 col-md-12 q-pa-xs">
             <q-input v-model="filter" label="Filtro" outlined dense @update:modelValue="filtroReservas" />
           </div>
         </div>
@@ -181,6 +181,9 @@
 <script setup>
 import {getCurrentInstance, onMounted, ref} from "vue";
 import moment from "moment";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const {proxy} = getCurrentInstance()
 const fechaInicio = ref(moment().format('YYYY-MM-DD'))
@@ -205,7 +208,8 @@ function confirmar(id) {
       proxy.$axios.post('reservasConfirmar', {id})
         .then(response => {
           proxy.$socket.emit("reservas");
-          getReservas()
+          // getReservas()
+          router.push('/reservas')
         })
         .catch(error => {
           console.log(error)
