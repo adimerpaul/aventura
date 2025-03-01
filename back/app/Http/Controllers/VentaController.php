@@ -9,6 +9,7 @@ use App\Models\ProductoCombo;
 use App\Models\Reserva;
 use App\Models\Venta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller{
     function imprimir(Request $request){
@@ -40,12 +41,17 @@ class VentaController extends Controller{
                 ->where('user_id', $user_id)
                 ->get();
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
-        }else{
-            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
-                ->whereDate('fecha', '<=', $fechaFin)
-                ->orderBy('id', 'desc')
-                ->with('detalles','user')
+        }else if ($reporte == 'PRODUCTOS'){
+            $ventas = Producto::join('detalles', 'productos.id', '=', 'detalles.producto_id')
+                ->join('ventas', 'detalles.venta_id', '=', 'ventas.id')
+                ->whereDate('ventas.fecha', '>=', $fechaInicio)
+                ->whereDate('ventas.fecha', '<=', $fechaFin)
+                ->where('ventas.user_id', $user_id)
+                ->where('ventas.anulada', 0)
+                ->select('productos.nombre', 'productos.precio', DB::raw('SUM(detalles.cantidad) as cantidad_total'))
+                ->groupBy('productos.nombre', 'productos.precio')
                 ->get();
+            return $ventas;
         }
     }
     function index(Request $request){

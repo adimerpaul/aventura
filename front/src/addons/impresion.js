@@ -2,27 +2,108 @@
 import { Printd } from 'printd'
 
 import moment from 'moment'
-
+import {useCounterStore} from "stores/example-store";
 export class Impresion {
-  // Impresion.imprimirCaja(res.data,fechaInicio.value,fechaFin.value,userFind.name);
+  static imprimirProductos (productos, fechaInicio, fechaFin, userFind) {
+      // [
+      // {
+      //   "nombre": "AGUA 750 ML",
+      //   "precio": 6,
+      //   "cantidad_total": "1"
+      // },
+      //   {
+      //     "nombre": "BELDENT",
+      //     "precio": 4,
+      //     "cantidad_total": "1"
+      //   },
+      //   {
+      //     "nombre": "CHOCOLATE MOMENTO",
+      //     "precio": 3,
+      //     "cantidad_total": "1"
+      //   },
+      //   {
+      //     "nombre": "CICLON",
+      //     "precio": 7,
+      //     "cantidad_total": "2"
+      //   },
+      //   {
+      //     "nombre": "COMBO CUMPLEA\u00d1ERO",
+      //     "precio": 0,
+      //     "cantidad_total": "2"
+      //   },
+      //   {
+      //     "nombre": "COMBO FRAPPES",
+      //     "precio": 19,
+      //     "cantidad_total": "1"
+      //   },
+      //   {
+      //     "nombre": "COMBO PAPITAS",
+      //     "precio": 30,
+      //     "cantidad_total": "1"
+      //   }
+      // ]
+    let textoProductos = '<div class="text-h5"><table class="table">'
+    let sumaTotal = 0
+    productos.forEach((element) => {
+      textoProductos += `
+        <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+          <td>${element.nombre}</td>
+          <td class="text-right">${parseInt(element.precio).toFixed(2)}</td>
+          <td class="text-right">${element.cantidad_total}</td>
+          <td class="text-right">${(parseInt(element.precio) * parseInt(element.cantidad_total)).toFixed(2)}</td>
+        </tr>
+      `
+      sumaTotal += parseInt(element.precio) * parseInt(element.cantidad_total)
+    })
+    textoProductos += `
+      <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right text-bold">Total</td>
+        <td class="text-right">${sumaTotal.toFixed(2)}</td>
+      </tr>
+    `
+    textoProductos += '</table></div>'
+    const cadena = `
+    <style>
+        .text-right {
+            text-align: right;
+        }
+        .text-h6 {
+            font-size: 10px;
+        }
+        .text-h5 {
+            font-size: 12px;
+        }
+        .text-h4 {
+            font-size: 14px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+    </style>
+    <div>
+      <div class="text-right text-h6">Fecha: ${moment().format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-right text-h6">${useCounterStore().user.name}</div>
+      <div class="text-center text-bold">CONTROL PRODUCTOS</div>
+      <div><span class="text-bold">Fecha</span> ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
+      <div><span class="text-bold">Usuario:</span> ${userFind}</div>
+      <div><span class="text-bold">Productos:</span> ${textoProductos}</div>
+    </div>
+    `
+    document.getElementById('myElement').innerHTML = cadena
+    const d = new Printd()
+    d.print(document.getElementById('myElement'))
+  }
   static imprimirCaja (caja, fechaInicio, fechaFin, userFind) {
-    console.log(caja)
-    // {
-    //   "ventas": 76,
-    //   "reservas": "50.00",
-    //   "cajas": [
-    //   {
-    //     "id": 1,
-    //     "fecha_cierre": "2025-03-01 05:29:53",
-    //     "monto_inicial": "10.00",
-    //     "monto_final": "150.00",
-    //     "monto_real": "140.00",
-    //     "monto_diferencia": "64.00",
-    //     "observacion": "asda",
-    //     "user_id": 2
-    //   }
-    // ]
-    // }
+    // console.log(caja)
     const cajas = caja.cajas
     let textoCajas = ''
     cajas.forEach((element) => {
@@ -58,6 +139,7 @@ export class Impresion {
     </style>
     <div>
       <div class="text-right text-h6">Fecha: ${moment(caja.fecha).format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-right text-h6">${useCounterStore().user.name}</div>
       <div class="text-center text-bold">CONTROL CAJA</div>
       <div><span class="text-bold">Fecha</span> ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
       <div><span class="text-bold">Usuario:</span> ${userFind}</div>

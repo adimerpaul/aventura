@@ -212,7 +212,7 @@ const loading = ref(false);
 const filter = ref("");
 const users = ref([]);
 const user = ref('');
-const reporte = ref('CAJA');
+const reporte = ref('PRODUCTOS');
 const dialogCaja = ref(false);
 const caja = ref({});
 const reportes = ref([
@@ -226,7 +226,6 @@ onMounted(() => {
 });
 
 function imprimir() {
-  // if selecionar reporte
   if (!user.value) {
     proxy.$alert.error("Seleccione un usuario", "Error");
     return;
@@ -239,9 +238,11 @@ function imprimir() {
     fechaFin: fechaFin.value,
     reporte: reporte.value
   }).then((res) => {
-    // console.log(reporte.value);
     if (reporte.value === 'CAJA') {
       Impresion.imprimirCaja(res.data,fechaInicio.value,fechaFin.value,userFind.name);
+    }
+    if (reporte.value === 'PRODUCTOS') {
+      Impresion.imprimirProductos(res.data,fechaInicio.value,fechaFin.value,userFind.name);
     }
   }).finally(() => {
     loading.value = false;
