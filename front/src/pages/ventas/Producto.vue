@@ -29,7 +29,7 @@
               <template v-if="producto.producto_combo.length">
                 <ul>
                   <li v-for="combo in producto.producto_combo" :key="combo.id">
-                    {{ combo.cantidad }} x {{ combo.producto_hijo.nombre }}
+                    {{ combo.cantidad }} x {{ combo.producto_hijo?.nombre }}
                   </li>
                 </ul>
 <!--                <pre>{{producto.producto_combo}}</pre>-->
