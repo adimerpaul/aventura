@@ -4,20 +4,38 @@
       <q-card-section class="q-pa-xs">
         <q-form @submit.prevent="getVentas">
           <div class="row">
-            <div class="col-6 col-md-2">
+            <div class="col-12 col-md-2">
               <q-input v-model="fechaInicio" label="Fecha Inicio" type="date" outlined dense />
             </div>
-            <div class="col-6 col-md-2">
+            <div class="col-12 col-md-2">
               <q-input v-model="fechaFin" label="Fecha Fin" type="date" outlined dense />
             </div>
             <div class="col-12 col-md-2 flex flex-center">
-              <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
+              <q-btn style="width: 150px" label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
+            </div>
+            <div class="col-12 col-md-2">
+              <q-select v-model="user" label="Usuario" outlined dense :options="users" option-label="name" option-value="id" />
+            </div>
+            <div class="col-12 col-md-2">
+              <q-select v-model="reporte" label="Tipo Reporte" outlined dense :options="reportes" />
+            </div>
+            <div class="col-12 col-md-2 flex flex-center">
+              <q-btn style="width: 150px" label="Imprimir" color="indigo" icon="print" no-caps :loading="loading" />
+            </div>
+            <div class="col-12 col-md-12 flex flex-center">
             </div>
             <div class="col-12 col-md-4">
               <q-input v-model="filter" label="Filtro" outlined dense @update:modelValue="filtroVentas" />
             </div>
-            <div class="col-12 col-md-2 text-right">
-              <q-btn label="Venta" color="positive" @click="$router.push('/ventas/add')" no-caps icon="add_circle_outline"
+            <div class="col-12 col-md-2 flex flex-center">
+              <q-btn style="width: 150px" label="Venta" color="positive" @click="$router.push('/ventas/add')" no-caps icon="add_circle_outline"
+                     :loading="loading"
+              />
+            </div>
+            <div class="col-12 col-md-4 flex flex-center">
+            </div>
+            <div class="col-12 col-md-2 flex flex-center">
+              <q-btn style="width: 150px" label="Cerrar Caja" color="red" @click="cerraCaja" no-caps icon="point_of_sale"
                      :loading="loading"
               />
             </div>
@@ -152,6 +170,26 @@
       </q-card-section>
     </q-card>
   </q-page>
+<!--  dialogCaja-->
+  <q-dialog v-model="dialogCaja" persistent>
+    <q-card flat bordered style="width: 350px">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-bold">
+          Cerrar Caja
+        </div>
+        <q-space />
+        <q-btn flat dense icon="close" @click="dialogCaja = false" />
+      </q-card-section>
+      <q-card-section>
+        <q-form @submit.prevent="cerraCajaSubmit">
+          <q-input v-model="caja.monto_inicial" label="Monto Inicial" type="number" outlined dense hint="" />
+          <q-input v-model="caja.monto_final" label="Monto Final" type="number" outlined dense hint="" />
+          <q-input type="textarea" v-model="caja.observacion" label="Observación" outlined dense hint="" />
+          <q-btn label="Cerrar Caja" color="red" type="submit" :loading="loading" />
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -165,11 +203,39 @@ const ventas = ref([]);
 const ventasAll = ref([]);
 const loading = ref(false);
 const filter = ref("");
+const users = ref([]);
+const user = ref('');
+const reporte = ref('');
+const dialogCaja = ref(false);
+const caja = ref({});
+const reportes = ref([
+  'CAJA',
+  'PRODUCTOS',
+  'SALA'
+]);
 
 onMounted(() => {
   getVentas();
 });
 
+function cerraCaja() {
+  dialogCaja.value = true;
+  caja.value = {
+    monto_inicial: 0,
+    monto_final: 0,
+    observacion: ''
+  };
+}
+function cerraCajaSubmit() {
+  loading.value = true;
+  proxy.$axios.post("/cajas", caja.value).then((res) => {
+    dialogCaja.value = false;
+    // getVentas();
+    proxy.$alert.success("Registrado correctamente", res.data);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
 function filtroVentas() {
   ventas.value = ventasAll.value.filter(venta => {
     return (
@@ -202,6 +268,12 @@ function getVentas() {
     params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value }
   }).then(response => {
     ventas.value = response.data;
+    for (let venta of ventas.value) {
+      const find = users.value.find(usuario => usuario.id === venta.user_id);
+      if (!find) {
+        users.value.push({ id: venta.user_id, name: venta.user?.name });
+      }
+    }
     ventasAll.value = response.data;
   }).finally(() => {
     loading.value = false;

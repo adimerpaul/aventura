@@ -13,17 +13,15 @@ return new class extends Migration
     {
         Schema::create('cajas', function (Blueprint $table) {
             $table->id();
-//            datos de cierre de caja
-            $table->timestamps('fecha_cierre');
+            $table->dateTime('fecha_cierre');
             $table->decimal('monto_inicial', 10, 2);
             $table->decimal('monto_final', 10, 2);
             $table->decimal('monto_real', 10, 2);
             $table->decimal('monto_diferencia', 10, 2);
-            $table->boolean('cerrada');
-            $table->timestamps('fecha_apertura');
-            $table->decimal('monto_apertura', 10, 2);
+            $table->string('observacion')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

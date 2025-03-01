@@ -62,4 +62,11 @@ class User extends Authenticatable
         ];
         return $roles[$this->role] ?? 'blue';
     }
+
+    function ventas(){
+        return $this->hasMany(Venta::class);
+    }
+    function reservas(){
+        return $this->hasMany(Reserva::class);
+    }
 }
