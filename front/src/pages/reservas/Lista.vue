@@ -97,10 +97,13 @@
           <tbody>
             <tr v-for="reserva in reservas" :key="reserva.id">
               <td>
-                  <q-btn-group v-if="reserva.estado === 'Reservado'">
-                    <q-btn dense label="Anular" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />
-                    <q-btn dense label="Confirmar" color="blue" icon="check" no-caps @click="confirmar(reserva.id)" size="10px" :loading />
-                  </q-btn-group>
+                <q-btn-group v-if="reserva.estado === 'Reservado'">
+                  <q-btn dense label="Anular" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />
+                  <q-btn dense label="Confirmar" color="blue" icon="check" no-caps @click="confirmar(reserva)" size="10px" :loading />
+                </q-btn-group>
+                <q-btn-group v-else-if="reserva.estado === 'Finalizado' && reserva.directo">
+                  <q-btn dense label="Anular D" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />
+                </q-btn-group>
                 <div v-else-if="reserva.estado === 'Finalizado'" class="text-green text-bold text-center">
                   Finalizado
                 </div>
@@ -135,7 +138,10 @@
               </td>
               <td>{{reserva.nombre}}</td>
               <td>{{reserva.sala}}</td>
-              <td>{{reserva.fecha}}</td>
+              <td>
+<!--                {{reserva.fecha_creacion}}-->
+                {{$filters.dateDmYHis(reserva.fecha_creacion)}}
+              </td>
               <td class="text-right">{{reserva.horario}}</td>
               <td class="text-right">{{reserva.total}}</td>
               <td class="text-right">{{reserva.adelanto}}</td>
@@ -146,7 +152,7 @@
               <td>{{reserva.observaciones}}</td>
               <td>
                 <div style="font-size: 10px;width: 80px; white-space: normal; overflow-wrap: break-word;">
-                  {{reserva.user?.name}}
+                  {{reserva.user?.username}}
                 </div>
               </td>
             </tr>
@@ -201,11 +207,21 @@ function filtroReservas() {
     return reserva.nombre.toLowerCase().includes(filter.value.toLowerCase())
   })
 }
-function confirmar(id) {
-  proxy.$alert.dialogConfirm('<span style="color: blue;font-size: 20px;font-weight: bold">¿Desea confirmar la reserva?</span>')
+function confirmar(reserva) {
+  const adelanto = parseFloat(reserva.adelanto).toFixed(2)
+  const total = parseFloat(reserva.total).toFixed(2)
+  const saldo = parseFloat(reserva.total - reserva.adelanto).toFixed(2)
+  proxy.$alert.dialogConfirm('<span style="color: blue;font-size: 20px;font-weight: bold">' +
+    '¿Desea confirmar la reserva? <br> </span>' +
+    'Total: ' + total + '<br>' +
+    'Adelanto: ' + adelanto + '<br>' +
+    '<span style="color: red;font-size: 20px;font-weight: bold">Saldo: ' + saldo + ' Bs</span>'+
+    '')
     .onOk(() => {
       loading.value = true
-      proxy.$axios.post('reservasConfirmar', {id})
+      proxy.$axios.post('reservasConfirmar', {
+        id : reserva.id,
+      })
         .then(response => {
           proxy.$socket.emit("reservas");
           // getReservas()

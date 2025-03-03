@@ -15,15 +15,19 @@
             </div>
             <div class="col-12 col-md-2">
               <q-select v-model="user" label="Usuario" outlined dense :options="users"
-                        option-label="name" option-value="id" emit-value map-options />
+                        option-label="name" option-value="id" emit-value map-options
+                        v-if="$store.user.role === 'Admin'"
+              />
 <!--              <pre>{{user}}</pre>-->
             </div>
             <div class="col-12 col-md-2">
-              <q-select v-model="reporte" label="Tipo Reporte" outlined dense :options="reportes" />
+              <q-select v-model="reporte" label="Tipo Reporte" outlined dense :options="reportes"
+                        v-if="$store.user.role === 'Admin'"
+              />
             </div>
             <div class="col-12 col-md-2 flex flex-center">
               <q-btn style="width: 150px" label="Imprimir" color="indigo" icon="print" no-caps :loading="loading"
-                     @click="imprimir"
+                     @click="imprimir" v-if="$store.user.role === 'Admin'"
               />
             </div>
             <div class="col-12 col-md-12 flex flex-center">
@@ -212,7 +216,7 @@ const loading = ref(false);
 const filter = ref("");
 const users = ref([]);
 const user = ref('');
-const reporte = ref('SALA');
+const reporte = ref('CAJA');
 const dialogCaja = ref(false);
 const caja = ref({});
 const reportes = ref([
@@ -223,11 +227,12 @@ const reportes = ref([
 
 onMounted(() => {
   getVentas();
+  getUsers();
 });
 
 function imprimir() {
   if (!user.value) {
-    proxy.$alert.error("Seleccione un usuario", "Error");
+    proxy.$alert.error("Seleccione un usuario", "Por favor");
     return;
   }
   const userFind = users.value.find(usuario => usuario.id === user.value);
@@ -296,21 +301,26 @@ function anular(id) {
     });
   });
 }
+function getUsers() {
+  proxy.$axios.get("/users").then(response => {
+    users.value = response.data;
+  });
+}
 function getVentas() {
   loading.value = true;
   proxy.$axios.get("/ventas", {
     params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value }
   }).then(response => {
     ventas.value = response.data;
-    for (let venta of ventas.value) {
-      const find = users.value.find(usuario => usuario.id === venta.user_id);
-      if (!find) {
-        users.value.push({ id: venta.user_id, name: venta.user?.name });
-      }
-    }
-    if (ventas.value.length > 0) {
-      user.value = ventas.value[0].user_id;
-    }
+    // for (let venta of ventas.value) {
+    //   const find = users.value.find(usuario => usuario.id === venta.user_id);
+    //   if (!find) {
+    //     users.value.push({ id: venta.user_id, name: venta.user?.name });
+    //   }
+    // }
+    // if (ventas.value.length > 0) {
+    //   user.value = ventas.value[0].user_id;
+    // }
     ventasAll.value = response.data;
   }).finally(() => {
     loading.value = false;

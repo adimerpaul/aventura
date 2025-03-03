@@ -15,15 +15,19 @@ class Reserva extends Model{
         'json',
         'sala',
         'motivo_cancelacion',
-        'total',
         'adelanto',
+        'saldo',
+        'total',
+        'directo',
         'tiempo',
         'horario',
         'fecha',
+        'fecha_creacion',
         'fecha_confirmacion',
         'fecha_cancelacion',
         'user_id',
-        'user_cancelado_id'
+        'user_cancelado_id',
+        'user_confirmado_id'
     ];
     function user(){
         return $this->belongsTo(User::class);

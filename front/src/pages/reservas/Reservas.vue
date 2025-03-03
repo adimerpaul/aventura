@@ -13,7 +13,7 @@
 <!--            <q-btn color="primary" label="Consultar" @click="reservasGet" size="11px" no-caps icon="search" :loading="loading" />-->
           </div>
           <div class="col-6 col-md-2">
-            <q-badge color="primary" class="q-pa-sm">
+            <q-badge color="indigo" class="q-pa-sm">
               Tiempo Seleccionado: {{ tiempoSeleccionado }}
             </q-badge>
           </div>
@@ -35,7 +35,7 @@
           <tbody class="scroll-body">
           <template v-for="(hora, horaIndex) in horarios" :key="horaIndex">
             <tr>
-              <q-td class="sticky-hora">{{ hora.hora }}</q-td>  <!-- Sticky en tbody -->
+              <q-td class="sticky-hora" style="padding: 0;margin: 0;border: 0">{{ hora.hora }}</q-td>  <!-- Sticky en tbody -->
               <template v-for="(sala, salaIndex) in salas" :key="salaIndex">
                 <template v-if="shouldShowCell(horaIndex, salaIndex)">
                   <td
@@ -78,20 +78,24 @@
             <q-input v-model="nombre" label="Nombre" dense outlined class="" :rules="[val => !!val || 'Por favor, ingresa un nombre.']" />
             <q-input v-model.number="personas" type="number" label="Número de Personas" dense outlined class="" :rules="[val => val > 0 || 'Por favor, ingresa un número válido.']" />
             <q-input v-model.number="adelanto" type="number" label="Adelanto" dense outlined class="" :rules="[val => val >= 0 || 'Por favor, ingresa un número válido.']" />
-            <q-input v-model="observacion" label="Observación" dense outlined class="" hint="" type="textarea" />
+            <q-input v-model="observacion" label="Observación" dense outlined type="textarea" />
+            <q-toggle v-model="directo" :label="directo ? 'Venta Directa' : 'Reserva'"
+                      :class="{'text-primary': directo, 'text-orange': !directo}"
+                      @update:modelValue="adelanto = montoTotal"
+            />
             <div>
               <q-badge color="indigo" class="q-pa-sm">
                 Horario Seleccionado: Desde {{ horaMinima }} hasta {{ horaMaxima }}
               </q-badge>
             </div>
-            <q-badge color="blue" class="q-pa-sm">
+            <div class="text-bold q-mt-md text-blue bg-grey-3">
               Tiempo Total: {{ tiempoSeleccionado }}
-            </q-badge>
+            </div>
             <div class="text-bold">
               Monto Total: {{ montoTotal }} Bs
             </div>
-            <div :class="{'text-red': adelanto > montoTotal}">
-              Saldo: {{ montoTotal - adelanto }}
+            <div class="text-red text-bold">
+              Saldo: {{ montoTotal - adelanto }} Bs
             </div>
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" v-close-popup no-caps :loading="loading" />
@@ -122,6 +126,7 @@ const personas = ref(1);
 const adelanto = ref(0);
 const observacion = ref("");
 const loading = ref(false);
+const directo = ref(false);
 
 // Formatear tiempo total en HH:mm
 const tiempoSeleccionado = computed(() => {
@@ -220,6 +225,7 @@ function clickReserva() {
   personas.value = 2;
   adelanto.value = 20;
   observacion.value = "";
+  directo.value = false;
 }
 function consultarReservas() {
   // Lógica para consultar reservas
@@ -347,6 +353,7 @@ const confirmarReserva = () => {
     tiempo: tiempoSeleccionado.value,
     horario: `${horaMinima.value} - ${horaMaxima.value}`,
     fecha: fecha.value,
+    directo: directo.value,
   }).then(res => {
     proxy.$alert.success("Reserva confirmada", "Reserva");
     limpiar();
@@ -382,6 +389,7 @@ const confirmarReserva = () => {
   font-weight: bold;
   min-width: 70px;
   text-align: center;
+  font-size: 11px !important;
 }
 
 /* Mantener la cabecera de la tabla fija */

@@ -31,15 +31,23 @@ class VentaController extends Controller{
                 ->where('user_id', $user_id)
                 ->where('anulada', 0)
                 ->sum('total');
-            $reservasSum = Reserva::whereDate('fecha', '>=', $fechaInicio)
+            $reservasSumAdelanto = Reserva::whereDate('fecha', '>=', $fechaInicio)
                 ->whereDate('fecha', '<=', $fechaFin)
                 ->where('user_id', $user_id)
                 ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
-                ->sum('total');
+                ->sum('adelanto');
+            error_log('reservasSumAdelanto: '.$reservasSumAdelanto);
+            $reservasSumSaldo = Reserva::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_confirmado_id', $user_id)
+                ->whereRaw('(estado = "Finalizado" OR estado = "Reservado")')
+                ->sum('saldo');
+            error_log('reservasSumSaldo: '.$reservasSumSaldo);
             $cajas = Caja::whereDate('fecha_cierre', '>=', $fechaInicio)
                 ->whereDate('fecha_cierre', '<=', $fechaFin)
                 ->where('user_id', $user_id)
                 ->get();
+            $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
         }else if ($reporte == 'PRODUCTOS'){
             $ventas = Producto::join('detalles', 'productos.id', '=', 'detalles.producto_id')

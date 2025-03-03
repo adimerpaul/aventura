@@ -8,7 +8,7 @@
               <q-input v-model="filter" label="Buscar producto" outlined dense @update:modelValue="filtroProductos" />
             </div>
             <div class="col-12 col-md-8 text-right">
-              <q-btn label="Agregar" color="green" icon="add_circle_outline" no-caps @click="abrirModal" />
+              <q-btn label="Agregar" color="green" icon="add_circle_outline" no-caps @click="abrirModal" :loading="loading" />
             </div>
           </div>
         </q-form>
@@ -64,8 +64,8 @@
             <td>{{ producto.precio }}</td>
             <td>{{ producto.stock }}</td>
             <td>
-              <q-btn icon="edit" color="blue" class="q-mr-md" size="10px" dense @click="editarProducto(producto)" />
-              <q-btn icon="delete" color="red" size="10px" dense @click="eliminarProducto(producto.id)" v-if="$store.user === 'Admin'" />
+              <q-btn icon="edit" color="blue" class="q-mr-md" size="10px" dense @click="editarProducto(producto)" :loading="loading" />
+              <q-btn icon="delete" color="red" size="10px" dense @click="eliminarProducto(producto.id)" v-if="$store.user.role === 'Admin'" :loading="loading" />
 <!--              <pre>{{$store.user}}</pre>-->
             </td>
           </tr>
@@ -98,6 +98,7 @@
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from "vue";
+import {useQuasar} from "quasar";
 
 const { proxy } = getCurrentInstance();
 const productos = ref([]);
@@ -105,7 +106,8 @@ const productosAll = ref([]);
 const filter = ref("");
 const modalVisible = ref(false);
 const producto = ref({ id: null, nombre: "", precio: "", stock: "" });
-
+const $q = useQuasar();
+const loading = ref(false);
 onMounted(() => {
   getProductos();
 });
@@ -141,6 +143,27 @@ function guardarProducto() {
 }
 
 function eliminarProducto(id) {
-  proxy.$axios.delete(`/productos/${id}`).then(getProductos);
+  $q.dialog({
+    title: "Eliminar producto",
+    message: "¿Está seguro de eliminar este producto?",
+    persistent: true,
+    ok: {
+      label: "Sí",
+      color: "negative",
+      push: true
+    },
+    cancel: {
+      label: "No",
+      color: "primary",
+      push: true
+    }
+  }).onOk(() => {
+    loading.value = true;
+    proxy.$axios.delete(`/productos/${id}`).then(getProductos).catch((res) => {
+      proxy.$alert.error(res.response.data.message, "Error");
+    }).finally(() => {
+      loading.value = false;
+    });
+  });
 }
 </script>

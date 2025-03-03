@@ -31,7 +31,7 @@ class ProductoController extends Controller{
     function destroy(Producto $producto){
         $count = $producto->ventas()->count();
         if($count > 0){
-            return response()->json(['error' => 'No se puede eliminar el producto porque tiene ventas asociadas'], 400);
+            return response()->json(['message' => 'No se puede eliminar el producto porque tiene ventas asociadas'], 400);
         }
         $producto->delete();
         return $producto;

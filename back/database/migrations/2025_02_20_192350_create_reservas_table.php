@@ -20,19 +20,24 @@ return new class extends Migration
             $table->text('json')->nullable();
             $table->string('sala')->nullable();
             $table->string('motivo_cancelacion')->nullable();
-            $table->decimal('total', 10, 2);
-            $table->integer('adelanto')->nullable();
+            $table->decimal('adelanto', 10, 2)->nullable();
+            $table->decimal('saldo', 10, 2)->nullable();
+            $table->decimal('total', 10, 2)->nullable();
+            $table->boolean('directo')->default(false);
             $table->string('tiempo')->nullable();
             $table->string('horario')->nullable();
 
             $table->date('fecha');
+            $table->dateTime('fecha_creacion')->useCurrent();
             $table->dateTime('fecha_confirmacion')->nullable();
             $table->dateTime('fecha_cancelacion')->nullable();
 
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('user_cancelado_id')->nullable();
+            $table->unsignedBigInteger('user_confirmado_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('user_cancelado_id')->references('id')->on('users');
+            $table->foreign('user_confirmado_id')->references('id')->on('users');
             $table->softDeletes();
             $table->timestamps();
         });

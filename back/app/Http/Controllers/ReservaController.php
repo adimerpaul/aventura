@@ -10,6 +10,7 @@ class ReservaController extends Controller{
         $reserva = Reserva::find($request->id);
         $reserva->estado = 'Finalizado';
         $reserva->fecha_confirmacion = date('Y-m-d H:i:s');
+        $reserva->user_confirmado_id = $request->user()->id;
         $reserva->save();
         return response()->json($reserva);
     }
@@ -74,13 +75,22 @@ class ReservaController extends Controller{
         $reserva->estado = 'Reservado';
         $reserva->json = $request->json;
         $reserva->sala = $request->sala;
-        $reserva->total = $request->total;
         $reserva->adelanto = $request->adelanto;
+        $reserva->saldo = $request->total - $request->adelanto;
+        $reserva->total = $request->total;
         $reserva->tiempo = $request->tiempo;
         $reserva->horario = $request->horario;
         $reserva->fecha = $request->fecha;
+        $reserva->fecha_creacion = date('Y-m-d H:i:s');
+        $reserva->directo = $request->directo;
         $reserva->user_id = $user->id;
         $reserva->save();
+        if ($request->directo) {
+            $reserva->estado = 'Finalizado';
+            $reserva->fecha_confirmacion = date('Y-m-d H:i:s');
+            $reserva->user_confirmado_id = $user->id;
+            $reserva->save();
+        }
 
         return response()->json($reserva);
     }
