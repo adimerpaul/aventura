@@ -37,4 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/cajas', [App\Http\Controllers\CajaController::class, 'store']);
     Route::post('/ventas/imprimir', [App\Http\Controllers\VentaController::class, 'imprimir']);
+
+    Route::get('/metricas', [App\Http\Controllers\CajaController::class, 'metricas']);
 });

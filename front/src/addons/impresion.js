@@ -256,7 +256,7 @@ export class Impresion {
     let textoCajas = ''
     cajas.forEach((element) => {
       textoCajas += `
-      <div class="text-h6">
+      <div>
         <div><span class="text-bold">Fecha Cierre:</span> ${moment(element.fecha_cierre).format('DD/MM/YYYY HH:mm:ss')}</div>
         <div><span class="text-bold">Monto Real:</span> ${parseInt(element.monto_real).toFixed(2)}</div>
         <div><span class="text-bold">Monto Diferencia:</span> ${parseInt(element.monto_diferencia).toFixed(2)}</div>

@@ -3,10 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use function Pest\Laravel\json;
 
 class CajaController extends Controller{
+    function metricas(Request $request){
+        $fechaInicio = $request->input('fechaInicio');
+        $fechaFin = $request->input('fechaFin');
+        Carbon::setLocale('es');
+
+        $fechaInicioCarbon = \Carbon\Carbon::parse($fechaInicio);
+        $fechaFinCarbon = \Carbon\Carbon::parse($fechaFin);
+
+        $arrayFecha = [];
+        $dias = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+        for($i = $fechaInicioCarbon; $i->lessThanOrEqualTo($fechaFinCarbon); $i->addDay()){
+            $fecha = $i->format('Y-m-d');
+            $cajas = Caja::whereDate('fecha_cierre', $fecha)->with('user')->get();
+
+            $arrayFecha[] = [
+                'fecha' => $fecha,
+                'fechaFormat' => $dias[$i->dayOfWeek] . ' ' . $i->format('d'),
+                'monto_total' => $cajas->sum('monto_real'),
+                'cajas' => $cajas
+            ];
+        }
+
+        return $arrayFecha;
+    }
     function store(Request $request){
 
 

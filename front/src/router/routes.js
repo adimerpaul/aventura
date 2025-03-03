@@ -10,6 +10,7 @@ const routes = [
       { path: 'productos', component: () => import('pages/ventas/Producto.vue'), meta: { requiresAuth: true } },
       { path: 'ventas', component: () => import('pages/ventas/Ventas.vue'), meta: { requiresAuth: true } },
       { path: 'ventas/add', component: () => import('pages/ventas/VentaAdd.vue'), meta: { requiresAuth: true } },
+      { path: 'metricas', component: () => import('pages/metricas/Metricas.vue'), meta: { requiresAuth: true } },
     ]
   },
   {

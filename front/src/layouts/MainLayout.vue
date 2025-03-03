@@ -125,6 +125,7 @@ const linksList = [
   { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
   { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
   { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
+  { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
 ]
 
 const leftDrawerOpen = ref(false)

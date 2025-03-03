@@ -4,6 +4,8 @@ import {Alert} from "src/addons/Alert";
 import {useCounterStore} from "stores/example-store";
 import moment from "moment";
 import {io} from "socket.io-client";
+import VueApexCharts from "vue3-apexcharts";
+
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
 // If any client changes this (global) instance, it might be a
@@ -13,6 +15,7 @@ import {io} from "socket.io-client";
 const api = axios.create({ baseURL: 'https://api.example.com' })
 
 export default boot(({ app, router }) => {
+  app.use(VueApexCharts);
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
   app.config.globalProperties.$axios = axios.create({ baseURL: import.meta.env.VITE_API_BACK })
