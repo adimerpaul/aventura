@@ -72,6 +72,13 @@
     </div>
     <q-dialog v-model="dialogVenta">
       <q-card flat bordered>
+        <q-card-section class="q-pb-none row items-center">
+          <div class="text-bold">
+            Realizar Venta
+          </div>
+          <q-space />
+          <q-btn flat dense round icon="close" @click="dialogVenta = false" />
+        </q-card-section>
         <q-card-section>
           <q-form @submit.prevent="realizarVentaPost">
             <q-input v-model="venta.nombre" label="Nombre Cliente" outlined dense :rules="[val => !!val || 'Campo requerido']" />
@@ -163,6 +170,8 @@ function realizarVentaPost() {
     router.push("/ventas");
     // await getProductos();
     buscarProducto.value = "";
+  }).catch((res) => {
+    proxy.$alert.error(res.response.data.message, "Error");
   }).finally(() => {
     loading.value = false;
   });

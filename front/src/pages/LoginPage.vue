@@ -98,7 +98,7 @@ function login() {
       proxy.$router.push('/')
     })
     .catch(error => {
-      proxy.$alert.error('Error al iniciar sesión', 'Error')
+      proxy.$alert.error(error.response.data.message, 'Error')
     }).finally(() => {
       loading.value = false
     })

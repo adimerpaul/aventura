@@ -65,7 +65,8 @@
             <td>{{ producto.stock }}</td>
             <td>
               <q-btn icon="edit" color="blue" class="q-mr-md" size="10px" dense @click="editarProducto(producto)" />
-              <q-btn icon="delete" color="red" size="10px" dense @click="eliminarProducto(producto.id)" />
+              <q-btn icon="delete" color="red" size="10px" dense @click="eliminarProducto(producto.id)" v-if="$store.user === 'Admin'" />
+<!--              <pre>{{$store.user}}</pre>-->
             </td>
           </tr>
           </tbody>

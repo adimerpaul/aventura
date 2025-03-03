@@ -28,24 +28,24 @@
         <q-markup-table wrap-cells dense bordered flat separator="cell" class="tabla-reservas">
           <thead>
           <tr>
-            <q-th class="bg-grey text-white">Hora</q-th>
+            <q-th class="bg-grey text-white sticky-hora">Hora</q-th> <!-- Sticky en encabezado -->
             <q-th class="bg-primary text-white" v-for="sala in salas" :key="sala.sala">{{ sala.sala }}</q-th>
           </tr>
           </thead>
           <tbody class="scroll-body">
           <template v-for="(hora, horaIndex) in horarios" :key="horaIndex">
             <tr>
-              <q-td style="font-size: 10px;padding: 0;margin: 0;width: 70px">{{ hora.hora }}</q-td>
+              <q-td class="sticky-hora">{{ hora.hora }}</q-td>  <!-- Sticky en tbody -->
               <template v-for="(sala, salaIndex) in salas" :key="salaIndex">
                 <template v-if="shouldShowCell(horaIndex, salaIndex)">
                   <td
                     :rowspan="getRowspan(horaIndex, salaIndex)"
                     :class="{
-                  'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`],
-                  'bg-red text-white': reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
-                  'bg-yellow text-black': reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
-                  'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`]
-                }"
+                'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`],
+                'bg-red text-white': reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
+                'bg-yellow text-black': reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
+                'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !reservas[`${horaIndex}-${salaIndex}`]
+              }"
                     class="text-center cursor-pointer"
                     @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"
                   >
@@ -143,11 +143,11 @@ onMounted(() => {
   for (let i = 8; i < 23; i++) {
     let horaInicio = `${i}:00`;
     let horaFin = `${i}:30`;
-    horarios.value.push({ hora: `${horaInicio} a ${horaFin}` });
+    horarios.value.push({ hora: `${horaInicio}-${horaFin}` });
 
     horaInicio = `${i}:30`;
     horaFin = `${i + 1}:00`;
-    horarios.value.push({ hora: `${horaInicio} a ${horaFin}` });
+    horarios.value.push({ hora: `${horaInicio}-${horaFin}` });
   }
 
   calcularTotalMinutos();
@@ -371,6 +371,31 @@ const confirmarReserva = () => {
   top: 0;
   background-color: white;
   z-index: 2;
+}
+/* Estilos para hacer sticky la columna "Hora" */
+.sticky-hora {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background-color: white;
+  border-right: 2px solid #ccc;
+  font-weight: bold;
+  min-width: 70px;
+  text-align: center;
+}
+
+/* Mantener la cabecera de la tabla fija */
+.tabla-reservas thead tr {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 4;
+}
+
+/* Asegurar que toda la columna de hora tenga un fondo adecuado */
+.tabla-reservas tbody tr td.sticky-hora {
+  position: sticky;
+  background-color: white;
 }
 
 </style>
