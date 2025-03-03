@@ -219,6 +219,7 @@ const user = ref('');
 const reporte = ref('CAJA');
 const dialogCaja = ref(false);
 const caja = ref({});
+const productos = ref([]);
 const reportes = ref([
   'CAJA',
   'PRODUCTOS',
@@ -228,7 +229,14 @@ const reportes = ref([
 onMounted(() => {
   getVentas();
   getUsers();
+  getProductos();
 });
+
+function getProductos() {
+  proxy.$axios.get("/productos").then(response => {
+    productos.value = response.data;
+  });
+}
 
 function imprimir() {
   if (!user.value) {
@@ -247,7 +255,7 @@ function imprimir() {
       Impresion.imprimirCaja(res.data,fechaInicio.value,fechaFin.value,userFind.name);
     }
     if (reporte.value === 'PRODUCTOS') {
-      Impresion.imprimirProductos(res.data,fechaInicio.value,fechaFin.value,userFind.name);
+      Impresion.imprimirProductos(res.data,fechaInicio.value,fechaFin.value,userFind.name,productos.value);
     }
     if (reporte.value === 'SALA') {
       Impresion.imprimirSalas(res.data,fechaInicio.value,fechaFin.value,userFind.name);

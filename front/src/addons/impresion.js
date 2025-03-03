@@ -150,7 +150,8 @@ export class Impresion {
     d.print(document.getElementById('myElement'))
 
   }
-  static imprimirProductos (productos, fechaInicio, fechaFin, userFind) {
+  static imprimirProductos (productos, fechaInicio, fechaFin, userFind, productosAll) {
+    // console.log(productosAll)
     let textoProductos = '<div class="text-h5"><table class="table">' +
       '<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">' +
       '<th>Nombre</th>' +
@@ -179,7 +180,37 @@ export class Impresion {
         <td class="text-right">${sumaTotal.toFixed(2)}</td>
       </tr>
     `
-    textoProductos += '</table></div>'
+
+
+    let textoProductosAll = '<div class="text-h5"><table class="table">' +
+      '<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">' +
+      '<th>Nombre</th>' +
+      '<th class="text-right">Cantidad</th>' +
+      '<th class="text-right">Total</th>' +
+      '</tr>'
+
+    // let sumaTotalAll = 0
+    productosAll.forEach((element) => {
+      textoProductosAll += `
+        <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+          <td>${element.nombre}</td>
+          <td class="text-right">${parseInt(element.stock).toFixed(2)}</td>
+          <td class="text-right"></td>
+        </tr>
+      `
+    })
+    // textoProductosAll += `
+    //   <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+    //     <td class="text-right"></td>
+    //     <td class="text-right"></td>
+    //     <td class="text-right text-bold">Total</td>
+    //     <td class="text-right">${sumaTotalAll.toFixed(2)}</td>
+    //   </tr>
+    // `
+
+
+    textoProductosAll += '</table></div>'
+
     const cadena = `
     <style>
         .text-right {
@@ -211,7 +242,8 @@ export class Impresion {
       <div class="text-center text-bold">CONTROL PRODUCTOS</div>
       <div><span class="text-bold">Fecha</span> ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
       <div><span class="text-bold">Usuario:</span> ${userFind}</div>
-      <div><span class="text-bold">Productos:</span> ${textoProductos}</div>
+      <div>${textoProductos}</div>
+      <div>${textoProductosAll}</div
     </div>
     `
     document.getElementById('myElement').innerHTML = cadena
