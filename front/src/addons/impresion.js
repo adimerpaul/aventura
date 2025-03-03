@@ -151,7 +151,14 @@ export class Impresion {
 
   }
   static imprimirProductos (productos, fechaInicio, fechaFin, userFind) {
-    let textoProductos = '<div class="text-h5"><table class="table">'
+    let textoProductos = '<div class="text-h5"><table class="table">' +
+      '<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">' +
+      '<th>Nombre</th>' +
+      '<th class="text-right">Precio</th>' +
+      '<th class="text-right">Cantidad</th>' +
+      '<th class="text-right">Total</th>' +
+      '</tr>'
+
     let sumaTotal = 0
     productos.forEach((element) => {
       textoProductos += `
@@ -217,11 +224,11 @@ export class Impresion {
     let textoCajas = ''
     cajas.forEach((element) => {
       textoCajas += `
-      <div class="text-h5">
+      <div class="text-h6">
         <div><span class="text-bold">Fecha Cierre:</span> ${moment(element.fecha_cierre).format('DD/MM/YYYY HH:mm:ss')}</div>
         <div><span class="text-bold">Monto Real:</span> ${parseInt(element.monto_real).toFixed(2)}</div>
         <div><span class="text-bold">Monto Diferencia:</span> ${parseInt(element.monto_diferencia).toFixed(2)}</div>
-        <div><span class="text-bold">Observación:</span> ${element.observacion}</div>
+        <div><span class="text-bold">Observación:</span> ${element.observacion == null ? '' : element.observacion}</div>
       </div>
       `
     })
