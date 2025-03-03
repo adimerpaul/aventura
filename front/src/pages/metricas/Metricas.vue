@@ -2,7 +2,7 @@
   <q-page class="q-pa-xs">
     <q-card>
       <q-card-section>
-        <q-form @submit="getMetricas">
+        <q-form @submit.prevent="getMetricas">
           <div class="row">
             <div class="col-12 col-md-2">
               <q-input dense outlined v-model="fechaInicio" label="Fecha Inicio" type="date" />
@@ -26,38 +26,24 @@
       </q-card-section>
 
       <q-card-section>
-<!--        <q-table-->
-<!--          :rows="metricas"-->
-<!--          :columns="columns"-->
-<!--          row-key="fecha"-->
-<!--          dense-->
-<!--        >-->
-<!--          <template v-slot:body-cell(users)="props">-->
-<!--            <q-td>-->
-<!--              <div v-for="user in props.row.users" :key="user.id">-->
-<!--                {{ user.name }} - {{ user.monto_real }} Bs-->
-<!--              </div>-->
-<!--            </q-td>-->
-<!--          </template>-->
-<!--        </q-table>-->
         <q-markup-table dense flat bordered>
           <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Total (Bs)</th>
-              <th>Usuarios y Montos</th>
-            </tr>
+          <tr>
+            <th>Fecha</th>
+            <th>Total (Bs)</th>
+            <th>Usuarios y Montos</th>
+          </tr>
           </thead>
           <tbody>
-            <tr v-for="m in metricas" :key="m.fecha">
-              <td>{{ m.fechaFormat }}</td>
-              <td>{{ m.monto_total }}</td>
-              <td>
-                <div v-for="caja in m.cajas" :key="caja.id">
-                  {{ caja.user.name }} - {{ caja.monto_real }} Bs
-                </div>
-              </td>
-            </tr>
+          <tr v-for="m in metricas" :key="m.fecha">
+            <td>{{ m.fechaFormat }}</td>
+            <td>{{ m.monto_total }}</td>
+            <td>
+              <div v-for="caja in m.cajas" :key="caja.id">
+                {{ caja.user.name }} - {{ caja.monto_real }} Bs
+              </div>
+            </td>
+          </tr>
           </tbody>
         </q-markup-table>
       </q-card-section>
@@ -68,6 +54,7 @@
 <script setup>
 import moment from "moment";
 import { ref, getCurrentInstance, onMounted } from "vue";
+
 const { proxy } = getCurrentInstance();
 
 const fechaInicio = ref(moment().startOf("isoWeek").format("YYYY-MM-DD"));
@@ -75,6 +62,7 @@ const fechaFin = ref(moment().endOf("isoWeek").format("YYYY-MM-DD"));
 
 const metricas = ref([]);
 const series = ref([]);
+
 const chartOptions = ref({
   chart: { height: 350, type: "bar" },
   plotOptions: { bar: { horizontal: false, columnWidth: "55%", endingShape: "rounded" } },
@@ -86,32 +74,38 @@ const chartOptions = ref({
   tooltip: { y: { formatter: (val) => `${val} Bs` } },
 });
 
-const columns = [
-  { name: "fecha", required: true, label: "Fecha", align: "left", field: "fechaFormat" },
-  { name: "monto_total", required: true, label: "Total (Bs)", align: "right", field: "monto_total" },
-  { name: "users", required: true, label: "Usuarios y Montos", align: "left" },
-];
-
 onMounted(() => {
   getMetricas();
 });
 
 function getMetricas() {
-  proxy.$axios.get("/metricas", {params: {fechaInicio: fechaInicio.value, fechaFin: fechaFin.value}})
+  proxy.$axios.get("/metricas", { params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value } })
     .then(response => {
-      metricas.value = response.data;
+      console.log("Datos recibidos:", response.data);
 
-      // Extraer categorías (fechas)
-      const categories = response.data.map(d => d.fechaFormat);
+      metricas.value = response.data.arrayFecha; // Usamos arrayFecha del JSON recibido
 
-      // Extraer montos por usuario
-      const userMontos = {};
-      response.data.forEach(d => {
+      // Extraer fechas formateadas (eje X del gráfico)
+      const categories = metricas.value.map(d => d.fechaFormat);
+
+      // Obtener todos los usuarios únicos
+      const usuariosUnicos = new Set();
+      metricas.value.forEach(d => {
         d.cajas.forEach(caja => {
-          if (!userMontos[caja.user.name]) {
-            userMontos[caja.user.name] = [];
-          }
-          userMontos[caja.user.name].push(caja.monto_real);
+          usuariosUnicos.add(caja.user.name);
+        });
+      });
+
+      // Inicializar montos en 0 para cada usuario en todas las fechas
+      const userMontos = {};
+      usuariosUnicos.forEach(user => {
+        userMontos[user] = new Array(categories.length).fill(0);
+      });
+
+      // Llenar los montos en la posición correcta de la fecha
+      metricas.value.forEach((d, index) => {
+        d.cajas.forEach(caja => {
+          userMontos[caja.user.name][index] = parseFloat(caja.monto_real); // Aseguramos que sean números
         });
       });
 
@@ -121,7 +115,16 @@ function getMetricas() {
         data: userMontos[name],
       }));
 
+      console.log("Categorías actualizadas:", categories);
+
+      // Actualizar las categorías en el gráfico
       chartOptions.value.xaxis.categories = categories;
+
+      // Forzar actualización si ApexCharts no detecta cambios
+      chartOptions.value = {...chartOptions.value};
+    })
+    .catch(error => {
+      console.error("Error al obtener métricas:", error);
     });
 }
 </script>

@@ -30,7 +30,12 @@ class CajaController extends Controller{
             ];
         }
 
-        return $arrayFecha;
+        return [
+            'fechaInicio' => $fechaInicio,
+            'fechaFin' => $fechaFin,
+            'arrayFecha' => $arrayFecha,
+            'cajas' => Caja::whereBetween('fecha_cierre', [$fechaInicio, $fechaFin])->with('user')->get()
+        ];
     }
     function store(Request $request){
 
