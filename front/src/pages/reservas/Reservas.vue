@@ -343,6 +343,7 @@ const confirmarReserva = () => {
   // personas.value = 1;
   // dialogoReservar.value = false;
   loading.value = true;
+  // reservas.value = {};
   proxy.$axios.post('/reservas', {
     nombre: nombre.value,
     numero_personas: personas.value,
