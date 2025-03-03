@@ -167,6 +167,7 @@ onMounted(() => {
 });
 function reservasGet() {
   loading.value = true;
+  reservas.value = {};
   proxy.$axios.get('/reservas', { params: { fecha: fecha.value } })
     .then(res => {
       reservas.value = res.data || {}; // Asegurar que sea un objeto
