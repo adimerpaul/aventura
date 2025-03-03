@@ -30,7 +30,7 @@ class CajaController extends Controller{
 
         $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
         if($verificar){
-//            error_log(json_encode($verificar));
+            error_log(json_encode($verificar));
             $verificar->monto_inicial = $request->monto_inicial;
             $verificar->monto_final = $request->monto_final;
             $verificar->observacion = $request->observacion;
@@ -38,6 +38,8 @@ class CajaController extends Controller{
             $verificar->monto_diferencia = $montoReal - $montoRealVentas;
             $verificar->save();
             return "Caja actualizada";
+//            ya nose puede actualizar la caja
+//            return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
         }
         $caja = new Caja();
         $caja->fecha_cierre = date('Y-m-d H:i:s');

@@ -228,7 +228,9 @@ function confirmar(reserva) {
           router.push('/reservas')
         })
         .catch(error => {
-          console.log(error)
+          // console.log(error)
+          proxy.$alert.error(error.response.data.message, 'Error')
+          loading.value = false
         })
     })
 }

@@ -81,6 +81,13 @@ class VentaController extends Controller{
         return $ventas;
     }
     function store(Request $request){
+        $hoy = date('Y-m-d');
+        $user = $request->user();
+
+        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
+        if($verificar){
+            return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
+        }
         DB::beginTransaction();
         try {
             $venta = new Venta();

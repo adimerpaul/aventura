@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use App\Models\Reserva;
 use Illuminate\Http\Request;
 
 class ReservaController extends Controller{
     function confirmar(Request $request){
+
+        $hoy = date('Y-m-d');
+        $user = $request->user();
+
+        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
+        if($verificar){
+            return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
+        }
+
         $reserva = Reserva::find($request->id);
         $reserva->estado = 'Finalizado';
         $reserva->fecha_confirmacion = date('Y-m-d H:i:s');
@@ -55,6 +65,14 @@ class ReservaController extends Controller{
     }
 
     function store(Request $request) {
+        $hoy = date('Y-m-d');
+        $user = $request->user();
+
+        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
+        if($verificar){
+            return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
+        }
+
         $reservasResponse = $this->index($request);
         $reservas = $reservasResponse->getData(true);
 
