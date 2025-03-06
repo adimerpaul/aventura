@@ -61,23 +61,72 @@ class VentaController extends Controller{
                 ->get();
             return $ventas;
         }else if ($reporte == 'SALA'){
-            $ventas = Reserva::whereDate('fecha', '>=', $fechaInicio)
+//            $ventas = Reserva::whereDate('fecha', '>=', $fechaInicio)
+//                ->whereDate('fecha', '<=', $fechaFin)
+//                ->where('user_id', $user_id)
+//                ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
+//                ->get();
+//            return $ventas;
+            $reservasAdelanto = Reserva::whereDate('fecha', '>=', $fechaInicio)
                 ->whereDate('fecha', '<=', $fechaFin)
                 ->where('user_id', $user_id)
                 ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
                 ->get();
-            return $ventas;
+            error_log(json_encode($reservasAdelanto));
+            $reservasSaldo = Reserva::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_confirmado_id', $user_id)
+                ->whereRaw('(estado = "Finalizado" OR estado = "Reservado")')
+                ->get();
+            error_log(json_encode($reservasSaldo));
+
+//            agrupar array de reservas
+            $reservasTotal = [];
+            foreach ($reservasAdelanto as $reserva){
+                $reservasTotal[] = [
+                    'nombre' => $reserva['nombre'],
+                    'sala' => $reserva['sala'],
+                    'horario' => $reserva['horario'],
+                    'estado' => $reserva['estado'],
+                    'total' => $reserva['adelanto'],
+                ];
+            }
+            foreach ($reservasSaldo as $reserva){
+                $reservasTotal[] = [
+                    'nombre' => $reserva['nombre'],
+                    'sala' => $reserva['sala'],
+                    'horario' => $reserva['horario'],
+                    'estado' => $reserva['estado'],
+                    'total' => $reserva['saldo'],
+                ];
+            }
+            return $reservasTotal;
         }
     }
     function index(Request $request){
+
+        $user = $request->user();
+
+
         $fechaInicio = $request->fechaInicio;
-        error_log($fechaInicio);
+//        error_log($fechaInicio);
         $fechaFin = $request->fechaFin;
-        $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
-            ->whereDate('fecha', '<=', $fechaFin)
-            ->orderBy('id', 'desc')
-            ->with('detalles','user')
-            ->get();
+
+        if ($user->rol == 'Admin'){
+            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->orderBy('id', 'desc')
+                ->with('detalles','user')
+                ->get();
+            return $ventas;
+        }else{
+            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
+                ->whereDate('fecha', '<=', $fechaFin)
+                ->where('user_id', $user->id)
+                ->orderBy('id', 'desc')
+                ->with('detalles','user')
+                ->get();
+        }
         return $ventas;
     }
     function store(Request $request){

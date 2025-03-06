@@ -13,6 +13,7 @@
           @click="toggleLeftDrawer"
           unelevated
         />
+        <span class="q-pa-xs text-bold">{{version}}</span>
 
         <q-toolbar-title>
 <!--          Quasar App-->
@@ -121,14 +122,16 @@ const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
   { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
   { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Todos' },
-  { title: 'Lista', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
+  { title: 'Confirmar reserva', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
   { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
-  { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
   { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
+  { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
   { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
 ]
 
 const leftDrawerOpen = ref(false)
+
+const version =import.meta.env.VITE_API_VERSION
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value

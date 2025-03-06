@@ -8,6 +8,18 @@ use Illuminate\Http\Request;
 use function Pest\Laravel\json;
 
 class CajaController extends Controller{
+    function verificarCaja(Request $request){
+        $hoy = date('Y-m-d');
+        $user = $request->user();
+        $caja = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
+        if($caja){
+            return [
+                'estado' => 'cerrada',
+                'caja' => $caja,
+            ];
+        }
+        return null;
+    }
     function metricas(Request $request){
         $fechaInicio = $request->input('fechaInicio');
         $fechaFin = $request->input('fechaFin');

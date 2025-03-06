@@ -101,9 +101,9 @@
                   <q-btn dense label="Anular" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />
                   <q-btn dense label="Confirmar" color="blue" icon="check" no-caps @click="confirmar(reserva)" size="10px" :loading />
                 </q-btn-group>
-                <q-btn-group v-else-if="reserva.estado === 'Finalizado' && reserva.directo">
-                  <q-btn dense label="Anular D" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />
-                </q-btn-group>
+<!--                <q-btn-group v-else-if="reserva.estado === 'Finalizado' && reserva.directo">-->
+<!--                  <q-btn dense label="Anular D" color="red" icon="delete" no-caps @click="anular(reserva.id)" size="10px" :loading />-->
+<!--                </q-btn-group>-->
                 <div v-else-if="reserva.estado === 'Finalizado'" class="text-green text-bold text-center">
                   Finalizado
                 </div>

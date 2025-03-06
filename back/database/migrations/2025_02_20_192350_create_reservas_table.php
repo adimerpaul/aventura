@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('directo')->default(false);
             $table->string('tiempo')->nullable();
             $table->string('horario')->nullable();
+            $table->boolean('anulada')->default(false);
 
             $table->date('fecha');
             $table->dateTime('fecha_creacion')->useCurrent();

@@ -27,6 +27,7 @@ class ReservaController extends Controller{
     function anular(Request $request){
         $reserva = Reserva::find($request->id);
         $reserva->estado = 'Cancelado';
+        $reserva->anulada = true;
         $reserva->motivo_cancelacion = $request->motivo;
         $reserva->user_cancelado_id = $request->user()->id;
         $reserva->fecha_cancelacion = date('Y-m-d H:i:s');

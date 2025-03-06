@@ -224,7 +224,7 @@ function clickReserva() {
   dialogoReservar.value = true;
   nombre.value = "";
   personas.value = 2;
-  adelanto.value = 20;
+  adelanto.value = 0;
   observacion.value = "";
   directo.value = false;
 }
@@ -261,50 +261,70 @@ const getRowspan = (horaIndex, salaIndex) => {
 
 
 const toggleSeleccion = (horaIndex, salaIndex, hora) => {
-  const key = `${horaIndex}-${salaIndex}`;
 
-  // Si la celda ya está reservada, no permitir selección
-  if (reservas.value[key]) return;
+    loading.value = true;
+  proxy.$axios.get('/verificarCaja')
+    .then(res => {
+      console.log(res.data.estado);
+      if (res.data.estado === "cerrada") {
+        proxy.$alert.error("La caja está cerrada, no se pueden realizar reservas");
+        return false;
+      }
 
-  // Si no hay selecciones previas, permitir cualquier selección
-  if (Object.keys(seleccionadas.value).length === 0) {
-    seleccionadas.value[key] = hora;
-    calcularTotalMinutos();
-    return;
-  }
+      // console.log("Seleccionando:", horaIndex, salaIndex, hora);
+      // return false;
 
-  // Obtener la sala ya seleccionada (si existe)
-  const salasSeleccionadas = new Set(Object.keys(seleccionadas.value).map(k => k.split('-')[1]));
+      const key = `${horaIndex}-${salaIndex}`;
 
-  // Si intenta seleccionar en una sala diferente, rechazar
-  if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {
-    proxy.$alert.error("Debes seleccionar en la misma sala.");
-    return;
-  }
+      // Si la celda ya está reservada, no permitir selección
+      if (reservas.value[key]) return;
 
-  // Obtener índices de horarios ya seleccionados en esta sala
-  const horasSeleccionadas = Object.keys(seleccionadas.value)
-    .map(k => parseInt(k.split('-')[0])) // Extraer solo los índices de hora
-    .sort((a, b) => a - b); // Ordenar
+      // Si no hay selecciones previas, permitir cualquier selección
+      if (Object.keys(seleccionadas.value).length === 0) {
+        seleccionadas.value[key] = hora;
+        calcularTotalMinutos();
+        return;
+      }
 
-  // Verificar si la nueva selección es continua
-  if (horasSeleccionadas.length > 0) {
-    const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
+      // Obtener la sala ya seleccionada (si existe)
+      const salasSeleccionadas = new Set(Object.keys(seleccionadas.value).map(k => k.split('-')[1]));
 
-    if (horaIndex !== ultimaHora + 1) {
-      proxy.$alert.error("Debes seleccionar horarios consecutivos.");
-      return;
-    }
-  }
+      // Si intenta seleccionar en una sala diferente, rechazar
+      if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {
+        proxy.$alert.error("Debes seleccionar en la misma sala.");
+        return;
+      }
 
-  // Si ya está seleccionada, quitarla; si no, agregarla
-  if (seleccionadas.value[key]) {
-    delete seleccionadas.value[key];
-  } else {
-    seleccionadas.value[key] = hora;
-  }
+      // Obtener índices de horarios ya seleccionados en esta sala
+      const horasSeleccionadas = Object.keys(seleccionadas.value)
+        .map(k => parseInt(k.split('-')[0])) // Extraer solo los índices de hora
+        .sort((a, b) => a - b); // Ordenar
 
-  calcularTotalMinutos();
+      // Verificar si la nueva selección es continua
+      if (horasSeleccionadas.length > 0) {
+        const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
+
+        if (horaIndex !== ultimaHora + 1) {
+          proxy.$alert.error("Debes seleccionar horarios consecutivos.");
+          return;
+        }
+      }
+
+      // Si ya está seleccionada, quitarla; si no, agregarla
+      if (seleccionadas.value[key]) {
+        delete seleccionadas.value[key];
+      } else {
+        seleccionadas.value[key] = hora;
+      }
+
+      calcularTotalMinutos();
+    })
+    .catch(error => {
+      proxy.$alert.error("Error al obtener reservas");
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 // Recalcular tiempo total seleccionado
@@ -359,13 +379,14 @@ const confirmarReserva = () => {
   }).then(res => {
     proxy.$alert.success("Reserva confirmada", "Reserva");
     limpiar();
-    // reservasGet();
+    reservasGet();
     proxy.$socket.emit("reservas");
     dialogoReservar.value = false;
   }).catch(error => {
     proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");
   }).finally(() => {
     loading.value = false;
+    // proxy.$socket.emit("reservas");
   });
 };
 </script>

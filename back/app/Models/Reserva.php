@@ -22,6 +22,7 @@ class Reserva extends Model{
         'tiempo',
         'horario',
         'fecha',
+        'anulada',
         'fecha_creacion',
         'fecha_confirmacion',
         'fecha_cancelacion',
