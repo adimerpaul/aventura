@@ -64,7 +64,15 @@ const metricas = ref([]);
 const series = ref([]);
 
 const chartOptions = ref({
-  chart: { height: 350, type: "bar" },
+  chart: {              type: 'bar',
+    height: 350,
+    stacked: true,
+    toolbar: {
+      show: true
+    },
+    zoom: {
+      enabled: true
+    } },
   plotOptions: { bar: { horizontal: false, columnWidth: "55%", endingShape: "rounded" } },
   dataLabels: { enabled: false },
   stroke: { show: true, width: 2, colors: ["transparent"] },
@@ -75,56 +83,67 @@ const chartOptions = ref({
 });
 
 onMounted(() => {
-  getMetricas();
+  // getMetricas();
 });
 
 function getMetricas() {
-  proxy.$axios.get("/metricas", { params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value } })
-    .then(response => {
-      console.log("Datos recibidos:", response.data);
+  proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk((data) => {
+    console.log(data)
+    if (data === 'aventura') {
+      proxy.$axios.get("/metricas", { params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value } })
+        .then(response => {
+          console.log("Datos recibidos:", response.data);
 
-      metricas.value = response.data.arrayFecha; // Usamos arrayFecha del JSON recibido
+          metricas.value = response.data.arrayFecha; // Usamos arrayFecha del JSON recibido
 
-      // Extraer fechas formateadas (eje X del gráfico)
-      const categories = metricas.value.map(d => d.fechaFormat);
+          // Extraer fechas formateadas (eje X del gráfico)
+          const categories = metricas.value.map(d => d.fechaFormat);
 
-      // Obtener todos los usuarios únicos
-      const usuariosUnicos = new Set();
-      metricas.value.forEach(d => {
-        d.cajas.forEach(caja => {
-          usuariosUnicos.add(caja.user.name);
+          // Obtener todos los usuarios únicos
+          const usuariosUnicos = new Set();
+          metricas.value.forEach(d => {
+            d.cajas.forEach(caja => {
+              usuariosUnicos.add(caja.user.name);
+            });
+          });
+
+          // Inicializar montos en 0 para cada usuario en todas las fechas
+          const userMontos = {};
+          usuariosUnicos.forEach(user => {
+            userMontos[user] = new Array(categories.length).fill(0);
+          });
+
+          // Llenar los montos en la posición correcta de la fecha
+          metricas.value.forEach((d, index) => {
+            d.cajas.forEach(caja => {
+              userMontos[caja.user.name][index] = parseFloat(caja.monto_real); // Aseguramos que sean números
+            });
+          });
+
+          // Construir series para ApexCharts
+          series.value = Object.keys(userMontos).map(name => ({
+            name,
+            data: userMontos[name],
+          }));
+
+          console.log("Categorías actualizadas:", categories);
+
+          // Actualizar las categorías en el gráfico
+          chartOptions.value.xaxis.categories = categories;
+
+          // Forzar actualización si ApexCharts no detecta cambios
+          chartOptions.value = {...chartOptions.value};
+        })
+        .catch(error => {
+          console.error("Error al obtener métricas:", error);
         });
-      });
+    } else {
+      proxy.$alert.error('Contraseña incorrecta', 'Error');
+    }
+  }).onCancel(() => {
+    // console.log('Cancel')
+  });
 
-      // Inicializar montos en 0 para cada usuario en todas las fechas
-      const userMontos = {};
-      usuariosUnicos.forEach(user => {
-        userMontos[user] = new Array(categories.length).fill(0);
-      });
 
-      // Llenar los montos en la posición correcta de la fecha
-      metricas.value.forEach((d, index) => {
-        d.cajas.forEach(caja => {
-          userMontos[caja.user.name][index] = parseFloat(caja.monto_real); // Aseguramos que sean números
-        });
-      });
-
-      // Construir series para ApexCharts
-      series.value = Object.keys(userMontos).map(name => ({
-        name,
-        data: userMontos[name],
-      }));
-
-      console.log("Categorías actualizadas:", categories);
-
-      // Actualizar las categorías en el gráfico
-      chartOptions.value.xaxis.categories = categories;
-
-      // Forzar actualización si ApexCharts no detecta cambios
-      chartOptions.value = {...chartOptions.value};
-    })
-    .catch(error => {
-      console.error("Error al obtener métricas:", error);
-    });
 }
 </script>

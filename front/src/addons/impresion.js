@@ -150,7 +150,9 @@ export class Impresion {
     d.print(document.getElementById('myElement'))
 
   }
-  static imprimirProductos (productos, fechaInicio, fechaFin, userFind, productosAll) {
+  static imprimirProductos (data, fechaInicio, fechaFin, userFind, productosAll) {
+    const productos = data.productos
+    const productosCombo = data.productosCombo
     // console.log(productosAll)
     let textoProductos = '<div class="text-h5"><table class="table">' +
       '<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">' +
@@ -185,28 +187,32 @@ export class Impresion {
     let textoProductosAll = '<div class="text-h5"><table class="table">' +
       '<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">' +
       '<th>Nombre</th>' +
+      '<th class="text-right">Precio</th>' +
       '<th class="text-right">Cantidad</th>' +
       '<th class="text-right">Total</th>' +
       '</tr>'
 
-    // let sumaTotalAll = 0
-    productosAll.forEach((element) => {
+    let sumaTotalAll = 0
+    productosCombo.forEach((element) => {
       textoProductosAll += `
         <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
           <td>${element.nombre}</td>
-          <td class="text-right">${parseInt(element.stock).toFixed(2)}</td>
-          <td class="text-right"></td>
+          <td class="text-right">${parseInt(element.precio).toFixed(2)}</td>
+          <td class="text-right">${element.cantidad_total}</td>
+<!--          <td class="text-right">${(parseInt(element.precio) * parseInt(element.cantidad_total)).toFixed(2)}</td>-->
+          <td class="text-right">${(0).toFixed(2)}</td>
         </tr>
       `
+      // sumaTotalAll += parseInt(element.precio) * parseInt(element.cantidad_total)
     })
-    // textoProductosAll += `
-    //   <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
-    //     <td class="text-right"></td>
-    //     <td class="text-right"></td>
-    //     <td class="text-right text-bold">Total</td>
-    //     <td class="text-right">${sumaTotalAll.toFixed(2)}</td>
-    //   </tr>
-    // `
+    textoProductosAll += `
+      <tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        <td class="text-right text-bold">Total</td>
+        <td class="text-right">${sumaTotalAll.toFixed(2)}</td>
+      </tr>
+    `
 
 
     textoProductosAll += '</table></div>'

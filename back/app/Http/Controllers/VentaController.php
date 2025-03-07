@@ -50,16 +50,39 @@ class VentaController extends Controller{
             $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
         }else if ($reporte == 'PRODUCTOS'){
-            $ventas = Producto::join('detalles', 'productos.id', '=', 'detalles.producto_id')
+
+            $productos = Producto::join('detalles', 'productos.id', '=', 'detalles.producto_id')
                 ->join('ventas', 'detalles.venta_id', '=', 'ventas.id')
                 ->whereDate('ventas.fecha', '>=', $fechaInicio)
                 ->whereDate('ventas.fecha', '<=', $fechaFin)
                 ->where('ventas.user_id', $user_id)
                 ->where('ventas.anulada', 0)
-                ->select('productos.nombre', 'productos.precio', DB::raw('SUM(detalles.cantidad) as cantidad_total'))
-                ->groupBy('productos.nombre', 'productos.precio')
+                ->select('productos.id','productos.nombre', 'productos.precio', DB::raw('SUM(detalles.cantidad) as cantidad_total'))
+                ->groupBy('productos.id','productos.nombre', 'productos.precio')
                 ->get();
-            return $ventas;
+
+            $productosComboRes = [];
+            for ($i = 0; $i < count($productos); $i++){
+                $productoCombo = ProductoCombo::where('producto_padre_id', $productos[$i]->id)->get();
+                if(count($productoCombo) > 0){
+                    foreach ($productoCombo as $productoHijo){
+                        $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
+                        $productosComboRes[] = [
+                            'id' => $productoHijoFind->id,
+                            'nombre' => $productoHijoFind->nombre.' ('.$productos[$i]->nombre.')',
+                            'precio' => $productos[$i]->precio,
+                            'cantidad_total' => $productos[$i]->cantidad_total * $productoHijo->cantidad
+                        ];
+                    }
+                }else{
+                    $productosComboRes[] = $productos[$i];
+                }
+            }
+
+            return [
+                'productos' => $productos,
+                'productosCombo' => $productosComboRes
+            ];
         }else if ($reporte == 'SALA'){
 //            $ventas = Reserva::whereDate('fecha', '>=', $fechaInicio)
 //                ->whereDate('fecha', '<=', $fechaFin)
