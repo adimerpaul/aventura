@@ -30,7 +30,7 @@ class UserController extends Controller{
         return $request->user();
     }
     function index(){
-        return User::where('id', '!=', 1)
+        return User::where('id', '!=', 0)
             ->orderBy('id', 'desc')
             ->get();
     }

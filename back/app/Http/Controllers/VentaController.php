@@ -60,6 +60,7 @@ class VentaController extends Controller{
                 ->select('productos.id','productos.nombre', 'productos.precio', DB::raw('SUM(detalles.cantidad) as cantidad_total'))
                 ->groupBy('productos.id','productos.nombre', 'productos.precio')
                 ->get();
+            error_log(json_encode($productos));
 
             $productosComboRes = [];
             for ($i = 0; $i < count($productos); $i++){
@@ -130,12 +131,11 @@ class VentaController extends Controller{
 
         $user = $request->user();
 
-
         $fechaInicio = $request->fechaInicio;
 //        error_log($fechaInicio);
         $fechaFin = $request->fechaFin;
 
-        if ($user->rol == 'Admin'){
+        if ($user->role == 'Admin'){
             $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
                 ->whereDate('fecha', '<=', $fechaFin)
                 ->orderBy('id', 'desc')
