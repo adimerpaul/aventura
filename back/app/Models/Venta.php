@@ -25,6 +25,8 @@ class Venta extends Model{
 
     function getDetalleTextAttribute(){
         $detalleText = '';
+//        error_log($this->id);
+//        error_log($this->detalles);
         foreach ($this->detalles as $detalle){
             $detalleText .= $detalle->cantidad.' '.$detalle->producto.' '.$detalle->precio.', ';
         }

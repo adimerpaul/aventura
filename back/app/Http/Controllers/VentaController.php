@@ -150,7 +150,7 @@ class VentaController extends Controller{
             $total = 0;
             foreach ($productos as $producto){
                 $productoCombo = ProductoCombo::where('producto_padre_id', $producto['id'])->get();
-//            error_log($productoCombo);
+                error_log(json_encode($productoCombo));
                 if(count($productoCombo) > 0){
                     foreach ($productoCombo as $productoHijo){
                         $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
@@ -162,6 +162,7 @@ class VentaController extends Controller{
                     $productoFind->stock -= $producto['cantidadVenta'];
                     $productoFind->save();
                 }
+                error_log(json_encode($producto));
                 $detalle = new Detalle();
                 $detalle->cantidad = $producto['cantidadVenta'];
                 $detalle->producto = $producto['nombre'];

@@ -262,69 +262,69 @@ const getRowspan = (horaIndex, salaIndex) => {
 
 const toggleSeleccion = (horaIndex, salaIndex, hora) => {
 
-    loading.value = true;
-  proxy.$axios.get('/verificarCaja')
-    .then(res => {
-      console.log(res.data.estado);
-      if (res.data.estado === "cerrada") {
-        proxy.$alert.error("La caja está cerrada, no se pueden realizar reservas");
-        return false;
-      }
+  //   loading.value = true;
+  // proxy.$axios.get('/verificarCaja')
+  //   .then(res => {
+  //     console.log(res.data.estado);
+  //     if (res.data.estado === "cerrada") {
+  //       proxy.$alert.error("La caja está cerrada, no se pueden realizar reservas");
+  //       return false;
+  //     }
+  //
+  //     // console.log("Seleccionando:", horaIndex, salaIndex, hora);
+  //     // return false;
+  //   })
+  //   .catch(error => {
+  //     proxy.$alert.error("Error al obtener reservas");
+  //   })
+  //   .finally(() => {
+  //     loading.value = false;
+  //   });
 
-      // console.log("Seleccionando:", horaIndex, salaIndex, hora);
-      // return false;
+  const key = `${horaIndex}-${salaIndex}`;
 
-      const key = `${horaIndex}-${salaIndex}`;
+  // Si la celda ya está reservada, no permitir selección
+  if (reservas.value[key]) return;
 
-      // Si la celda ya está reservada, no permitir selección
-      if (reservas.value[key]) return;
+  // Si no hay selecciones previas, permitir cualquier selección
+  if (Object.keys(seleccionadas.value).length === 0) {
+    seleccionadas.value[key] = hora;
+    calcularTotalMinutos();
+    return;
+  }
 
-      // Si no hay selecciones previas, permitir cualquier selección
-      if (Object.keys(seleccionadas.value).length === 0) {
-        seleccionadas.value[key] = hora;
-        calcularTotalMinutos();
-        return;
-      }
+  // Obtener la sala ya seleccionada (si existe)
+  const salasSeleccionadas = new Set(Object.keys(seleccionadas.value).map(k => k.split('-')[1]));
 
-      // Obtener la sala ya seleccionada (si existe)
-      const salasSeleccionadas = new Set(Object.keys(seleccionadas.value).map(k => k.split('-')[1]));
+  // Si intenta seleccionar en una sala diferente, rechazar
+  if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {
+    proxy.$alert.error("Debes seleccionar en la misma sala.");
+    return;
+  }
 
-      // Si intenta seleccionar en una sala diferente, rechazar
-      if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {
-        proxy.$alert.error("Debes seleccionar en la misma sala.");
-        return;
-      }
+  // Obtener índices de horarios ya seleccionados en esta sala
+  const horasSeleccionadas = Object.keys(seleccionadas.value)
+    .map(k => parseInt(k.split('-')[0])) // Extraer solo los índices de hora
+    .sort((a, b) => a - b); // Ordenar
 
-      // Obtener índices de horarios ya seleccionados en esta sala
-      const horasSeleccionadas = Object.keys(seleccionadas.value)
-        .map(k => parseInt(k.split('-')[0])) // Extraer solo los índices de hora
-        .sort((a, b) => a - b); // Ordenar
+  // Verificar si la nueva selección es continua
+  if (horasSeleccionadas.length > 0) {
+    const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
 
-      // Verificar si la nueva selección es continua
-      if (horasSeleccionadas.length > 0) {
-        const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
+    if (horaIndex !== ultimaHora + 1) {
+      proxy.$alert.error("Debes seleccionar horarios consecutivos.");
+      return;
+    }
+  }
 
-        if (horaIndex !== ultimaHora + 1) {
-          proxy.$alert.error("Debes seleccionar horarios consecutivos.");
-          return;
-        }
-      }
+  // Si ya está seleccionada, quitarla; si no, agregarla
+  if (seleccionadas.value[key]) {
+    delete seleccionadas.value[key];
+  } else {
+    seleccionadas.value[key] = hora;
+  }
 
-      // Si ya está seleccionada, quitarla; si no, agregarla
-      if (seleccionadas.value[key]) {
-        delete seleccionadas.value[key];
-      } else {
-        seleccionadas.value[key] = hora;
-      }
-
-      calcularTotalMinutos();
-    })
-    .catch(error => {
-      proxy.$alert.error("Error al obtener reservas");
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  calcularTotalMinutos();
 };
 
 // Recalcular tiempo total seleccionado
