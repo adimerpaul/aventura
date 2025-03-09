@@ -10,15 +10,15 @@
             <div class="col-12 col-md-2">
               <q-input v-model="fechaFin" label="Fecha Fin" type="date" outlined dense />
             </div>
-            <div class="col-12 col-md-2 flex flex-center">
-              <q-btn style="width: 150px" label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
-            </div>
             <div class="col-12 col-md-2">
               <q-select v-model="user" label="Usuario" outlined dense :options="users"
                         option-label="name" option-value="id" emit-value map-options
                         v-if="$store.user.role === 'Admin'"
               />
-<!--              <pre>{{user}}</pre>-->
+              <!--              <pre>{{user}}</pre>-->
+            </div>
+            <div class="col-12 col-md-2 flex flex-center">
+              <q-btn style="width: 150px" label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
             </div>
             <div class="col-12 col-md-2">
               <q-select v-model="reporte" label="Tipo Reporte" outlined dense :options="reportes"
@@ -310,14 +310,21 @@ function anular(id) {
   });
 }
 function getUsers() {
+  // users todos
+  users.value = [
+    { id: '', name: 'Todos' }
+  ]
   proxy.$axios.get("/users").then(response => {
-    users.value = response.data;
+    // users.value = response.data;
+    response.data.forEach(user => {
+      users.value.push({ id: user.id, name: user.name });
+    });
   });
 }
 function getVentas() {
   loading.value = true;
   proxy.$axios.get("/ventas", {
-    params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value }
+    params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value, user_id: user.value }
   }).then(response => {
     ventas.value = response.data;
     // for (let venta of ventas.value) {

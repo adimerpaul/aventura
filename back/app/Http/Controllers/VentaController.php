@@ -127,30 +127,22 @@ class VentaController extends Controller{
             return $reservasTotal;
         }
     }
-    function index(Request $request){
-
+    function index(Request $request)
+    {
         $user = $request->user();
-
         $fechaInicio = $request->fechaInicio;
-//        error_log($fechaInicio);
         $fechaFin = $request->fechaFin;
+        $user_id = $request->user_id;
 
-        if ($user->role == 'Admin'){
-            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
-                ->whereDate('fecha', '<=', $fechaFin)
-                ->orderBy('id', 'desc')
-                ->with('detalles','user')
-                ->get();
-            return $ventas;
-        }else{
-            $ventas = Venta::whereDate('fecha', '>=', $fechaInicio)
-                ->whereDate('fecha', '<=', $fechaFin)
-                ->where('user_id', $user->id)
-                ->orderBy('id', 'desc')
-                ->with('detalles','user')
-                ->get();
+        $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->with('detalles', 'user')
+            ->orderBy('id', 'desc');
+
+        if ($user->role !== 'Admin' || $user_id) {
+            $query->where('user_id', $user_id ?? $user->id);
         }
-        return $ventas;
+
+        return $query->get();
     }
     function store(Request $request){
         $hoy = date('Y-m-d');
