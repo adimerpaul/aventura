@@ -60,9 +60,16 @@ class VentaController extends Controller{
                 ->select('productos.id','productos.nombre', 'productos.precio', DB::raw('SUM(detalles.cantidad) as cantidad_total'))
                 ->groupBy('productos.id','productos.nombre', 'productos.precio')
                 ->get();
-            error_log(json_encode($productos));
+
+            $gaseosa_id = 3;
+            $pipoca_id = 14;
+            $frappe_id = 30;
 
             $productosComboRes = [];
+
+            $productosGaseosaRes = [];
+            $productosPipocaRes = [];
+            $productosFrapeRes = [];
             for ($i = 0; $i < count($productos); $i++){
                 $productoCombo = ProductoCombo::where('producto_padre_id', $productos[$i]->id)->get();
                 if(count($productoCombo) > 0){
@@ -71,18 +78,47 @@ class VentaController extends Controller{
                         $productosComboRes[] = [
                             'id' => $productoHijoFind->id,
                             'nombre' => $productoHijoFind->nombre.' ('.$productos[$i]->nombre.')',
-                            'precio' => $productos[$i]->precio,
+//                            'precio' => $productos[$i]->precio,
+                            'precio' => 0,
                             'cantidad_total' => $productos[$i]->cantidad_total * $productoHijo->cantidad
                         ];
+                        if ($productoHijoFind->id == $gaseosa_id){
+                            $productosGaseosaRes[] = [
+                                'id' => $productoHijoFind->id,
+                                'nombre' => $productoHijoFind->nombre.' ('.$productos[$i]->nombre.')',
+                                'precio' => 0,
+                                'cantidad_total' => $productos[$i]->cantidad_total * $productoHijo->cantidad
+                            ];
+                        }
+                        if ($productoHijoFind->id == $pipoca_id) {
+                            $productosPipocaRes[] = [
+                                'id' => $productoHijoFind->id,
+                                'nombre' => $productoHijoFind->nombre . ' (' . $productos[$i]->nombre . ')',
+                                'precio' => 0,
+                                'cantidad_total' => $productos[$i]->cantidad_total * $productoHijo->cantidad
+                            ];
+                        }
+                        if ($productoHijoFind->id == $frappe_id) {
+                            $productosFrapeRes[] = [
+                                'id' => $productoHijoFind->id,
+                                'nombre' => $productoHijoFind->nombre . ' (' . $productos[$i]->nombre . ')',
+                                'precio' => 0,
+                                'cantidad_total' => $productos[$i]->cantidad_total * $productoHijo->cantidad
+                            ];
+                        }
                     }
-                }else{
-                    $productosComboRes[] = $productos[$i];
                 }
+//                else{
+//                    $productosComboRes[] = $productos[$i];
+//                }
             }
 
             return [
                 'productos' => $productos,
-                'productosCombo' => $productosComboRes
+                'productosCombo' => $productosComboRes,
+                'productosGaseosa' => $productosGaseosaRes,
+                'productosPipoca' => $productosPipocaRes,
+                'productosFrape' => $productosFrapeRes
             ];
         }else if ($reporte == 'SALA'){
 //            $ventas = Reserva::whereDate('fecha', '>=', $fechaInicio)
@@ -133,6 +169,8 @@ class VentaController extends Controller{
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
         $user_id = $request->user_id;
+        $fechaInicio = $fechaInicio.' 00:00:00';
+        $fechaFin = $fechaFin.' 23:59:59';
 
         $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->with('detalles', 'user')
@@ -203,18 +241,25 @@ class VentaController extends Controller{
         $venta->save();
 
         $detalles = Detalle::where('venta_id', $venta->id)->get();
-        foreach ($detalles as $producto){
-            $productoCombo = ProductoCombo::where('producto_padre_id', $producto['id'])->get();
-            if(count($productoCombo) > 0){
-                foreach ($productoCombo as $productoHijo){
+        foreach ($detalles as $detalle){
+            // Corregimos la búsqueda de ProductoCombo
+            $productoCombo = ProductoCombo::where('producto_padre_id', $detalle['producto_id'])->get();
+
+            if ($productoCombo->count() > 0) {
+                foreach ($productoCombo as $productoHijo) {
                     $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
-                    $productoHijoFind->stock += $producto['cantidad'] * $productoHijo->cantidad;
-                    $productoHijoFind->save();
+                    if ($productoHijoFind) {
+                        error_log(json_encode($productoHijoFind));
+                        $productoHijoFind->stock += $detalle['cantidad'] * $productoHijo->cantidad;
+                        $productoHijoFind->save();
+                    }
                 }
-            }else{
-                $productoFind = Producto::find($producto['producto_id']);
-                $productoFind->stock += $producto['cantidad'];
-                $productoFind->save();
+            } else {
+                $productoFind = Producto::find($detalle['producto_id']);
+                if ($productoFind) {
+                    $productoFind->stock += $detalle['cantidad'];
+                    $productoFind->save();
+                }
             }
         }
 
