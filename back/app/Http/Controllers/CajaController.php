@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Models\Reserva;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use function Pest\Laravel\json;
@@ -50,23 +51,38 @@ class CajaController extends Controller{
         ];
     }
     function store(Request $request){
-
-
         $hoy = date('Y-m-d');
+        $fechaInicio = $hoy . ' 00:00:00';
+        $fechaFin = $hoy . ' 23:59:59';
+
         $montoReal = $request->monto_final - $request->monto_inicial;
         $user = $request->user();
-
-
+        $user_id = $user->id;
 
         $ventasSum = $user->ventas()
             ->whereDate('fecha', $hoy)
             ->where('anulada', 0)
             ->sum('total');
 
-        $reservasSum = $user->reservas()
-            ->whereDate('fecha', $hoy)
-            ->whereRaw('(estado = "Finalizado" or estado = "Confirmado")')
-            ->sum('total');
+//        $reservasSum = $user->reservas()
+//            ->whereDate('fecha', $hoy)
+//            ->whereRaw('(estado = "Finalizado" or estado = "Confirmado")')
+//            ->sum('total');
+
+        $reservasSumAdelanto = Reserva::whereDate('fecha', '>=', $fechaInicio)
+            ->whereDate('fecha', '<=', $fechaFin)
+            ->where('user_id', $user_id)
+            ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
+            ->sum('adelanto');
+        error_log('reservasSumAdelanto: '.$reservasSumAdelanto);
+        $reservasSumSaldo = Reserva::whereDate('fecha', '>=', $fechaInicio)
+            ->whereDate('fecha', '<=', $fechaFin)
+            ->where('user_confirmado_id', $user_id)
+            ->whereRaw('(estado = "Finalizado" OR estado = "Reservado")')
+            ->sum('saldo');
+        error_log('reservasSumSaldo: '.$reservasSumSaldo);
+
+        $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
 
         $montoRealVentas = $ventasSum + $reservasSum;
 
@@ -77,6 +93,9 @@ class CajaController extends Controller{
             $verificar->monto_final = $request->monto_final;
             $verificar->observacion = $request->observacion;
             $verificar->monto_real = $montoReal;
+            $verificar->monto_reserva = $reservasSum;
+            $verificar->monto_venta = $ventasSum;
+            $verificar->monto_caja = $montoRealVentas;
             $verificar->monto_diferencia = $montoReal - $montoRealVentas;
             $verificar->save();
             return "Caja actualizada";
@@ -88,6 +107,9 @@ class CajaController extends Controller{
         $caja->monto_inicial = $request->monto_inicial;
         $caja->monto_final = $request->monto_final;
         $caja->monto_real = $montoReal;
+        $caja->monto_caja = $montoRealVentas;
+        $caja->monto_reserva = $reservasSum;
+        $caja->monto_venta = $ventasSum;
         $caja->monto_diferencia = $montoReal - $montoRealVentas;
         $caja->observacion = $request->observacion;
         $caja->user_id = $user->id;

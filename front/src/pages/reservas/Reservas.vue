@@ -29,7 +29,7 @@
           <thead>
           <tr>
             <q-th class="bg-grey text-white sticky-hora">Hora</q-th> <!-- Sticky en encabezado -->
-            <q-th class="bg-primary text-white" v-for="sala in salas" :key="sala.sala">{{ sala.sala }}</q-th>
+            <q-th class="bg-blue text-white" v-for="sala in salas" :key="sala.sala">{{ sala.sala }}</q-th>
           </tr>
           </thead>
           <tbody class="scroll-body">

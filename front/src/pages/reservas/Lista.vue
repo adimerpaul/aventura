@@ -10,6 +10,13 @@
           <div class="col-6 col-md-2">
             <q-input v-model="fechaFin" label="Fecha Fin" type="date" outlined dense />
           </div>
+          <div class="col-6 col-md-2">
+            <q-select v-model="user" label="Usuario" outlined dense :options="users"
+                      emit-value map-options :option-value="'id'" :option-label="'name'" />
+          </div>
+          <div class="col-6 col-md-2">
+            <q-select v-model="tipo" label="Tipo" outlined dense :options="['Todo', 'Adelanto', 'Confirmado']" />
+          </div>
           <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
           </div>
@@ -19,9 +26,9 @@
         </div>
         </q-form>
         <div class="row">
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-6 col-md-2 q-pa-xs">
             <q-list bordered padding dense>
-              <q-item clickable v-ripple>
+              <q-item clickable v-ripple dense>
                 <q-item-section avatar>
                   <q-avatar color="indigo" text-color="white" icon="event" />
                 </q-item-section>
@@ -32,15 +39,53 @@
                     </span>
                   </q-item-label>
                   <q-item-label caption lines="2">
-                    Cantida de reservas
+                    Cantidad
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
           </div>
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-6 col-md-2 q-pa-xs">
             <q-list bordered padding dense>
-              <q-item clickable v-ripple>
+              <q-item clickable v-ripple dense>
+                <q-item-section avatar>
+                  <q-avatar color="orange" text-color="white" icon="attach_money" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label lines="1">
+                    <span class="text-weight-bold">
+                      Bs {{reservas.filter(reserva => reserva.estado !== 'Cancelado').reduce((acc, reserva) => acc + parseFloat(reserva.adelanto), 0).toFixed(2)}}
+                    </span>
+                  </q-item-label>
+                  <q-item-label caption lines="2">
+                    Adelanto
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="col-6 col-md-2 q-pa-xs">
+            <q-list bordered padding dense>
+              <q-item clickable v-ripple dense>
+                <q-item-section avatar>
+                  <q-avatar color="blue" text-color="white" icon="attach_money" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label lines="1">
+                    <span class="text-weight-bold">
+                      Bs {{reservas.filter(reserva => reserva.estado !== 'Cancelado').reduce((acc, reserva) => acc + parseFloat(reserva.saldo), 0).toFixed(2)}}
+                    </span>
+                  </q-item-label>
+                  <q-item-label caption lines="2">
+                    Saldo
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="col-6 col-md-2 q-pa-xs">
+            <q-list bordered padding dense>
+              <q-item clickable v-ripple dense>
                 <q-item-section avatar>
                   <q-avatar color="green" text-color="white" icon="attach_money" />
                 </q-item-section>
@@ -51,16 +96,15 @@
                     </span>
                   </q-item-label>
                   <q-item-label caption lines="2">
-                    Total de reservas
+                    Total
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
           </div>
-<!--          total cancalado anulados-->
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-6 col-md-2 q-pa-xs">
             <q-list bordered padding dense>
-              <q-item clickable v-ripple>
+              <q-item clickable v-ripple dense>
                 <q-item-section avatar>
                   <q-avatar color="red" text-color="white" icon="cancel" />
                 </q-item-section>
@@ -71,7 +115,7 @@
                     </span>
                   </q-item-label>
                   <q-item-label caption lines="2">
-                    Total de reservas canceladas
+                    Anulados
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -91,7 +135,8 @@
               <th>Saldo</th>
               <th>Estado</th>
               <th>Observaciones</th>
-              <th>Usuario</th>
+              <th>Adelanto</th>
+              <th>Confirmado</th>
             </tr>
           </thead>
           <tbody>
@@ -155,6 +200,11 @@
                   {{reserva.user?.username}}
                 </div>
               </td>
+              <td>
+                <div style="font-size: 10px;width: 80px; white-space: normal; overflow-wrap: break-word;">
+                  {{reserva.user_confirmado?.username}}
+                </div>
+              </td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -198,10 +248,24 @@ const reservas = ref([])
 const reservasAll = ref([])
 const loading = ref(false)
 const filter = ref('')
+const users = ref([])
+const user = ref(0)
+const tipo = ref('Todo')
 
 onMounted(() => {
   getReservas()
+  getUsers()
 })
+function getUsers() {
+  users.value = [{id: 0, name: 'Todos'}]
+  proxy.$axios.get('users').then(response => {
+    response.data.forEach(user => {
+      users.value.push(user)
+    })
+  }).catch(error => {
+    console.log(error)
+  })
+}
 function filtroReservas() {
   reservas.value = reservasAll.value.filter(reserva => {
     return reserva.nombre.toLowerCase().includes(filter.value.toLowerCase())
@@ -253,7 +317,9 @@ function getReservas() {
   proxy.$axios.get('reservasAll',{
     params: {
       fechaInicio: fechaInicio.value,
-      fechaFin: fechaFin.value
+      fechaFin: fechaFin.value,
+      user_id: user.value,
+      tipo: tipo.value
     }
   }).then(response => {
     reservas.value = response.data

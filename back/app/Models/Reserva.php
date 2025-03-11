@@ -33,6 +33,9 @@ class Reserva extends Model{
     function user(){
         return $this->belongsTo(User::class);
     }
+    function user_confirmado(){
+        return $this->belongsTo(User::class);
+    }
     function user_cancelado(){
         return $this->belongsTo(User::class);
     }

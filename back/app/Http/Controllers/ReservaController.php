@@ -37,11 +37,29 @@ class ReservaController extends Controller{
     function reservasAll(Request $request){
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
-        $reservas = Reserva::whereBetween('fecha', [$fechaInicio, $fechaFin])
-//            ->whereRaw('(estado = "Reservado" OR estado = "Finalizado")')
-            ->orderBy('id', 'desc')
-            ->with('user', 'user_cancelado')
-            ->get();
+        $user_id = $request->user_id;
+        $tipo = $request->tipo; //:options="['Todo', 'Reservado', 'Finalizado', 'Cancelado']"
+
+        $query = Reserva::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->with('user', 'user_cancelado', 'user_confirmado')
+            ->orderBy('id', 'desc');
+
+        if ($user_id != 0) {
+            $query->where(function ($q) use ($user_id) {
+                $q->where('user_id', $user_id)
+                    ->orWhere('user_confirmado_id', $user_id);
+            });
+        }
+
+        if ($tipo == 'Adelanto') {
+            $query->where('user_id', $user_id);
+        }
+        if ($tipo == 'Confirmado') {
+            $query->where('user_confirmado_id', $user_id);
+        }
+
+        $reservas = $query->get();
+
         return response()->json($reservas);
     }
     function index(Request $request) {

@@ -18,6 +18,9 @@ return new class extends Migration
             $table->decimal('monto_final', 10, 2);
             $table->decimal('monto_real', 10, 2);
             $table->decimal('monto_diferencia', 10, 2);
+            $table->decimal('monto_caja', 10, 2);
+            $table->decimal('monto_reserva', 10, 2);
+            $table->decimal('monto_venta', 10, 2);
             $table->string('observacion')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
