@@ -111,9 +111,18 @@ class VentaController extends Controller{
                         }
                     }
                 }
-//                else{
+                else{
 //                    $productosComboRes[] = $productos[$i];
-//                }
+                    if ($productos[$i]->id == $gaseosa_id){
+                        $productosGaseosaRes[] = $productos[$i];
+                    }
+                    if ($productos[$i]->id == $pipoca_id) {
+                        $productosPipocaRes[] = $productos[$i];
+                    }
+                    if ($productos[$i]->id == $frappe_id) {
+                        $productosFrapeRes[] = $productos[$i];
+                    }
+                }
             }
 
             return [

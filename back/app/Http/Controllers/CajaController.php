@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Caja;
 use App\Models\Reserva;
+use App\Models\Venta;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use function Pest\Laravel\json;
@@ -64,8 +65,13 @@ class CajaController extends Controller{
 
         $montoReal = $montoFinal - $montoInicial;
 
-        $ventasSum = $user->ventas()
-            ->whereDate('fecha', $hoy)
+//        $ventasSum = $user->ventas()
+//            ->whereDate('fecha', $hoy)
+//            ->where('anulada', 0)
+//            ->sum('total');
+        $ventasSum = Venta::whereDate('fecha', '>=', $fechaInicio)
+            ->whereDate('fecha', '<=', $fechaFin)
+            ->where('user_id', $user_id)
             ->where('anulada', 0)
             ->sum('total');
 
