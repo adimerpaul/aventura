@@ -36,18 +36,21 @@ class VentaController extends Controller{
                 ->where('user_id', $user_id)
                 ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
                 ->sum('adelanto');
-            error_log('reservasSumAdelanto: '.$reservasSumAdelanto);
+//            error_log('reservasSumAdelanto rrrrrrrrr: '.$reservasSumAdelanto);
             $reservasSumSaldo = Reserva::whereDate('fecha', '>=', $fechaInicio)
                 ->whereDate('fecha', '<=', $fechaFin)
                 ->where('user_confirmado_id', $user_id)
                 ->whereRaw('(estado = "Finalizado" OR estado = "Reservado")')
                 ->sum('saldo');
-            error_log('reservasSumSaldo: '.$reservasSumSaldo);
+//            error_log('reservasSumSaldo rrrrrrr: '.$reservasSumSaldo);
             $cajas = Caja::whereDate('fecha_cierre', '>=', $fechaInicio)
                 ->whereDate('fecha_cierre', '<=', $fechaFin)
                 ->where('user_id', $user_id)
                 ->get();
             $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
+
+            error_log('reservasSum rrrrrrrrr: '.$reservasSum);
+
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
         }else if ($reporte == 'PRODUCTOS'){
 

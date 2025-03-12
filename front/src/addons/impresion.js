@@ -348,13 +348,13 @@ export class Impresion {
       textoCajas += `
       <div style="border: 1px solid black; padding: 5px;border-radius: 5px;">
         <div><span class="text-bold">Fecha Cierre:</span> ${moment(element.fecha_cierre).format('DD/MM/YYYY HH:mm:ss')}</div>
-        <div><span class="text-bold">Monto Inicial:</span> ${parseInt(element.monto_inicial).toFixed(2)}</div>
-        <div><span class="text-bold">Monto Final:</span> ${parseInt(element.monto_final).toFixed(2)}</div>
-        <div><span class="text-bold">Monto Real:</span> ${parseInt(element.monto_real).toFixed(2)}</div>
-        <div><span class="text-bold">Monto Diferencia:</span> ${parseInt(element.monto_diferencia).toFixed(2)}</div>
+<!--        <div><span class="text-bold">Total Reservas:</span> ${parseInt(element.monto_reserva).toFixed(2)}</div>-->
+<!--        <div><span class="text-bold">Total Venta:</span> ${parseInt(element.monto_venta).toFixed(2)}</div>-->
+<!--        <div><span class="text-bold">Monto Inicial:</span> ${parseInt(element.monto_inicial).toFixed(2)}</div>-->
         <div><span class="text-bold">Total:</span> ${parseInt(element.monto_caja).toFixed(2)}</div>
-        <div><span class="text-bold">Total Reservas:</span> ${parseInt(element.monto_reserva).toFixed(2)}</div>
-        <div><span class="text-bold">Total Venta:</span> ${parseInt(element.monto_venta).toFixed(2)}</div>
+        <div><span class="text-bold">Monto Final:</span> ${parseInt(element.monto_final).toFixed(2)}</div>
+<!--        <div><span class="text-bold">Monto Real:</span> ${parseInt(element.monto_real).toFixed(2)}</div>-->
+        <div><span class="text-bold">Monto Diferencia:</span> ${parseInt(element.monto_diferencia).toFixed(2)}</div>
         <div><span class="text-bold">Observación:</span> ${element.observacion == null ? '' : element.observacion}</div>
       </div>
       `

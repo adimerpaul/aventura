@@ -51,13 +51,18 @@ class CajaController extends Controller{
         ];
     }
     function store(Request $request){
-        $hoy = date('Y-m-d');
-        $fechaInicio = $hoy . ' 00:00:00';
-        $fechaFin = $hoy . ' 23:59:59';
-
-        $montoReal = $request->monto_final - $request->monto_inicial;
         $user = $request->user();
         $user_id = $user->id;
+        $hoy = date('Y-m-d');
+//        $user_id = 4;
+//        $hoy = '2025-03-11';
+        $fechaInicio = $hoy . ' 00:00:00';
+        $fechaFin = $hoy . ' 23:59:59';
+//        $montoInicial = $request->monto_inicial;
+        $montoInicial = 0;
+        $montoFinal = $request->monto_final;
+
+        $montoReal = $montoFinal - $montoInicial;
 
         $ventasSum = $user->ventas()
             ->whereDate('fecha', $hoy)
@@ -74,25 +79,27 @@ class CajaController extends Controller{
             ->where('user_id', $user_id)
             ->whereRaw("(estado = 'Finalizado' OR estado = 'Reservado')")
             ->sum('adelanto');
-        error_log('reservasSumAdelanto: '.$reservasSumAdelanto);
+//        error_log('reservasSumAdelanto iiiiiiiiii: '.$reservasSumAdelanto);
         $reservasSumSaldo = Reserva::whereDate('fecha', '>=', $fechaInicio)
             ->whereDate('fecha', '<=', $fechaFin)
             ->where('user_confirmado_id', $user_id)
             ->whereRaw('(estado = "Finalizado" OR estado = "Reservado")')
             ->sum('saldo');
-        error_log('reservasSumSaldo: '.$reservasSumSaldo);
+//        error_log('reservasSumSaldo iiiiiiiiiii: '.$reservasSumSaldo);
+
 
         $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
 
         $montoRealVentas = $ventasSum + $reservasSum;
 
-        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
+        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user_id)->first();
         if($verificar){
-            error_log(json_encode($verificar));
-            $verificar->monto_inicial = $request->monto_inicial;
-            $verificar->monto_final = $request->monto_final;
+//            error_log(json_encode($verificar));
+            $verificar->monto_inicial = $montoInicial;
+            $verificar->monto_final = $montoFinal;
             $verificar->observacion = $request->observacion;
             $verificar->monto_real = $montoReal;
+            error_log('reservasSum iiiiiiii: '.$reservasSum);
             $verificar->monto_reserva = $reservasSum;
             $verificar->monto_venta = $ventasSum;
             $verificar->monto_caja = $montoRealVentas;
@@ -103,16 +110,16 @@ class CajaController extends Controller{
 //            return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
         }
         $caja = new Caja();
-        $caja->fecha_cierre = date('Y-m-d H:i:s');
-        $caja->monto_inicial = $request->monto_inicial;
-        $caja->monto_final = $request->monto_final;
+        $caja->fecha_cierre = $hoy.date(' H:i:s');
+        $caja->monto_inicial = $montoInicial;
+        $caja->monto_final = $montoFinal;
         $caja->monto_real = $montoReal;
         $caja->monto_caja = $montoRealVentas;
         $caja->monto_reserva = $reservasSum;
         $caja->monto_venta = $ventasSum;
         $caja->monto_diferencia = $montoReal - $montoRealVentas;
         $caja->observacion = $request->observacion;
-        $caja->user_id = $user->id;
+        $caja->user_id = $user_id;
         $caja->save();
         return "Caja guardada";
     }

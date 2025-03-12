@@ -190,10 +190,10 @@
       </q-card-section>
       <q-card-section>
         <q-form @submit.prevent="cerraCajaSubmit">
-          <q-input v-model="caja.monto_inicial" label="Monto Inicial" type="number" outlined dense hint="" />
+<!--          <q-input v-model="caja.monto_inicial" label="Monto Inicial" type="number" outlined dense hint="" />-->
           <q-input v-model="caja.monto_final" label="Monto Final" type="number" outlined dense hint="" />
           <q-input type="textarea" v-model="caja.observacion" label="Observación" outlined dense hint="" />
-          <q-btn label="Cerrar Caja" color="red" type="submit" :loading="loading" />
+          <q-btn label="Cerrar Caja" color="red" type="submit" :loading="loading" no-caps icon="point_of_sale" class="q-mt-md" />
         </q-form>
       </q-card-section>
     </q-card>
