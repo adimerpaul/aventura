@@ -72,7 +72,12 @@
     <q-dialog v-model="dialogoReservar">
       <q-card style="min-width: 250px;">
         <q-card-section class="q-pb-none row items-center">
-          <div class="text-subtitle2 text-bold">{{fechaText}}</div>
+          <div class="text-subtitle2 text-bold">
+            {{fechaText}}
+            <div class="text-red">
+              {{ Object.keys(seleccionadas).length > 0 ? salas[Object.keys(seleccionadas)[0].split("-")[1]].sala : "-" }}
+            </div>
+          </div>
           <q-space />
           <q-btn flat dense round icon="close" class="q-ml-auto" @click="dialogoReservar = false" />
         </q-card-section>
@@ -503,6 +508,23 @@ export default {
         this.seleccionadas[key] = hora;
         this.calcularTotalMinutos();
         return;
+      }
+      if (Object.keys(this.seleccionadas).length > 0) {
+        const salasSeleccionadas = new Set(Object.keys(this.seleccionadas).map(k => k.split('-')[1]));
+        if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {
+          this.$alert.error("Debes seleccionar en la misma sala.");
+          return;
+        }
+        const horasSeleccionadas = Object.keys(this.seleccionadas)
+          .map(k => parseInt(k.split('-')[0]))
+          .sort((a, b) => a - b);
+        if (horasSeleccionadas.length > 0) {
+          const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];
+          if (horaIndex !== ultimaHora + 1) {
+            this.$alert.error("Debes seleccionar horarios consecutivos.");
+            return;
+          }
+        }
       }
       if (this.seleccionadas[key]) {
         delete this.seleccionadas[key];
