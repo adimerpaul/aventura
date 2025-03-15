@@ -8,6 +8,9 @@
                      @update:modelValue="getReservas"
             />
           </div>
+          <div class="col-6 col-md-2 text-center flex flex-center">
+            <div class="text-bold text-red">{{fechaText}} </div>
+          </div>
           <div class="col-6 col-md-2 flex flex-center">
             <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" :loading="loading" />
 <!--            <q-btn color="primary" label="Consultar" @click="getReservas" size="11px" no-caps icon="search" :loading="loading" />-->
@@ -17,10 +20,10 @@
               Tiempo Seleccionado: {{ tiempoSeleccionado }}
             </q-badge>
           </div>
-          <div class="col-6 col-md-3 text-right">
+          <div class="col-6 col-md-2 text-right">
             <q-btn color="red" label="Limpiar" @click="limpiar" no-caps icon="clear" size="11px" v-if="Object.keys(seleccionadas).length > 0" />
           </div>
-          <div class="col-6 col-md-3 text-right">
+          <div class="col-6 col-md-2 text-right">
           </div>
 <!--          <pre>{{seleccionadas}}</pre>-->
         </div>
@@ -69,7 +72,7 @@
     <q-dialog v-model="dialogoReservar">
       <q-card style="min-width: 250px;">
         <q-card-section class="q-pb-none row items-center">
-          <div class="text-h6">Reservar Sala</div>
+          <div class="text-subtitle2 text-bold">{{fechaText}}</div>
           <q-space />
           <q-btn flat dense round icon="close" class="q-ml-auto" @click="dialogoReservar = false" />
         </q-card-section>
@@ -411,6 +414,11 @@ export default {
     };
   },
   computed: {
+    fechaText(){
+      const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      return `${dias[moment(this.fecha).day()]} ${moment(this.fecha).date()} de ${meses[moment(this.fecha).month()]} de ${moment(this.fecha).year()}`;
+    },
     tiempoSeleccionado() {
       const horas = Math.floor(this.totalMinutos / 60);
       const minutos = this.totalMinutos % 60;
