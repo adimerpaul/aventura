@@ -40,26 +40,52 @@
             <tr>
               <q-td class="sticky-hora" style="padding: 0;margin: 0;border: 0">{{ hora.hora }}</q-td>  <!-- Sticky en tbody -->
               <template v-for="(sala, salaIndex) in salas" :key="salaIndex">
-                <template v-if="shouldShowCell(horaIndex, salaIndex)">
-                  <td
-                    :rowspan="getRowspan(horaIndex, salaIndex)"
-                    :class="{
-                'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`],
-                'bg-red text-white': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
-                'bg-yellow text-black': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
-                'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`]
-              }"
-                    class="text-center cursor-pointer"
-                    @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"
-                  >
-                    <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`]">
+<!--                <template v-if="shouldShowCell(horaIndex, salaIndex)">-->
+<!--                  <td-->
+<!--                    :rowspan="getRowspan(horaIndex, salaIndex)"-->
+<!--                    :class="{-->
+<!--                'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`],-->
+<!--                'bg-red text-white': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',-->
+<!--                'bg-yellow text-black': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',-->
+<!--                'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`]-->
+<!--              }"-->
+<!--                    class="text-center cursor-pointer"-->
+<!--                    @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"-->
+<!--                  >-->
+<!--                    <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`]">-->
+<!--                      {{ $store.reservas[`${horaIndex}-${salaIndex}`].nombre }}-->
+<!--                    </div>-->
+<!--                    <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`] && $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">-->
+<!--                      {{ $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}-->
+<!--                    </div>-->
+<!--                  </td>-->
+<!--                </template>-->
+                <td
+                  :class="{
+    'bg-green text-white': seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`],
+    'bg-red text-white': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'red',
+    'bg-yellow text-black': $store.reservas[`${horaIndex}-${salaIndex}`]?.color === 'yellow',
+    'bg-grey-3': !seleccionadas[`${horaIndex}-${salaIndex}`] && !$store.reservas[`${horaIndex}-${salaIndex}`]
+  }"
+                  class="text-center cursor-pointer"
+                  @click="toggleSeleccion(horaIndex, salaIndex, hora.hora)"
+                >
+                  <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`]">
+                    <!-- Mostrar nombre solo en la primera celda -->
+                    <template v-if="esPrimeraCeldaReserva(horaIndex, salaIndex)">
                       {{ $store.reservas[`${horaIndex}-${salaIndex}`].nombre }}
-                    </div>
-                    <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`] && $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
-                      {{ $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
-                    </div>
-                  </td>
-                </template>
+                      <!--                    <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`] && $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">-->
+                      <!--                      {{ $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}-->
+                      <!--                    </div>-->
+                      <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`] && $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
+                        {{ $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
+                      </div>
+                    </template>
+                    <template v-else>
+                      ...
+                    </template>
+                  </div>
+                </td>
               </template>
             </tr>
           </template>
@@ -115,288 +141,6 @@
     </q-dialog>
   </q-page>
 </template>
-
-<!--<script>-->
-<!--import moment from "moment";-->
-
-<!--const {proxy} = getCurrentInstance();-->
-<!--const fecha = ref(moment().format("YYYY-MM-DD"));-->
-<!--const salas = ref([]);-->
-<!--const horarios = ref([]);-->
-<!--const seleccionadas = ref({});-->
-<!--// const reservas = ref(JSON.parse(localStorage.getItem("reservas")) || {});-->
-<!--const reservas = ref( {});-->
-<!--const totalMinutos = ref(0);-->
-<!--const dialogoReservar = ref(false);-->
-<!--const nombre = ref("");-->
-<!--const personas = ref(1);-->
-<!--const adelanto = ref(0);-->
-<!--const observacion = ref("");-->
-<!--const loading = ref(false);-->
-<!--const directo = ref(false);-->
-
-<!--// Formatear tiempo total en HH:mm-->
-<!--const tiempoSeleccionado = computed(() => {-->
-<!--  const horas = Math.floor(totalMinutos.value / 60);-->
-<!--  const minutos = totalMinutos.value % 60;-->
-<!--  return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}`;-->
-<!--});-->
-
-<!--// Calcular monto total (5 Bs por persona cada 30 min)-->
-<!--const montoTotal = computed(() => {-->
-<!--  return (totalMinutos.value / 30) * 5 * (personas.value || 1);-->
-<!--});-->
-
-<!--onMounted(() => {-->
-<!--  for (let i = 0; i < 20; i++) {-->
-<!--    salas.value.push({ sala: "Sala " + (i + 1) });-->
-<!--  }-->
-
-<!--  for (let i = 8; i < 23; i++) {-->
-<!--    let horaInicio = `${i}:00`;-->
-<!--    let horaFin = `${i}:30`;-->
-<!--    horarios.value.push({ hora: `${horaInicio}-${horaFin}` });-->
-
-<!--    horaInicio = `${i}:30`;-->
-<!--    horaFin = `${i + 1}:00`;-->
-<!--    horarios.value.push({ hora: `${horaInicio}-${horaFin}` });-->
-<!--  }-->
-
-<!--  calcularTotalMinutos();-->
-<!--  getReservas();-->
-
-<!--  if (!proxy.$store.socketReservas) {-->
-<!--    proxy.$socket.on("reservas", () => {-->
-<!--      getReservas();-->
-<!--    });-->
-<!--    proxy.$store.socketReservas = true;-->
-<!--  }-->
-<!--});-->
-<!--function getReservas() {-->
-<!--  loading.value = true;-->
-<!--  reservas.value = {};-->
-<!--  proxy.$axios.get('/reservas', { params: { fecha: fecha.value } })-->
-<!--    .then(res => {-->
-<!--      reservas.value = res.data || {}; // Asegurar que sea un objeto-->
-<!--      console.log("Reservas cargadas:", reservas.value);-->
-<!--    })-->
-<!--    .catch(error => {-->
-<!--      proxy.$alert.error("Error al obtener reservas");-->
-<!--    })-->
-<!--    .finally(() => {-->
-<!--      loading.value = false;-->
-<!--    });-->
-<!--}-->
-
-<!--function limpiar() {-->
-<!--  seleccionadas.value = {};-->
-<!--  totalMinutos.value = 0;-->
-<!--  nombre.value = "";-->
-<!--  personas.value = 1;-->
-<!--  adelanto.value = 0;-->
-<!--  observacion.value = "";// Object.keys(seleccionadas).length > 0-->
-
-<!--}-->
-<!--// Obtener la hora mínima seleccionada-->
-<!--const horaMinima = computed(() => {-->
-<!--  if (Object.keys(seleccionadas.value).length === 0) return "-";-->
-
-<!--  // Extraer y ordenar correctamente los valores de hora-->
-<!--  const horasSeleccionadas = Object.values(seleccionadas.value)-->
-<!--    .map(h => moment(h, "H:mm")) // Convertir a objetos moment-->
-<!--    .sort((a, b) => a.diff(b)); // Ordenar por diferencia de tiempo-->
-
-<!--  return horasSeleccionadas[0].format("H:mm"); // Retornar la primera hora formateada-->
-<!--});-->
-
-<!--// Obtener la hora máxima seleccionada-->
-<!--const horaMaxima = computed(() => {-->
-<!--  if (Object.keys(seleccionadas.value).length === 0) return "-";-->
-
-<!--  const horasSeleccionadas = Object.values(seleccionadas.value)-->
-<!--    .map(h => moment(h, "H:mm")) // Convertir a objetos moment-->
-<!--    .sort((a, b) => a.diff(b)); // Ordenar por diferencia de tiempo-->
-
-<!--  const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];-->
-
-<!--  // Sumar 30 minutos y formatear-->
-<!--  return ultimaHora.add(30, "minutes").format("H:mm");-->
-<!--});-->
-
-<!--function clickReserva() {-->
-<!--  if (totalMinutos.value === 0) {-->
-<!--    proxy.$alert.error("Por favor","selecciona al menos 30 minutos.");-->
-<!--    return;-->
-<!--  }-->
-<!--  dialogoReservar.value = true;-->
-<!--  nombre.value = "";-->
-<!--  personas.value = 2;-->
-<!--  adelanto.value = 0;-->
-<!--  observacion.value = "";-->
-<!--  directo.value = false;-->
-<!--}-->
-<!--function consultarReservas() {-->
-<!--  // Lógica para consultar reservas-->
-<!--}-->
-
-<!--// Agrupa reservas continuas-->
-<!--const shouldShowCell = (horaIndex, salaIndex) => {-->
-<!--  const key = `${horaIndex}-${salaIndex}`;-->
-<!--  const prevKey = `${horaIndex - 1}-${salaIndex}`;-->
-
-<!--  if (!reservas.value[key]) return true;-->
-
-<!--  // Si la celda anterior tiene reserva y es del mismo usuario, ocultar-->
-<!--  if (horaIndex > 0 && reservas.value[prevKey] && reservas.value[prevKey].nombre === reservas.value[key].nombre) {-->
-<!--    return false;-->
-<!--  }-->
-
-<!--  return true;-->
-<!--};-->
-
-<!--const getRowspan = (horaIndex, salaIndex) => {-->
-<!--  const key = `${horaIndex}-${salaIndex}`;-->
-<!--  if (!reservas.value[key]) return 1;-->
-
-<!--  let count = 1;-->
-<!--  while (reservas.value[`${horaIndex + count}-${salaIndex}`] && reservas.value[`${horaIndex + count}-${salaIndex}`].nombre === reservas.value[key].nombre) {-->
-<!--    count++;-->
-<!--  }-->
-
-<!--  return count;-->
-<!--};-->
-
-
-<!--const toggleSeleccion = (horaIndex, salaIndex, hora) => {-->
-
-<!--  //   loading.value = true;-->
-<!--  // proxy.$axios.get('/verificarCaja')-->
-<!--  //   .then(res => {-->
-<!--  //     console.log(res.data.estado);-->
-<!--  //     if (res.data.estado === "cerrada") {-->
-<!--  //       proxy.$alert.error("La caja está cerrada, no se pueden realizar reservas");-->
-<!--  //       return false;-->
-<!--  //     }-->
-<!--  //-->
-<!--  //     // console.log("Seleccionando:", horaIndex, salaIndex, hora);-->
-<!--  //     // return false;-->
-<!--  //   })-->
-<!--  //   .catch(error => {-->
-<!--  //     proxy.$alert.error("Error al obtener reservas");-->
-<!--  //   })-->
-<!--  //   .finally(() => {-->
-<!--  //     loading.value = false;-->
-<!--  //   });-->
-
-<!--  const key = `${horaIndex}-${salaIndex}`;-->
-
-<!--  // Si la celda ya está reservada, no permitir selección-->
-<!--  if (reservas.value[key]) return;-->
-
-<!--  // Si no hay selecciones previas, permitir cualquier selección-->
-<!--  if (Object.keys(seleccionadas.value).length === 0) {-->
-<!--    seleccionadas.value[key] = hora;-->
-<!--    calcularTotalMinutos();-->
-<!--    return;-->
-<!--  }-->
-
-<!--  // Obtener la sala ya seleccionada (si existe)-->
-<!--  const salasSeleccionadas = new Set(Object.keys(seleccionadas.value).map(k => k.split('-')[1]));-->
-
-<!--  // Si intenta seleccionar en una sala diferente, rechazar-->
-<!--  if (salasSeleccionadas.size > 0 && !salasSeleccionadas.has(String(salaIndex))) {-->
-<!--    proxy.$alert.error("Debes seleccionar en la misma sala.");-->
-<!--    return;-->
-<!--  }-->
-
-<!--  // Obtener índices de horarios ya seleccionados en esta sala-->
-<!--  const horasSeleccionadas = Object.keys(seleccionadas.value)-->
-<!--    .map(k => parseInt(k.split('-')[0])) // Extraer solo los índices de hora-->
-<!--    .sort((a, b) => a - b); // Ordenar-->
-
-<!--  // Verificar si la nueva selección es continua-->
-<!--  if (horasSeleccionadas.length > 0) {-->
-<!--    const ultimaHora = horasSeleccionadas[horasSeleccionadas.length - 1];-->
-
-<!--    if (horaIndex !== ultimaHora + 1) {-->
-<!--      proxy.$alert.error("Debes seleccionar horarios consecutivos.");-->
-<!--      return;-->
-<!--    }-->
-<!--  }-->
-
-<!--  // Si ya está seleccionada, quitarla; si no, agregarla-->
-<!--  if (seleccionadas.value[key]) {-->
-<!--    delete seleccionadas.value[key];-->
-<!--  } else {-->
-<!--    seleccionadas.value[key] = hora;-->
-<!--  }-->
-
-<!--  calcularTotalMinutos();-->
-<!--};-->
-
-<!--// Recalcular tiempo total seleccionado-->
-<!--const calcularTotalMinutos = () => {-->
-<!--  totalMinutos.value = Object.keys(seleccionadas.value).length * 30;-->
-<!--};-->
-
-<!--// Confirmar Reserva-->
-<!--const confirmarReserva = () => {-->
-
-<!--  // Guardar en el objeto de reservas-->
-<!--  Object.keys(seleccionadas.value).forEach((key) => {-->
-<!--    reservas.value[key] = {-->
-<!--      nombre: nombre.value,-->
-<!--      personas: personas.value,-->
-<!--      color: "yellow",-->
-<!--    };-->
-<!--  });-->
-
-<!--  const primerKey = Object.keys(seleccionadas.value)[0]; // Tomamos la primera clave "horaIndex-salaIndex"-->
-<!--  const salaIndex = primerKey.split("-")[1]; // Extraemos el índice de la sala-->
-<!--  const sala = salas.value[salaIndex]?.sala || "Desconocida"; // Obtenemos el nombre de la sala-->
-
-<!--  // Guardar en localStorage-->
-<!--  // localStorage.setItem("reservas", JSON.stringify(reservas.value));-->
-<!--  // dialogoReservar.value = false;-->
-<!--  // limpiar();-->
-
-
-<!--  // alert(`Reserva confirmada para ${nombre.value} con ${personas.value} persona(s). Monto: ${montoTotal.value} Bs.`);-->
-
-<!--  // Limpiar selección-->
-<!--  // seleccionadas.value = {};-->
-<!--  // totalMinutos.value = 0;-->
-<!--  // nombre.value = "";-->
-<!--  // personas.value = 1;-->
-<!--  // dialogoReservar.value = false;-->
-<!--  loading.value = true;-->
-<!--  // reservas.value = {};-->
-<!--  proxy.$axios.post('/reservas', {-->
-<!--    nombre: nombre.value,-->
-<!--    numero_personas: personas.value,-->
-<!--    observaciones: observacion.value,-->
-<!--    json: JSON.stringify(seleccionadas.value),-->
-<!--    sala: sala,-->
-<!--    total: montoTotal.value,-->
-<!--    adelanto: adelanto.value,-->
-<!--    tiempo: tiempoSeleccionado.value,-->
-<!--    horario: `${horaMinima.value} - ${horaMaxima.value}`,-->
-<!--    fecha: fecha.value,-->
-<!--    directo: directo.value,-->
-<!--  }).then(res => {-->
-<!--    proxy.$alert.success("Reserva confirmada", "Reserva");-->
-<!--    limpiar();-->
-<!--    getReservas();-->
-<!--    proxy.$socket.emit("reservas");-->
-<!--    dialogoReservar.value = false;-->
-<!--  }).catch(error => {-->
-<!--    proxy.$alert.error(error.response.data.message, "Error al confirmar reserva");-->
-<!--  }).finally(() => {-->
-<!--    loading.value = false;-->
-<!--    // proxy.$socket.emit("reservas");-->
-<!--  });-->
-<!--};-->
-<!--</script>-->
 <script>
 import moment from "moment";
 
@@ -449,6 +193,14 @@ export default {
     }
   },
   methods: {
+    esPrimeraCeldaReserva(horaIndex, salaIndex) {
+      const key = `${horaIndex}-${salaIndex}`;
+      const prevKey = `${horaIndex - 1}-${salaIndex}`;
+      if (!this.$store.reservas[key]) return false;
+      // Es primera celda si no hay celda anterior con el mismo nombre
+      return !this.$store.reservas[prevKey] ||
+        this.$store.reservas[prevKey].nombre !== this.$store.reservas[key].nombre;
+    },
     getRowspan(horaIndex, salaIndex) {
       const key = `${horaIndex}-${salaIndex}`;
       if (!this.$store.reservas[key]) return 1;
