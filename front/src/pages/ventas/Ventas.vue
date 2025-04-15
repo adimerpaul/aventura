@@ -143,38 +143,6 @@
           </tr>
           </tbody>
         </q-markup-table>
-<!--        <pre>{{ventas}}</pre>-->
-<!--        [-->
-<!--        {-->
-<!--        "id": 31,-->
-<!--        "fecha": "2025-02-21 22:28:25",-->
-<!--        "total": 20,-->
-<!--        "nombre": "SN",-->
-<!--        "anulada": 0,-->
-<!--        "user_id": 1,-->
-<!--        "detalleText": "1 COMBO PIPOCA Y 2 GASEOSA 20",-->
-<!--        "detalles": [-->
-<!--        {-->
-<!--        "id": 27,-->
-<!--        "cantidad": 1,-->
-<!--        "producto": "COMBO PIPOCA Y 2 GASEOSA",-->
-<!--        "precio": 20,-->
-<!--        "producto_id": 15,-->
-<!--        "venta_id": 31,-->
-<!--        "user_id": 1-->
-<!--        }-->
-<!--        ],-->
-<!--        "user": {-->
-<!--        "id": 1,-->
-<!--        "name": "Adimer Paul Chambi Ajata",-->
-<!--        "avatar": "default.png",-->
-<!--        "username": "admin",-->
-<!--        "email": null,-->
-<!--        "role": "Admin",-->
-<!--        "email_verified_at": null,-->
-<!--        "color": "red"-->
-<!--        }-->
-<!--        },-->
       </q-card-section>
     </q-card>
   </q-page>

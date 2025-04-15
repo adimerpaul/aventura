@@ -12,10 +12,12 @@
           </div>
           <div class="col-6 col-md-2">
             <q-select v-model="user" label="Usuario" outlined dense :options="users"
+                      v-if="$store.user.role === 'Admin'"
                       emit-value map-options :option-value="'id'" :option-label="'name'" />
           </div>
           <div class="col-6 col-md-2">
-            <q-select v-model="tipo" label="Tipo" outlined dense :options="['Todo', 'Adelanto', 'Confirmado']" />
+            <q-select v-model="tipo" label="Tipo" outlined dense :options="['Todo', 'Adelanto', 'Confirmado']"
+                      v-if="$store.user.role === 'Admin'"/>
           </div>
           <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
@@ -25,7 +27,7 @@
           </div>
         </div>
         </q-form>
-        <div class="row">
+        <div class="row" v-if="$store.user.role === 'Admin'">
           <div class="col-6 col-md-2 q-pa-xs">
             <q-list bordered padding dense>
               <q-item clickable v-ripple dense>
@@ -124,7 +126,7 @@
         </div>
         <q-markup-table wrap-cells dense flat bordered>
           <thead>
-            <tr>
+            <tr class="bg-green text-white">
               <th>Opcion</th>
               <th>Nombre</th>
               <th>Sala</th>
