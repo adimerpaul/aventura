@@ -30,9 +30,13 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
-    socket.on('reservas', (msg) => {
+    socket.on('reservas-Ayacucho', (msg) => {
         console.log('message: ' + msg);
-        io.emit('reservas', msg);
+        io.emit('reservas-ayacucho', msg);
+    });
+    socket.on('reservas-Oquendo', (msg) => {
+        console.log('message: ' + msg);
+        io.emit('reservas-oquendo', msg);
     });
     socket.broadcast.emit('hi');
 });

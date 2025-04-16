@@ -6,6 +6,7 @@ const routes = [
       { path: '', component: () => import('pages/IndexPage.vue'), meta: { requiresAuth: true } },
       { path: 'usuarios', component: () => import('pages/usuarios/Usuarios.vue'), meta: { requiresAuth: true } },
       { path: 'reservas', component: () => import('pages/reservas/Reservas.vue'), meta: { requiresAuth: true } },
+      { path: 'reservasOquendo', component: () => import('pages/reservas/ReservasOquendo.vue'), meta: { requiresAuth: true } },
       { path: 'reservas/lista', component: () => import('pages/reservas/Lista.vue'), meta: { requiresAuth: true } },
       { path: 'productos', component: () => import('pages/ventas/Producto.vue'), meta: { requiresAuth: true } },
       { path: 'ventas', component: () => import('pages/ventas/Ventas.vue'), meta: { requiresAuth: true } },

@@ -57,22 +57,15 @@
                   text-color="white" dense  size="14px"/>
         </q-td>
       </template>
+      <template v-slot:body-cell-sucursal="props">
+        <q-td :props="props">
+          <q-chip :label="props.row.sucursal"
+                  :color="props.row.sucursal === 'Ayacucho' ? 'green' : 'blue'"
+                  text-color="white" dense  size="14px"/>
+        </q-td>
+      </template>
     </q-table>
 <!--    <pre>{{ users }}</pre>-->
-<!--    [-->
-<!--    {-->
-<!--    "id": 2,-->
-<!--    "name": "Roger Guillermo Arias Rodriguez",-->
-<!--    "avatar": "default.png",-->
-<!--    "username": "roger",-->
-<!--    "email": null,-->
-<!--    "role": "Vendedor",-->
-<!--    "email_verified_at": null,-->
-<!--    "deleted_at": null,-->
-<!--    "created_at": "2025-02-20T08:48:15.000000Z",-->
-<!--    "updated_at": "2025-02-20T08:48:15.000000Z"-->
-<!--    }-->
-<!--    ]-->
     <q-dialog v-model="userDialog" persistent>
       <q-card>
         <q-card-section class="q-pb-none row items-center">
@@ -89,7 +82,7 @@
 <!--            <q-input v-model="user.email" label="Email" dense outlined hint="" />-->
             <q-input v-model="user.password" label="Contraseña" dense outlined :rules="[val => !!val || 'Campo requerido']" v-if="!user.id" />
             <q-select v-model="user.role" label="Rol" dense outlined :options="roles" :rules="[val => !!val || 'Campo requerido']" />
-<!--            <q-input v-model="user.phone" label="Telefono" dense outlined hint="" />-->
+            <q-select v-model="user.sucursal" label="Sucursal" dense outlined :options="['Ayacucho', 'Oquendo']" :rules="[val => !!val || 'Campo requerido']" />
 <!--            <q-input v-model="user.codigo" label="Codigo" dense outlined hint="" />-->
 <!--            <q-input v-model="user.gestion" label="Gestion" dense outlined hint="" />-->
 <!--            <q-input v-model="user.bloque" label="Bloque" dense outlined hint="" />-->
@@ -149,7 +142,7 @@ export default {
         { name: 'name', label: 'Nombre', align: 'left', field: 'name' },
         { name: 'username', label: 'Usuario', align: 'left', field: 'username' },
         { name: 'role', label: 'Rol', align: 'left', field: 'role' },
-        // { name: 'email', label: 'Email', align: 'left', field: 'email' }
+        { name: 'sucursal', label: 'Sucursal', align: 'left', field: 'sucursal' }
       ],
       permissions: [],
       dialogPermisos: false

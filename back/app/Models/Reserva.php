@@ -28,7 +28,8 @@ class Reserva extends Model{
         'fecha_cancelacion',
         'user_id',
         'user_cancelado_id',
-        'user_confirmado_id'
+        'user_confirmado_id',
+        'agencia'
     ];
     function user(){
         return $this->belongsTo(User::class);

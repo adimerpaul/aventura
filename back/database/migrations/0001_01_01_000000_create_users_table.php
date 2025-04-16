@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('role')->default('Vendedor');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('sucursal')->nullable()->default('Ayacucho');
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

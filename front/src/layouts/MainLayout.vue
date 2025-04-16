@@ -13,14 +13,12 @@
           @click="toggleLeftDrawer"
           unelevated
         />
-        <span class="q-pa-xs text-bold">{{version}}</span>
 
         <q-toolbar-title>
-<!--          Quasar App-->
+          <span class="q-pa-xs text-bold">{{version}}</span>
         </q-toolbar-title>
 
         <div>
-<!--          Quasar v{{ $q.version }}-->
           <q-btn-dropdown flat unelevated  no-caps dropdownIcon="expand_more">
             <template v-slot:label>
               <q-avatar rounded>
@@ -76,22 +74,12 @@
                    v-close-popup
                    v-if="link.can === 'Todos' || $store.user.role === link.can"
           >
-<!--            {-->
-<!--            "id": 1,-->
-<!--            "name": "Adimer Paul Chambi Ajata",-->
-<!--            "avatar": "default.png",-->
-<!--            "username": "admin",-->
-<!--            "email": null,-->
-<!--            "role": "Admin",-->
-<!--            "email_verified_at": null,-->
-<!--            "color": "red"-->
-<!--            }-->
             <q-item-section avatar>
               <q-icon :name="$route.path === link.link ? 'o_' + link.icon : link.icon"
                       :class="$route.path === link.link ? 'text-black' : ''"/>
             </q-item-section>
             <q-item-section>
-              <q-item-label :class="$route.path === link.link ? 'text-black text-bold' : ''">
+              <q-item-label :class="$route.path === link.link ? `text-black text-bold ${link.color}` : ''">
                 {{ link.title }}
               </q-item-label>
             </q-item-section>
@@ -121,7 +109,8 @@ const {proxy} = getCurrentInstance()
 const linksList = [
   { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
   { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
-  { title: 'Reservas', icon: 'event', link: '/reservas', can: 'Todos' },
+  { title: 'Ayacucho', icon: 'event', link: '/reservas', can: 'Todos', color: 'text-green' },
+  { title: 'Oquendo', icon: 'event', link: '/reservasOquendo', can: 'Todos', color: 'text-blue' },
   { title: 'Confirmar reserva', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
   { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
   { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
@@ -144,10 +133,6 @@ function logout() {
       localStorage.removeItem('tokenProvidencia')
       proxy.$router.push('/login')
     })
-  // proxy.$store.isLogged = false
-  // proxy.$store.user = {}
-  // localStorage.removeItem('tokenProvidencia')
-  // proxy.$router.push('/login')
 }
 </script>
 <style>

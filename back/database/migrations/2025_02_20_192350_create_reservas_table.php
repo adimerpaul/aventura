@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('directo')->default(false);
             $table->string('tiempo')->nullable();
             $table->string('horario')->nullable();
+            $table->string('agencia')->nullable()->default('Ayacucho');
             $table->boolean('anulada')->default(false);
 
             $table->date('fecha');
