@@ -70,7 +70,7 @@
             </q-list>
           </div>
           <div class="col-12 col-md-4 q-pa-xs">
-            <q-list bordered padding dense>
+            <q-list bordered padding dense v-if="$store.user.role === 'Admin'">
               <q-item clickable v-ripple>
                 <q-item-section avatar>
                   <q-avatar color="green" text-color="white" icon="attach_money" />
@@ -82,13 +82,12 @@
                     </span>
                   </q-item-label>
                   <q-item-label caption lines="2">
-                    Total de reservas
+                    Total de ventas
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
           </div>
-          <!--          total cancalado anulados-->
           <div class="col-12 col-md-4 q-pa-xs">
             <q-list bordered padding dense>
               <q-item clickable v-ripple>
