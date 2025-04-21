@@ -18,7 +18,7 @@
           </div>
           <div class="col-6 col-md-2 flex flex-center">
             <q-btn color="green" label="Reservar" @click="clickReserva" no-caps icon="save" size="11px" :loading="loading" />
-            {{agencia}} {{color}}
+<!--            {{agencia}} {{color}}-->
           </div>
           <div class="col-6 col-md-2">
             <q-badge color="indigo" class="q-pa-sm">
@@ -99,7 +99,15 @@
             <q-toggle v-model="directo" :label="directo ? 'Venta Directa' : 'Reserva'"
                       :class="{'text-primary': directo, 'text-orange': !directo}"
                       @update:modelValue="adelanto = montoTotal"
+                      v-if="$store.user.role === 'Admin'"
             />
+            <q-toggle v-model="directo" :label="directo ? 'Venta Directa' : 'Reserva'"
+                      :class="{'text-primary': directo, 'text-orange': !directo}"
+                      @update:modelValue="adelanto = montoTotal"
+                      v-else-if="$store.user.sucursal === agencia"
+            />
+<!--            <pre>{{$store.user.sucursal}} a</pre>-->
+<!--            <pre>{{agencia}} b</pre>-->
             <div>
               <q-badge color="indigo" class="q-pa-sm">
                 Horario Seleccionado: Desde {{ horaMinima }} hasta {{ horaMaxima }}

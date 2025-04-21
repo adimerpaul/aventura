@@ -19,6 +19,10 @@
             <q-select v-model="tipo" label="Tipo" outlined dense :options="['Todo', 'Adelanto', 'Confirmado']"
                       v-if="$store.user.role === 'Admin'"/>
           </div>
+          <div class="col-6 col-md-2">
+            <q-select v-model="agencia" label="Agencia" outlined dense :options="['Todo','Ayacucho','Oquendo']"
+                      v-if="$store.user.role === 'Admin'"/>
+          </div>
           <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
           </div>
@@ -139,6 +143,7 @@
               <th>Observaciones</th>
               <th>Adelanto</th>
               <th>Confirmado</th>
+              <th>Agencia</th>
             </tr>
           </thead>
           <tbody>
@@ -207,6 +212,11 @@
                   {{reserva.user_confirmado?.username}}
                 </div>
               </td>
+              <td>
+                <div style="font-size: 10px;width: 80px; white-space: normal; overflow-wrap: break-word;">
+                  {{reserva.agencia}}
+                </div>
+              </td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -253,6 +263,7 @@ const filter = ref('')
 const users = ref([])
 const user = ref(0)
 const tipo = ref('Todo')
+const agencia = ref('Todo')
 
 onMounted(() => {
   getReservas()
@@ -321,7 +332,8 @@ function getReservas() {
       fechaInicio: fechaInicio.value,
       fechaFin: fechaFin.value,
       user_id: user.value,
-      tipo: tipo.value
+      tipo: tipo.value,
+      agencia: agencia.value,
     }
   }).then(response => {
     reservas.value = response.data

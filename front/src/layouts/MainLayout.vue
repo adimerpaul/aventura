@@ -17,6 +17,7 @@
         <q-toolbar-title>
           <span class="q-pa-xs text-bold">{{version}}</span>
         </q-toolbar-title>
+        <q-chip :color="$store.user.sucursal=='Ayacucho'?'green':'blue'" class="text-white">{{$store.user.sucursal}}</q-chip>
 
         <div>
           <q-btn-dropdown flat unelevated  no-caps dropdownIcon="expand_more">
