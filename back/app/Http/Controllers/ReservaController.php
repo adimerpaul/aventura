@@ -38,12 +38,13 @@ class ReservaController extends Controller{
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
         $user_id = $request->user_id;
+        $user = $request->user();
+        $role = $user->role;
         $tipo = $request->tipo; //:options="['Todo', 'Reservado', 'Finalizado', 'Cancelado']"
-
+        $agencia = $request->agencia;
         $query = Reserva::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->with('user', 'user_cancelado', 'user_confirmado')
             ->orderBy('id', 'desc');
-
         if ($user_id != 0) {
             $query->where(function ($q) use ($user_id) {
                 $q->where('user_id', $user_id)
@@ -57,6 +58,12 @@ class ReservaController extends Controller{
         if ($tipo == 'Confirmado') {
             $query->where('user_confirmado_id', $user_id);
         }
+        if($role == 'Vendedor'){
+            $query->where('agencia', $user->sucursal);
+        }
+        if ($agencia != 'Todo') {
+            $query->where('agencia', $agencia);
+        }
 
         $reservas = $query->get();
 
@@ -64,8 +71,10 @@ class ReservaController extends Controller{
     }
     function index(Request $request) {
         $fecha = $request->fecha;
+        $agencia = $request->agencia;
         $reservas = Reserva::whereDate('fecha', $fecha)
             ->whereRaw('(estado = "Reservado" OR estado = "Finalizado")')
+            ->where('agencia', $agencia)
             ->get();
         $jsonReservas = [];
 
@@ -120,6 +129,7 @@ class ReservaController extends Controller{
         $reserva->fecha = $request->fecha;
         $reserva->fecha_creacion = date('Y-m-d H:i:s');
         $reserva->directo = $request->directo;
+        $reserva->agencia = $request->agencia;
         $reserva->user_id = $user->id;
         $reserva->save();
         if ($request->directo) {
