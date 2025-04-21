@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('hi');
 });
 
-port=process.env.PORT || 3000
+port=process.env.PORT || 3014
 server.listen(port, () => {
     console.log('http://localhost:'+port);
 });
