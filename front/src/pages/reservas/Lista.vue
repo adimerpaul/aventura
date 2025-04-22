@@ -19,10 +19,10 @@
             <q-select v-model="tipo" label="Tipo" outlined dense :options="['Todo', 'Adelanto', 'Confirmado']"
                       v-if="$store.user.role === 'Admin'"/>
           </div>
-          <div class="col-6 col-md-2">
-            <q-select v-model="agencia" label="Agencia" outlined dense :options="['Todo','Ayacucho','Oquendo']"
-                      v-if="$store.user.role === 'Admin'"/>
-          </div>
+<!--          <div class="col-6 col-md-2">-->
+<!--            <q-select v-model="agencia" label="Agencia" outlined dense :options="['Todo','Ayacucho','Oquendo']"-->
+<!--                      v-if="$store.user.role === 'Admin'"/>-->
+<!--          </div>-->
           <div class="col-12 col-md-2 flex flex-center">
             <q-btn label="Buscar" color="primary" type="submit" icon="search" no-caps :loading="loading" />
           </div>

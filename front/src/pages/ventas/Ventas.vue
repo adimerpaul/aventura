@@ -122,6 +122,7 @@
             <th>Nombre Cliente</th>
             <th>Usuario</th>
             <th>Detalle</th>
+            <th>Agencia</th>
           </tr>
           </thead>
           <tbody>
@@ -138,7 +139,12 @@
             <td>{{ venta.total }}</td>
             <td>{{ venta.nombre }}</td>
             <td>{{ venta.user?.name }}</td>
-            <td>{{ venta.detalleText }}</td>
+            <td>
+              <div style="max-width: 200px;wrap-option: wrap">
+                {{ venta.detalleText }}
+              </div>
+            </td>
+            <td>{{ venta.agencia }}</td>
           </tr>
           </tbody>
         </q-markup-table>
