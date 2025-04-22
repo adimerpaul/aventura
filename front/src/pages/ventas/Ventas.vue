@@ -287,7 +287,7 @@ function getUsers() {
   users.value = [
     { id: '', name: 'Todos' }
   ]
-  proxy.$axios.get("/users").then(response => {
+  proxy.$axios.get("/usersSucursal").then(response => {
     // users.value = response.data;
     response.data.forEach(user => {
       users.value.push({ id: user.id, name: user.name });
