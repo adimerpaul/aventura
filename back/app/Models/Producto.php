@@ -10,7 +10,8 @@ class Producto extends Model{
     protected $fillable = [
         'nombre',
         'precio',
-        'stock'
+        'stock',
+        'agencia',
     ];
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
     function ventas(){

@@ -13,14 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller{
     function imprimir(Request $request){
-        //    proxy.$axios.post("/ventas/imprimir", {
-//    user_id: user.value,
-//    fechaInicio: fechaInicio.value,
-//    fechaFin: fechaFin.value,
-//    reporte: reporte.value
-//  }).then((res) => {
-//        console.log(res.data);
-//    });
+        $user = $request->user();
+        $agencia = $user->sucursal;
         $user_id = $request->user_id;
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
@@ -49,7 +43,7 @@ class VentaController extends Controller{
                 ->get();
             $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
 
-            error_log('reservasSum rrrrrrrrr: '.$reservasSum);
+//            error_log('reservasSum rrrrrrrrr: '.$reservasSum);
 
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
         }else if ($reporte == 'PRODUCTOS'){
@@ -177,16 +171,30 @@ class VentaController extends Controller{
     }
     function index(Request $request)
     {
-        $user = $request->user();
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
         $user_id = $request->user_id;
         $fechaInicio = $fechaInicio.' 00:00:00';
         $fechaFin = $fechaFin.' 23:59:59';
 
-        $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
-            ->with('detalles', 'user')
-            ->orderBy('id', 'desc');
+        $user = $request->user();
+        error_log('agencia: '.$user->sucursal);
+
+        if ($user->sucursal == 'Ayacucho') {
+            $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->with('detalles', 'user')
+                ->where('agencia', $user->sucursal)
+                ->orderBy('id', 'desc');
+        } else if ($user->sucursal == 'Oquendo') {
+            $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->with('detalles', 'user')
+                ->where('agencia', $user->sucursal)
+                ->orderBy('id', 'desc');
+        }
+
+//        $query = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+//            ->with('detalles', 'user')
+//            ->orderBy('id', 'desc');
 
         if ($user->role !== 'Admin' || $user_id) {
             $query->where('user_id', $user_id ?? $user->id);
@@ -208,7 +216,8 @@ class VentaController extends Controller{
             $venta->fecha = date('Y-m-d H:i:s');
             $venta->total = 0;
             $venta->nombre = $request->nombre;
-            $venta->user_id = $request->user()->id;
+            $venta->user_id = $user->id;
+            $venta->agencia = $user->sucursal;
             $venta->save();
             $productos = $request->productos;
 

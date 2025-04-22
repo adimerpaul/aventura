@@ -23,6 +23,8 @@ class CajaController extends Controller{
         return null;
     }
     function metricas(Request $request){
+        $user = $request->user();
+        $agencia = $user->sucursal;
         $fechaInicio = $request->input('fechaInicio');
         $fechaFin = $request->input('fechaFin');
         Carbon::setLocale('es');
@@ -34,7 +36,10 @@ class CajaController extends Controller{
         $dias = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
         for($i = $fechaInicioCarbon; $i->lessThanOrEqualTo($fechaFinCarbon); $i->addDay()){
             $fecha = $i->format('Y-m-d');
-            $cajas = Caja::whereDate('fecha_cierre', $fecha)->with('user')->get();
+            $cajas = Caja::whereDate('fecha_cierre', $fecha)
+                ->with('user')
+                ->where('agencia', $agencia)
+                ->get();
 
             $arrayFecha[] = [
                 'fecha' => $fecha,
@@ -48,7 +53,10 @@ class CajaController extends Controller{
             'fechaInicio' => $fechaInicio,
             'fechaFin' => $fechaFin,
             'arrayFecha' => $arrayFecha,
-            'cajas' => Caja::whereBetween('fecha_cierre', [$fechaInicio, $fechaFin])->with('user')->get()
+            'cajas' => Caja::whereBetween('fecha_cierre', [$fechaInicio, $fechaFin])
+                ->with('user')
+                ->where('agencia', $agencia)
+                ->get()
         ];
     }
     function store(Request $request){
@@ -126,6 +134,7 @@ class CajaController extends Controller{
         $caja->monto_diferencia = $montoReal - $montoRealVentas;
         $caja->observacion = $request->observacion;
         $caja->user_id = $user_id;
+        $caja->agencia = $user->sucursal;
         $caja->save();
         return "Caja guardada";
     }

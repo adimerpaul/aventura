@@ -52,6 +52,7 @@ export default boot(({ app, router }) => {
       useCounterStore().isLogged = true
       useCounterStore().user = response.data
       useCounterStore().permissions = response.data.permissions
+      localStorage.setItem('user', JSON.stringify(response.data))
     }).catch(error => {
       console.log(error)
       localStorage.removeItem('tokenProvidencia')
