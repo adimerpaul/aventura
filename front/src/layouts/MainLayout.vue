@@ -13,12 +13,9 @@
           @click="toggleLeftDrawer"
           unelevated
         />
-
+        <span class="q-pa-xs text-bold">{{version}}</span>
         <q-toolbar-title>
-          <span class="q-pa-xs text-bold">{{version}}</span>
         </q-toolbar-title>
-        <q-chip :color="$store.user.sucursal=='Ayacucho'?'green':'blue'" class="text-white">{{$store.user.sucursal}}</q-chip>
-
         <div>
           <q-btn-dropdown flat unelevated  no-caps dropdownIcon="expand_more">
             <template v-slot:label>
@@ -27,7 +24,8 @@
               </q-avatar>
               <div class="text-center" style="line-height: 1">
                 <div style="width: 100px; white-space: normal; overflow-wrap: break-word;">
-                  {{ $store.user.name }}
+                  {{ $store.user.name }} <br>
+                  <q-chip :color="$store.user.sucursal=='Ayacucho'?'green':'blue'" dense size="xs" class="text-white">{{$store.user.sucursal}}</q-chip>
                 </div>
 <!--                <pre>{{$store.user}}</pre>-->
               </div>
@@ -104,24 +102,43 @@
 </template>
 
 <script setup>
-import {getCurrentInstance, ref} from 'vue'
+import {getCurrentInstance, onMounted, ref} from 'vue'
 // import EssentialLink from 'components/EssentialLink.vue'
 const {proxy} = getCurrentInstance()
-const linksList = [
-  { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
-  { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
-  { title: 'Ayacucho', icon: 'event', link: '/reservas', can: 'Todos', color: 'text-green' },
-  { title: 'Oquendo', icon: 'event', link: '/reservasOquendo', can: 'Todos', color: 'text-blue' },
-  { title: 'Confirmar reserva', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
-  { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
-  { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
-  { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
-  { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
-]
+const linksList = ref([])
+
 
 const leftDrawerOpen = ref(false)
 
 const version =import.meta.env.VITE_API_VERSION
+
+onMounted(() => {
+  const user = JSON.parse(localStorage.getItem('user')) || {}
+
+  const baseLinks = [
+    { title: 'Principal', icon: 'home', link: '/', can: 'Todos' },
+    { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Admin' },
+    { title: 'Confirmar reserva', icon: 'shopping_bag', link: '/reservas/lista', can: 'Todos' },
+    { title: 'Productos', icon: 'shopping_cart', link: '/productos', can: 'Admin' },
+    { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
+    { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
+    { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
+  ]
+
+  const sucursalLinks = {
+    'Ayacucho': { title: 'Ayacucho', icon: 'event', link: '/reservas', can: 'Todos', color: 'text-green' },
+    'Oquendo': { title: 'Oquendo', icon: 'event', link: '/reservasOquendo', can: 'Todos', color: 'text-blue' },
+  }
+
+  const altSucursal = user.sucursal === 'Ayacucho' ? 'Oquendo' : 'Ayacucho'
+
+  linksList.value = [
+    ...baseLinks.slice(0, 2),
+    sucursalLinks[user.sucursal],
+    ...baseLinks.slice(2),
+    sucursalLinks[altSucursal]
+  ]
+})
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
