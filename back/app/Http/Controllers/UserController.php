@@ -6,6 +6,25 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller{
+    function usersSucursal(Request $request){
+        $user = $request->user();
+//        error_log('sucursal: ' . $user->sucursal);
+        if ($user->sucursal == 'Ayacucho') {
+            return User::where('sucursal', $user->sucursal)
+                ->where('id', '!=', 0)
+                ->orderBy('id', 'desc')
+                ->get();
+        }else if ($user->sucursal == 'Oquendo') {
+            return User::where('sucursal', $user->sucursal)
+                ->where('id', '!=', 0)
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+//        return User::where('sucursal', $sucursal)
+//            ->where('id', '!=', 0)
+//            ->orderBy('id', 'desc')
+//            ->get();
+    }
     function login(Request $request){
         $credentials = $request->only('username', 'password');
         $user = User::where('username', $credentials['username'])->first();
