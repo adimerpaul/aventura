@@ -19,6 +19,7 @@
             <th>Combo</th>
             <th>Precio</th>
             <th>Stock</th>
+            <th>Agencia</th>
             <th>Acciones</th>
           </tr>
           </thead>
@@ -63,6 +64,7 @@
             </td>
             <td>{{ producto.precio }}</td>
             <td>{{ producto.stock }}</td>
+            <td>{{ producto.agencia }}</td>
             <td>
               <q-btn icon="edit" color="blue" class="q-mr-md" size="10px" dense @click="editarProducto(producto)" :loading="loading" />
               <q-btn icon="delete" color="red" size="10px" dense @click="eliminarProducto(producto.id)" v-if="$store.user.role === 'Admin'" :loading="loading" />
@@ -135,11 +137,22 @@ function editarProducto(p) {
 
 function guardarProducto() {
   if (producto.value.id) {
-    proxy.$axios.put(`/productos/${producto.value.id}`, producto.value).then(getProductos);
+    const original = productosAll.value.find(p => p.id === producto.value.id)
+    if (original && parseInt(producto.value.stock) < original.stock) {
+      $q.notify({
+        type: 'warning',
+        message: 'No se puede reducir el stock. Solo se permite aumentarlo.',
+        position: 'top',
+      })
+      return
+    }
+
+    proxy.$axios.put(`/productos/${producto.value.id}`, producto.value).then(getProductos)
   } else {
-    proxy.$axios.post("/productos", producto.value).then(getProductos);
+    proxy.$axios.post("/productos", producto.value).then(getProductos)
   }
-  modalVisible.value = false;
+
+  modalVisible.value = false
 }
 
 function eliminarProducto(id) {
