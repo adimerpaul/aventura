@@ -13,14 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller{
     function imprimir(Request $request){
-        //    proxy.$axios.post("/ventas/imprimir", {
-//    user_id: user.value,
-//    fechaInicio: fechaInicio.value,
-//    fechaFin: fechaFin.value,
-//    reporte: reporte.value
-//  }).then((res) => {
-//        console.log(res.data);
-//    });
+        $user = $request->user();
+        $agencia = $user->sucursal;
         $user_id = $request->user_id;
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
@@ -49,7 +43,7 @@ class VentaController extends Controller{
                 ->get();
             $reservasSum = $reservasSumAdelanto + $reservasSumSaldo;
 
-            error_log('reservasSum rrrrrrrrr: '.$reservasSum);
+//            error_log('reservasSum rrrrrrrrr: '.$reservasSum);
 
             return response()->json(['ventas' => $ventasSum, 'reservas' => $reservasSum, 'cajas' => $cajas]);
         }else if ($reporte == 'PRODUCTOS'){
