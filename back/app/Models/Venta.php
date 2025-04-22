@@ -12,7 +12,8 @@ class Venta extends Model{
         'total',
         'nombre',
         'anulada',
-        'user_id'
+        'user_id',
+        'agencia',
     ];
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
     function detalles(){
