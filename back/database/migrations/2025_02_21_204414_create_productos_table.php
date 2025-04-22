@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->double('precio', 8, 2);
-            $table->integer('stock');
+            $table->integer('stock')->nullable()->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
