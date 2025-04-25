@@ -58,9 +58,16 @@ class VentaController extends Controller{
                 ->groupBy('productos.id','productos.nombre', 'productos.precio')
                 ->get();
 
-            $gaseosa_id = 3;
-            $pipoca_id = 14;
-            $frappe_id = 30;
+            if ($agencia == 'Ayacucho'){
+                $gaseosa_id = 3;
+                $pipoca_id = 14;
+                $frappe_id = 30;
+            }
+            if ($agencia == 'Oquendo'){
+                $gaseosa_id = 98;
+                $pipoca_id = 109;
+                $frappe_id = 125;
+            }
 
             $productosComboRes = [];
 
