@@ -336,7 +336,11 @@ export default {
   mounted() {
     console.log('agencia '+ this.agencia)
     console.log('color '+ this.color)
-    for (let i = 0; i < 20; i++) {
+    let cantidad = 20;
+    if (this.agencia === "Ayacucho") {
+      cantidad = 21;
+    }
+    for (let i = 0; i < cantidad; i++) {
       this.salas.push({ sala: "Sala " + (i + 1) });
     }
     for (let i = 8; i < 23; i++) {
