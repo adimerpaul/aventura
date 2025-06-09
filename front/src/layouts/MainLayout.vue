@@ -24,8 +24,11 @@
               </q-avatar>
               <div class="text-center" style="line-height: 1">
                 <div style="width: 100px; white-space: normal; overflow-wrap: break-word;">
-                  {{ $store.user.name }} <br>
-                  <q-chip :color="$store.user.sucursal=='Ayacucho'?'green':'blue'" dense size="xs" class="text-white">{{$store.user.sucursal}}</q-chip>
+                  {{ $store.user.name }}
+                  <div style="line-height: 0.9">
+                    <q-chip :color="$store.user.sucursal=='Ayacucho'?'green':'blue'" dense size="xs" class="text-white">{{$store.user.sucursal}}</q-chip>
+                    <q-chip :color="$store.user.role=='Admin'?'red':'grey'" dense size="xs" class="text-white">{{$store.user.role}}</q-chip>
+                  </div>
                 </div>
 <!--                <pre>{{$store.user}}</pre>-->
               </div>

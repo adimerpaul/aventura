@@ -195,7 +195,15 @@
                 {{$filters.dateDmYHis(reserva.fecha_creacion)}}
               </td>
               <td class="text-right">{{reserva.horario}}</td>
-              <td class="text-right">{{reserva.total}}</td>
+              <td class="text-right">
+<!--                si ya esta finalizado que no se pueda ver que solo los admin lo vean-->
+                <span v-if="reserva.estado !== 'Finalizado' && reserva.estado !== 'Anulado'">
+                  {{reserva.total}}
+                </span>
+                <span v-else-if="$store.user.role === 'Admin'">
+                    {{parseFloat(reserva.total).toFixed(2)}}
+                </span>
+              </td>
               <td class="text-right">{{reserva.adelanto}}</td>
               <td class="text-right">{{reserva.total - reserva.adelanto}}</td>
               <td>
