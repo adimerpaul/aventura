@@ -207,7 +207,13 @@ class VentaController extends Controller{
             $query->where('user_id', $user_id ?? $user->id);
         }
 
-        return $query->get();
+        if ($user->role === 'Admin') {
+            return $query->get();
+        }else{
+            return [];
+        }
+
+//        return $query->get();
     }
     function store(Request $request){
         $hoy = date('Y-m-d');
