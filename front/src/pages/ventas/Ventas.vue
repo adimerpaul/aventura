@@ -212,30 +212,103 @@ function getProductos() {
 }
 
 function imprimir() {
-  if (!user.value) {
+  if (!user.value && reporte.value !== 'PRODUCTOS') {
     proxy.$alert.error("Seleccione un usuario", "Por favor");
     return;
   }
-  const userFind = users.value.find(usuario => usuario.id === user.value);
+
   loading.value = true;
-  proxy.$axios.post("/ventas/imprimir", {
-    user_id: user.value,
-    fechaInicio: fechaInicio.value,
-    fechaFin: fechaFin.value,
-    reporte: reporte.value
-  }).then((res) => {
-    if (reporte.value === 'CAJA') {
-      Impresion.imprimirCaja(res.data,fechaInicio.value,fechaFin.value,userFind.name);
-    }
-    if (reporte.value === 'PRODUCTOS') {
-      Impresion.imprimirProductos(res.data,fechaInicio.value,fechaFin.value,userFind.name,productos.value);
-    }
-    if (reporte.value === 'SALA') {
-      Impresion.imprimirSalas(res.data,fechaInicio.value,fechaFin.value,userFind.name);
-    }
-  }).finally(() => {
-    loading.value = false;
-  });
+
+  if (reporte.value === 'PRODUCTOS' && user.value === '') {
+    // 🔁 Si seleccionó "Todos" y el reporte es PRODUCTOS, iterar todos los usuarios
+    const promesas = users.value
+      .filter(u => u.id !== '') // excluir el "Todos"
+      .map(usuario =>
+        proxy.$axios.post("/ventas/imprimir", {
+          user_id: usuario.id,
+          fechaInicio: fechaInicio.value,
+          fechaFin: fechaFin.value,
+          reporte: reporte.value
+        }).then(res => {
+          return {
+            data: res.data,
+            usuario: usuario.name
+          };
+        })
+      );
+
+    Promise.all(promesas).then(resultados => {
+      // unir todos los datos para imprimir en una sola hoja
+      let dataFinal = {
+        productos: [],
+        productosCombo: [],
+        productosGaseosa: [],
+        productosPipoca: [],
+        productosFrape: []
+      };
+
+      resultados.forEach(({ data }) => {
+        // fusionar arrays de cada usuario
+        ['productos', 'productosCombo', 'productosGaseosa', 'productosPipoca', 'productosFrape'].forEach(key => {
+          if (data[key]) {
+            dataFinal[key] = dataFinal[key].concat(data[key]);
+          }
+        });
+      });
+
+      // Agrupar por nombre para evitar duplicados (solo suma cantidades)
+      const agrupar = (items) => {
+        const mapa = {};
+        items.forEach(item => {
+          const key = item.nombre;
+          if (!mapa[key]) {
+            mapa[key] = { ...item };
+          } else {
+            mapa[key].cantidad_total += item.cantidad_total;
+          }
+        });
+        return Object.values(mapa);
+      };
+
+      dataFinal.productos = agrupar(dataFinal.productos);
+      dataFinal.productosCombo = agrupar(dataFinal.productosCombo);
+      dataFinal.productosGaseosa = agrupar(dataFinal.productosGaseosa);
+      dataFinal.productosPipoca = agrupar(dataFinal.productosPipoca);
+      dataFinal.productosFrape = agrupar(dataFinal.productosFrape);
+
+      Impresion.imprimirProductos(
+        dataFinal,
+        fechaInicio.value,
+        fechaFin.value,
+        'Todos',
+        productos.value
+      );
+    }).finally(() => {
+      loading.value = false;
+    });
+
+  } else {
+    // 🔁 Caso normal: usuario específico
+    const userFind = users.value.find(usuario => usuario.id === user.value);
+    proxy.$axios.post("/ventas/imprimir", {
+      user_id: user.value,
+      fechaInicio: fechaInicio.value,
+      fechaFin: fechaFin.value,
+      reporte: reporte.value
+    }).then((res) => {
+      if (reporte.value === 'CAJA') {
+        Impresion.imprimirCaja(res.data, fechaInicio.value, fechaFin.value, userFind.name);
+      }
+      if (reporte.value === 'PRODUCTOS') {
+        Impresion.imprimirProductos(res.data, fechaInicio.value, fechaFin.value, userFind.name, productos.value);
+      }
+      if (reporte.value === 'SALA') {
+        Impresion.imprimirSalas(res.data, fechaInicio.value, fechaFin.value, userFind.name);
+      }
+    }).finally(() => {
+      loading.value = false;
+    });
+  }
 }
 
 function cerraCaja() {

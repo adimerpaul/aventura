@@ -152,7 +152,7 @@ export class Impresion {
   }
   static imprimirProductos (data, fechaInicio, fechaFin, userFind, productosAll) {
     const productos = data.productos
-    const productosCombo = data.productosCombo
+    // const productosCombo = data.productosCombo
 
     const productosGaseosa = data.productosGaseosa
     const productosPipoca = data.productosPipoca
