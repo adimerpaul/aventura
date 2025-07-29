@@ -63,6 +63,8 @@
                 <td><input v-model.number="item.precioVenta" type="number" style="width: 60px" step="0.01"/></td>
                 <td>
                   {{ (item.cantidadVenta * item.precioVenta).toFixed(2) }} Bs
+<!--                  btn caulculadora-->
+                  <q-btn icon="calculate" color="gray" flat dense @click="calcularCaja(item)" size="10px" no-caps />
                 </td>
 <!--                <td></td>-->
               </tr>
@@ -111,9 +113,34 @@ const carrito = ref([]);
 let buscarProducto = ref("");
 const dialogCompra = ref(false);
 const loading = ref(false);
-
+import {useQuasar} from "quasar";
+const $q = useQuasar();
 onMounted(() => { getProductos(); });
 
+function calcularCaja(item) {
+  $q.dialog({
+    title: 'Calcular Caja',
+    html: true,
+    message: `Producto: ${item.nombre} <br> Cantidad: ${item.cantidadVenta}`,
+    prompt: {
+      // model: item.total,
+      type: 'number',
+      label: 'Total de cajas',
+      min: 1,
+      max: 100000,
+      required: true
+    },
+    cancel: true,
+    ok: {
+      label: 'Calcular',
+      color: 'primary'
+    }
+  }).onOk((total) => {
+    const precio = total / item.cantidadVenta;
+    console.log(precio)
+    item.precioVenta = precio.toFixed(3);
+  });
+}
 function getProductos() {
   proxy.$axios.get("/productos").then(response => {
     productos.value = response.data;

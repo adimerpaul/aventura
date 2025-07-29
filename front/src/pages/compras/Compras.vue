@@ -34,10 +34,11 @@
       <q-card-section>
         <q-markup-table wrap-cells dense flat bordered>
           <thead>
-          <tr>
+          <tr class="bg-green text-white">
             <th>Acciones</th>
             <th>Fecha</th>
             <th>Total</th>
+            <th>Detalle</th>
             <th>Proveedor</th>
             <th>Usuario</th>
             <th>Agencia</th>
@@ -46,13 +47,18 @@
           <tbody>
           <tr v-for="compra in compras" :key="compra.id">
             <td>
-              <q-btn icon="cancel" color="negative" dense @click="anular(compra.id)" label="Anular" no-caps v-if="!compra.anulada" />
-              <q-chip color="red" text-color="white" label="Anulada" v-else />
+<!--              <q-btn icon="cancel" color="negative" dense @click="anular(compra.id)" label="Anular" no-caps v-if="!compra.anulada" />-->
+<!--              <q-chip color="red" text-color="white" label="Anulada" v-else />-->
             </td>
             <td>{{ compra.fecha }}</td>
             <td>{{ compra.total }}</td>
+            <td>
+              <div style="wrap-option: break-word; width: 200px; line-height: 0.8">
+                {{compra.detalleText}}
+              </div>
+            </td>
             <td>{{ compra.nombre }}</td>
-            <td>{{ compra.user?.name }}</td>
+            <td>{{ compra.user?.username }}</td>
             <td>{{ compra.agencia }}</td>
           </tr>
           </tbody>
