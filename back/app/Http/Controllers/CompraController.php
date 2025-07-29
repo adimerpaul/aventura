@@ -60,7 +60,8 @@ class CompraController extends Controller{
                 $total += $producto['cantidadVenta'] * $producto['precioVenta'];
             }
 
-            $compra->total = $total;
+//            $compra->total = $total; redondeado superior
+            $compra->total = ceil($total * 100) / 100;
             $compra->save();
 
             DB::commit();

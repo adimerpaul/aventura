@@ -26,4 +26,15 @@ class Compra extends Model{
     function detalles(){
         return $this->hasMany(CompraDetalle::class);
     }
+
+    protected $appends = ['detalleText'];
+
+    function getDetalleTextAttribute(){
+        $detalleText = '';
+        foreach ($this->detalles as $detalle){
+            $detalleText .= $detalle->cantidad.' '.$detalle->producto.' '.$detalle->precio.', ';
+        }
+        $detalleText = substr($detalleText, 0, -2);
+        return $detalleText;
+    }
 }
