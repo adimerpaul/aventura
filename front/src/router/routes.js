@@ -12,6 +12,8 @@ const routes = [
       { path: 'ventas', component: () => import('pages/ventas/Ventas.vue'), meta: { requiresAuth: true } },
       { path: 'ventas/add', component: () => import('pages/ventas/VentaAdd.vue'), meta: { requiresAuth: true } },
       { path: 'metricas', component: () => import('pages/metricas/Metricas.vue'), meta: { requiresAuth: true } },
+      { path: 'compras', component: () => import('pages/compras/Compras.vue'), meta: { requiresAuth: true } },
+      { path: 'compras/add', component: () => import('pages/compras/CompraAdd.vue'), meta: { requiresAuth: true } },
     ]
   },
   {

@@ -126,6 +126,8 @@ onMounted(() => {
     { title: 'Nueva Venta', icon: 'add_shopping_cart', link: '/ventas/add', can: 'Todos' },
     { title: 'Ventas', icon: 'storefront', link: '/ventas', can: 'Todos' },
     { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
+    { title: 'Nueva Compra', icon: 'add_circle_outline', link: '/compras/add', can: 'Admin' },
+    { title: 'Compras', icon: 'shopping_basket', link: '/compras', can: 'Admin' },
   ]
 
   const sucursalLinks = {
