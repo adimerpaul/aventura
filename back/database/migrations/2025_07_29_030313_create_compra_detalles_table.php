@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('producto');
             $table->double('precio', 8, 2);
             $table->unsignedBigInteger('producto_id');
-            $table->unsignedBigInteger('venta_id');
+            $table->unsignedBigInteger('compra_id');
             $table->unsignedBigInteger('user_id');
             $table->foreign('producto_id')->references('id')->on('productos');
-            $table->foreign('venta_id')->references('id')->on('ventas');
+            $table->foreign('compra_id')->references('id')->on('compras');
             $table->foreign('user_id')->references('id')->on('users');
             $table->softDeletes();
             $table->timestamps();

@@ -12,7 +12,7 @@ class CompraDetalle extends Model{
         'producto',
         'precio',
         'producto_id',
-        'venta_id',
+        'compra_id',
         'user_id'
     ];
     protected $hidden = [
@@ -23,7 +23,7 @@ class CompraDetalle extends Model{
     function producto(){
         return $this->belongsTo(Producto::class);
     }
-    function venta(){
+    function compra(){
         return $this->belongsTo(Compra::class);
     }
     function user(){
