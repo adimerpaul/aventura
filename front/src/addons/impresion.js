@@ -435,4 +435,125 @@ export class Impresion {
 
     return (milesTexto + ' ' + restoTexto).trim();
   }
+  static imprimirComprasTotales(compras, fechaInicio, fechaFin, usuario) {
+    let tabla = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Proveedor</th>
+          <th>Usuario</th>
+          <th>Agencia</th>
+          <th>Total</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+    let suma = 0;
+    compras.forEach(compra => {
+      const detalles = compra.detalles || compra.detalleText || [];
+      const textoDetalle = Array.isArray(detalles)
+        ? detalles.map(d => `${d.cantidad}x ${d.producto} (${d.precio} Bs)`).join(', ')
+        : compra.detalleText;
+
+      tabla += `
+      <tr>
+        <td>${moment(compra.fecha).format("DD/MM/YYYY HH:mm")}</td>
+        <td>${compra.nombre || '-'}</td>
+        <td>${compra.user?.name || compra.user?.username || '-'}</td>
+        <td>${compra.agencia || '-'}</td>
+        <td class="text-right">${parseFloat(compra.total).toFixed(2)}</td>
+        <td>${textoDetalle}</td>
+      </tr>
+    `;
+
+      suma += parseFloat(compra.total);
+    });
+
+    tabla += `
+    <tr>
+      <td colspan="4" class="text-right text-bold">TOTAL</td>
+      <td class="text-right text-bold">${suma.toFixed(2)} Bs</td>
+      <td></td>
+    </tr>
+  `;
+
+    tabla += `</tbody></table>`;
+
+    const html = `
+    <style>
+      .table { width: 100%; border-collapse: collapse; }
+      .table, .table td, .table th { border: 1px solid #000; padding: 4px; font-size: 11px; }
+      .text-right { text-align: right; }
+      .text-bold { font-weight: bold; }
+    </style>
+    <div>
+      <div class="text-right text-h6">Impreso: ${moment().format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-h6">Usuario: ${usuario}</div>
+      <div class="text-h6">Rango: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
+      <div class="text-h5 text-center text-bold">REPORTE GENERAL DE COMPRAS</div>
+      ${tabla}
+    </div>
+  `;
+
+    document.getElementById('myElement').innerHTML = html;
+    const d = new Printd();
+    d.print(document.getElementById('myElement'));
+  }
+
+  static imprimirCompraUnica(compra, usuario) {
+    let tabla = `
+    <table class="table">
+      <thead>
+        <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
+      </thead>
+      <tbody>
+  `;
+
+    let total = 0;
+    compra.detalles.forEach(detalle => {
+      const subtotal = detalle.cantidad * detalle.precio;
+      total += subtotal;
+      tabla += `
+      <tr>
+        <td>${detalle.producto}</td>
+        <td class="text-right">${detalle.cantidad}</td>
+        <td class="text-right">${detalle.precio}</td>
+        <td class="text-right">${subtotal.toFixed(2)}</td>
+      </tr>
+    `;
+    });
+
+    tabla += `
+    <tr>
+      <td colspan="3" class="text-right text-bold">TOTAL</td>
+      <td class="text-right text-bold">${total.toFixed(2)} Bs</td>
+    </tr>
+  `;
+
+    tabla += `</tbody></table>`;
+
+    const html = `
+    <style>
+      .table { width: 100%; border-collapse: collapse; }
+      .table, .table td, .table th { border: 1px solid #000; padding: 4px; }
+      .text-right { text-align: right; }
+      .text-bold { font-weight: bold; }
+    </style>
+    <div>
+      <div class="text-right text-h6">Fecha impresión: ${moment().format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-h6">Usuario: ${usuario}</div>
+      <div class="text-h6">Fecha Compra: ${moment(compra.fecha).format('DD/MM/YYYY HH:mm')}</div>
+      <div class="text-h6">Proveedor: ${compra.nombre}</div>
+      <div class="text-h5 text-center text-bold">DETALLE DE COMPRA</div>
+      ${tabla}
+    </div>
+  `;
+
+    document.getElementById('myElement').innerHTML = html;
+    const d = new Printd();
+    d.print(document.getElementById('myElement'));
+  }
 }
