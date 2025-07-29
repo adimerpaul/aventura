@@ -23,7 +23,7 @@
                      @click="$router.push('/compras/add')" :loading="loading" />
             </div>
             <div class="col-12 col-md-2">
-              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimir" v-if="$store.user.role === 'Admin'" />
+              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimirTotal" v-if="$store.user.role === 'Admin'" />
             </div>
           </div>
         </q-form>
@@ -47,8 +47,30 @@
           <tbody>
           <tr v-for="compra in compras" :key="compra.id">
             <td>
-<!--              <q-btn icon="cancel" color="negative" dense @click="anular(compra.id)" label="Anular" no-caps v-if="!compra.anulada" />-->
-<!--              <q-chip color="red" text-color="white" label="Anulada" v-else />-->
+<!--              <q-btn icon="cancel" color="negative" dense @click="anular(compra.id)" label="Anular" no-caps v-if="!compra.anulada"-->
+<!--              size="10px"/>-->
+              <q-btn-dropdown v-if="!compra.anulada" color="primary" dense size="10px"
+                              label="Acciones" no-caps>
+                <q-list>
+                  <q-item clickable @click="anular(compra.id)" v-if="!compra.anulada" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="cancel" color="negative" />
+                    </q-item-section>
+                    <q-item-section>
+                      Anular
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="imprimirCompra(compra)" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="print" color="indigo" />
+                    </q-item-section>
+                    <q-item-section>
+                      Imprimir
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+              <q-chip color="red" text-color="white" label="Anulada" v-else />
             </td>
             <td>{{ compra.fecha }}</td>
             <td>{{ compra.total }}</td>
@@ -65,6 +87,8 @@
         </q-markup-table>
       </q-card-section>
     </q-card>
+<!--    myElement-->
+    <div id="myElement" class="hidden"></div>
   </q-page>
 </template>
 
@@ -126,21 +150,18 @@ function anular(id) {
   });
 }
 
-function imprimir() {
-  if (!user.value) {
-    proxy.$alert.error("Seleccione un usuario", "Por favor");
-    return;
-  }
-  loading.value = true;
-  proxy.$axios.post("/compras/imprimir", {
-    user_id: user.value,
-    fechaInicio: fechaInicio.value,
-    fechaFin: fechaFin.value
-  }).then((res) => {
-    const userFind = users.value.find(u => u.id === user.value);
-    Impresion.imprimirCompras(res.data, fechaInicio.value, fechaFin.value, userFind?.name || '');
-  }).finally(() => {
-    loading.value = false;
-  });
+function imprimirTotal() {
+  const userFind = users.value.find(u => u.id === user.value)?.name || 'Todos';
+
+  // tambien filtarr si seleciona un suaurio
+  const comprasFiltradas = compras.value.filter(compra => !compra.anulada);
+  // const comprasFiltradas = compras.value.filter(compra => {
+  //   return compra.fecha >= fechaInicio.value && compra.fecha <= fechaFin.value && !compra.anulada;
+  // });
+  Impresion.imprimirComprasTotales(comprasFiltradas, fechaInicio.value, fechaFin.value, userFind);
+}
+function imprimirCompra(compra) {
+  const userFind = compra.user?.name || '';
+  Impresion.imprimirCompraUnica(compra, userFind);
 }
 </script>

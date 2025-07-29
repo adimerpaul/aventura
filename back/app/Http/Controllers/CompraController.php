@@ -9,6 +9,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CompraController extends Controller{
+    public function imprimir(Request $request)
+    {
+        $user_id = $request->user_id;
+        $fechaInicio = $request->fechaInicio . ' 00:00:00';
+        $fechaFin = $request->fechaFin . ' 23:59:59';
+
+        $compras = Compra::with('detalles')
+            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->when($user_id != '', fn($q) => $q->where('user_id', $user_id))
+            ->orderBy('fecha', 'desc')
+            ->get();
+
+        return response()->json($compras);
+    }
     public function index(Request $request)
     {
         $user = $request->user();
