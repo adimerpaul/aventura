@@ -89,7 +89,7 @@
           <q-form @submit.prevent="guardarProducto">
             <q-input v-model="producto.nombre" label="Nombre" outlined dense required hint="" />
             <q-input v-model="producto.precio" label="Precio" type="number" outlined dense required hint="" />
-            <q-input v-model="producto.stock" label="Stock" type="number" outlined dense required hint="" />
+<!--            <q-input v-model="producto.stock" label="Stock" type="number" outlined dense required hint="" />-->
             <q-btn label="Guardar" color="primary" type="submit" class="q-mt-md" />
           </q-form>
         </q-card-section>
