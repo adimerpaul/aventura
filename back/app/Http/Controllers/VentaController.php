@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Models\Compra;
+use App\Models\CompraDetalle;
 use App\Models\Detalle;
 use App\Models\Producto;
 use App\Models\ProductoCombo;
@@ -233,55 +235,79 @@ class VentaController extends Controller{
         $hoy = date('Y-m-d');
         $user = $request->user();
 
-        $verificar = Caja::whereDate('fecha_cierre', $hoy)->where('user_id', $user->id)->first();
-        if($verificar){
+        $verificar = Caja::whereDate('fecha_cierre', $hoy)
+            ->where('user_id', $user->id)
+            ->first();
+        if ($verificar) {
             return response()->json(['message' => 'Ya se ha cerrado la caja de hoy'], 400);
         }
+
         DB::beginTransaction();
         try {
             $venta = new Venta();
-            $venta->fecha = date('Y-m-d H:i:s');
+            $venta->fecha = now();
             $venta->total = 0;
             $venta->nombre = $request->nombre;
             $venta->user_id = $user->id;
             $venta->agencia = $user->sucursal;
             $venta->save();
-            $productos = $request->productos;
 
+            $productos = $request->productos;
             $total = 0;
-            foreach ($productos as $producto){
+            $detalles = [];
+
+            foreach ($productos as $producto) {
                 $productoCombo = ProductoCombo::where('producto_padre_id', $producto['id'])->get();
-                error_log(json_encode($productoCombo));
-                if(count($productoCombo) > 0){
-                    foreach ($productoCombo as $productoHijo){
+
+                if ($productoCombo->count() > 0) {
+                    foreach ($productoCombo as $productoHijo) {
                         $productoHijoFind = Producto::find($productoHijo->producto_hijo_id);
                         $productoHijoFind->stock -= $producto['cantidadVenta'] * $productoHijo->cantidad;
                         $productoHijoFind->save();
                     }
-                }else{
+                } else {
                     $productoFind = Producto::find($producto['id']);
                     $productoFind->stock -= $producto['cantidadVenta'];
                     $productoFind->save();
                 }
-                error_log(json_encode($producto));
-                $detalle = new Detalle();
-                $detalle->cantidad = $producto['cantidadVenta'];
-                $detalle->producto = $producto['nombre'];
-                $detalle->precio = $producto['precioVenta'];
-                $detalle->producto_id = $producto['id'];
-                $detalle->venta_id = $venta->id;
-                $detalle->user_id = $request->user()->id;
-                $detalle->save();
+
+                $detalles[] = [
+                    'cantidad' => $producto['cantidadVenta'],
+                    'producto' => $producto['nombre'],
+                    'precio' => $producto['precioVenta'],
+                    'producto_id' => $producto['id'],
+                    'venta_id' => $venta->id,
+                    'user_id' => $user->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'precio_compra' => $this->buscarPrecioCompra($producto['id'])
+                ];
 
                 $total += $producto['cantidadVenta'] * $producto['precioVenta'];
             }
+
+            // Inserta todos los detalles de una sola vez
+            Detalle::insert($detalles);
+
             $venta->total = $total;
             $venta->save();
+
             DB::commit();
             return $venta;
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    function buscarPrecioCompra($productoId){
+        $compras = CompraDetalle::where('producto_id', $productoId)
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($compras) {
+            return $compras->precio;
+        } else {
+            $producto = Producto::find($productoId);
+            return $producto->precio;
         }
     }
     function anular(Request $request, Venta $venta){
