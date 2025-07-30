@@ -50,7 +50,7 @@
           </div>
         </q-form>
         <div class="row">
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-12 col-md-3 q-pa-xs">
             <q-list bordered padding dense>
               <q-item clickable v-ripple>
                 <q-item-section avatar>
@@ -69,7 +69,7 @@
               </q-item>
             </q-list>
           </div>
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-12 col-md-3 q-pa-xs">
             <q-list bordered padding dense v-if="$store.user.role === 'Admin'">
               <q-item clickable v-ripple>
                 <q-item-section avatar>
@@ -88,7 +88,7 @@
               </q-item>
             </q-list>
           </div>
-          <div class="col-12 col-md-4 q-pa-xs">
+          <div class="col-12 col-md-3 q-pa-xs">
             <q-list bordered padding dense>
               <q-item clickable v-ripple>
                 <q-item-section avatar>
@@ -107,15 +107,43 @@
               </q-item>
             </q-list>
           </div>
+          <div class="col-12 col-md-3 q-pa-xs">
+            <q-list bordered padding dense>
+              <q-item clickable v-ripple>
+                <q-item-section avatar>
+                  <q-avatar color="amber" text-color="white" icon="trending_up" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label lines="1">
+          <span class="text-weight-bold">
+            Bs {{
+              ventas
+                .filter(venta => !venta.anulada)
+                .reduce((ganancia, venta) => {
+                  return ganancia + venta.detalles.reduce((acc, detalle) => {
+                    const gan = detalle.precio - (detalle.precio_compra || 0);
+                    return acc + gan * detalle.cantidad;
+                  }, 0);
+                }, 0).toFixed(2)
+            }}
+          </span>
+                  </q-item-label>
+                  <q-item-label caption lines="2">
+                    Ganancia total
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
         </div>
       </q-card-section>
     </q-card>
 
     <q-card flat bordered class="q-mt-md">
       <q-card-section>
-        <q-markup-table wrap-cells dense flat bordered>
+        <q-markup-table wrap-cells dense flat bordered >
           <thead>
-          <tr>
+          <tr class="bg-primary text-white">
             <th>Acciones</th>
             <th>Fecha</th>
             <th>Total</th>
@@ -140,8 +168,21 @@
             <td>{{ venta.nombre }}</td>
             <td>{{ venta.user?.name }}</td>
             <td>
+<!--              <div style="max-width: 200px;wrap-option: wrap">-->
+<!--                {{ venta.detalleText }}-->
+<!--              </div>-->
               <div style="max-width: 200px;wrap-option: wrap">
-                {{ venta.detalleText }}
+                <span v-for="(detalle, index) in venta.detalles" :key="index">
+                  <span v-if="index > 0">, </span>
+                  {{ detalle.producto }} ({{ detalle.cantidad }})
+                  <span v-if="detalle.precio > 0">
+                    Bs {{ detalle.precio.toFixed(2) }}
+                    <span class="text-blue" v-if="$store.user.role === 'Admin'">
+                      {{detalle.precio - detalle.precio_compra > 0 ? `(+${(detalle.precio - detalle.precio_compra).toFixed(2)})` : ''}}
+                    </span>
+                  </span>
+                  <span v-if="detalle.precio === 0">Gratis</span>
+                </span>
               </div>
             </td>
             <td>{{ venta.agencia }}</td>

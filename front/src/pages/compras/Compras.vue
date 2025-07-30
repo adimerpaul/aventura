@@ -31,6 +31,78 @@
     </q-card>
 
     <q-card flat bordered class="q-mt-md">
+      <div class="row q-mt-md">
+        <div class="col-12 col-md-3 q-pa-xs">
+          <q-list bordered padding dense>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar color="indigo" text-color="white" icon="event" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  <span class="text-weight-bold">{{ compras.length }} compras</span>
+                </q-item-label>
+                <q-item-label caption>Cantidad total de compras</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+
+        <div class="col-12 col-md-3 q-pa-xs">
+          <q-list bordered padding dense>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar color="green" text-color="white" icon="attach_money" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+            <span class="text-weight-bold">
+              Bs {{ compras.filter(c => !c.anulada).reduce((a, c) => a + parseFloat(c.total), 0).toFixed(2) }}
+            </span>
+                </q-item-label>
+                <q-item-label caption>Monto total gastado</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+
+        <div class="col-12 col-md-3 q-pa-xs">
+          <q-list bordered padding dense>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar color="red" text-color="white" icon="cancel" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+            <span class="text-weight-bold">
+              Bs {{ compras.filter(c => c.anulada).reduce((a, c) => a + parseFloat(c.total), 0).toFixed(2) }}
+            </span>
+                </q-item-label>
+                <q-item-label caption>Monto total anulado</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+
+        <div class="col-12 col-md-3 q-pa-xs">
+          <q-list bordered padding dense>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar color="blue" text-color="white" icon="check_circle" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+            <span class="text-weight-bold">
+              {{ compras.filter(c => !c.anulada).length }} válidas
+            </span>
+                </q-item-label>
+                <q-item-label caption>Compras no anuladas</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </div>
+
       <q-card-section>
         <q-markup-table wrap-cells dense flat bordered>
           <thead>
@@ -93,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue';
+import {ref, onMounted, getCurrentInstance, computed} from 'vue';
 import moment from 'moment';
 import { Impresion } from '../../addons/impresion.js';
 
@@ -164,4 +236,19 @@ function imprimirCompra(compra) {
   const userFind = compra.user?.name || '';
   Impresion.imprimirCompraUnica(compra, userFind);
 }
+const totalGastado = computed(() =>
+  compras.value.filter(c => !c.anulada).reduce((acc, c) => acc + parseFloat(c.total), 0)
+);
+
+const totalAnulado = computed(() =>
+  compras.value.filter(c => c.anulada).reduce((acc, c) => acc + parseFloat(c.total), 0)
+);
+
+const cantidadCompras = computed(() =>
+  compras.value.filter(c => !c.anulada).length
+);
+
+const cantidadAnuladas = computed(() =>
+  compras.value.filter(c => c.anulada).length
+);
 </script>

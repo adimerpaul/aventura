@@ -26,13 +26,16 @@ class CompraController extends Controller{
     public function index(Request $request)
     {
         $user = $request->user();
+        $userSelected = $request->input('user_id', null);
         $fechaInicio = $request->input('fechaInicio') . ' 00:00:00';
         $fechaFin = $request->input('fechaFin') . ' 23:59:59';
 
         $query = Compra::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->with('detalles', 'user')
             ->orderBy('id', 'desc');
-
+        if ($userSelected) {
+            $query->where('user_id', $userSelected);
+        }
         if ($user->role !== 'Admin') {
             $query->where('user_id', $user->id);
         }
@@ -56,25 +59,31 @@ class CompraController extends Controller{
             $compra->save();
 
             $total = 0;
+            $detalles = [];
 
             foreach ($request->productos as $producto) {
                 $productoModel = Producto::find($producto['id']);
                 $productoModel->stock += $producto['cantidadVenta'];
                 $productoModel->save();
 
-                CompraDetalle::create([
+                $detalles[] = [
                     'cantidad' => $producto['cantidadVenta'],
                     'producto' => $producto['nombre'],
                     'precio' => $producto['precioVenta'],
                     'producto_id' => $producto['id'],
                     'compra_id' => $compra->id,
                     'user_id' => $user->id,
-                ]);
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
 
                 $total += $producto['cantidadVenta'] * $producto['precioVenta'];
             }
 
-//            $compra->total = $total; redondeado superior
+            // Inserción en lote
+            CompraDetalle::insert($detalles);
+
+            // Redondear al siguiente centavo superior
             $compra->total = ceil($total * 100) / 100;
             $compra->save();
 

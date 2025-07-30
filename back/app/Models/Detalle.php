@@ -13,7 +13,8 @@ class Detalle extends Model{
         'precio',
         'producto_id',
         'venta_id',
-        'user_id'
+        'user_id',
+        'precio_compra'
     ];
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
     function producto(){
