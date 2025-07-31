@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Compra;
 use App\Models\CompraDetalle;
 use App\Models\Producto;
+use App\Models\Venta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,8 +40,40 @@ class CompraController extends Controller{
         if ($user->role !== 'Admin') {
             $query->where('user_id', $user->id);
         }
+//        $ventas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+//            ->orderBy('id', 'desc')
+//            ->get();
+//        $ganancias = $ventas->sum(function ($venta) {
+//            return $venta->detalles->sum(function ($detalle) {
+//                return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
+//            });
+//        });
+        $gananciasOquendo = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->where('agencia', 'Oquendo')
+            ->where('anulada', false)
+            ->get()
+            ->sum(function ($venta) {
+                return $venta->detalles->sum(function ($detalle) {
+                    return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
+                });
+            });
+        $gananciasAyacucho = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->where('agencia', 'Ayacucho')
+            ->where('anulada', false)
+            ->get()
+            ->sum(function ($venta) {
+                return $venta->detalles->sum(function ($detalle) {
+                    return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
+                });
+            });
 
-        return $query->get();
+        $res = [
+            'compras' => $query->get(),
+            'gananciaOquendo' => $gananciasOquendo,
+            'gananciaAyacucho' => $gananciasAyacucho,
+        ];
+
+        return response()->json($res);
     }
 
     public function store(Request $request)

@@ -116,16 +116,7 @@
                 <q-item-section>
                   <q-item-label lines="1">
           <span class="text-weight-bold">
-            Bs {{
-              ventas
-                .filter(venta => !venta.anulada)
-                .reduce((ganancia, venta) => {
-                  return ganancia + venta.detalles.reduce((acc, detalle) => {
-                    const gan = detalle.precio - (detalle.precio_compra || 0);
-                    return acc + gan * detalle.cantidad;
-                  }, 0);
-                }, 0).toFixed(2)
-            }}
+            Bs {{ ganancias }}
           </span>
                   </q-item-label>
                   <q-item-label caption lines="2">
@@ -156,6 +147,7 @@
           <tbody>
           <tr v-for="venta in ventas" :key="venta.id">
             <td>
+              {{venta.id}}
               <q-btn style="width: 80px" icon="remove_circle_outline" color="negative" dense @click="anular(venta.id)" label="Anular" no-caps size="10px"
                      v-if="!venta.anulada"
               />
@@ -217,11 +209,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
+import {ref, onMounted, getCurrentInstance, computed} from "vue";
 import moment from "moment";
 import {Impresion} from "src/addons/Impresion.js";
 
 const { proxy } = getCurrentInstance();
+// const fechaInicio = ref('2025-07-30');
+// const fechaFin = ref('2025-07-30');
 const fechaInicio = ref(moment().format("YYYY-MM-DD"));
 const fechaFin = ref(moment().format("YYYY-MM-DD"));
 const ventas = ref([]);
@@ -433,4 +427,16 @@ function getVentas() {
 function verDetalles(id) {
   proxy.$router.push(`/ventas/${id}`);
 }
+// ganancias computed
+const ganancias = computed(() => {
+  let sum = 0
+  ventas.value.forEach(venta => {
+    if (!venta.anulada) {
+      venta.detalles.forEach(detalle => {
+        sum += (detalle.precio - detalle.precio_compra) * detalle.cantidad;
+      });
+    }
+  });
+  return sum.toFixed(2);
+});
 </script>

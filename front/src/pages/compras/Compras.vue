@@ -68,17 +68,19 @@
 
         <div class="col-12 col-md-3 q-pa-xs">
           <q-list bordered padding dense>
-            <q-item>
+            <q-item clickable v-ripple>
               <q-item-section avatar>
-                <q-avatar color="red" text-color="white" icon="cancel" />
+                <q-avatar color="amber" text-color="white" icon="trending_up" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>
-            <span class="text-weight-bold">
-              Bs {{ compras.filter(c => c.anulada).reduce((a, c) => a + parseFloat(c.total), 0).toFixed(2) }}
-            </span>
+                <q-item-label lines="1">
+          <span class="text-weight-bold">
+            Bs {{ gananciaAyacucho.toFixed(2)}}
+          </span>
                 </q-item-label>
-                <q-item-label caption>Monto total anulado</q-item-label>
+                <q-item-label caption lines="2">
+                  Ganancia Ayacucho
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -86,17 +88,19 @@
 
         <div class="col-12 col-md-3 q-pa-xs">
           <q-list bordered padding dense>
-            <q-item>
+            <q-item clickable v-ripple>
               <q-item-section avatar>
-                <q-avatar color="blue" text-color="white" icon="check_circle" />
+                <q-avatar color="amber" text-color="white" icon="trending_up" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>
-            <span class="text-weight-bold">
-              {{ compras.filter(c => !c.anulada).length }} válidas
-            </span>
+                <q-item-label lines="1">
+          <span class="text-weight-bold">
+            Bs {{ gananciaOquendo.toFixed(2)}}
+          </span>
                 </q-item-label>
-                <q-item-label caption>Compras no anuladas</q-item-label>
+                <q-item-label caption lines="2">
+                  Ganancia Oquendo
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -176,6 +180,8 @@ const compras = ref([]);
 const loading = ref(false);
 const users = ref([]);
 const user = ref('');
+const gananciaOquendo = ref(0);
+const gananciaAyacucho = ref(0);
 
 onMounted(() => {
   getUsers();
@@ -200,7 +206,9 @@ function getCompras() {
       user_id: user.value
     }
   }).then(response => {
-    compras.value = response.data;
+    compras.value = response.data.compras;
+    gananciaOquendo.value = response.data.gananciaOquendo;
+    gananciaAyacucho.value = response.data.gananciaAyacucho;
   }).finally(() => {
     loading.value = false;
   });

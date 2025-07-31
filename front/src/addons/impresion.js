@@ -455,7 +455,7 @@ export class Impresion {
     compras.forEach(compra => {
       const detalles = compra.detalles || compra.detalleText || [];
       const textoDetalle = Array.isArray(detalles)
-        ? detalles.map(d => `${d.cantidad}x ${d.producto} (${d.precio} Bs)`).join(', ')
+        ? detalles.map(d => `${d.cantidad}x ${d.producto} (${d.precio} Bs) </br>`).join('')
         : compra.detalleText;
 
       tabla += `

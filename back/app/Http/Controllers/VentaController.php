@@ -302,6 +302,7 @@ class VentaController extends Controller{
     function buscarPrecioCompra($productoId){
         $compras = CompraDetalle::where('producto_id', $productoId)
             ->orderBy('id', 'desc')
+            ->where('anulada', 0)
             ->first();
         if ($compras) {
             return $compras->precio;
