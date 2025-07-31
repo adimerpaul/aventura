@@ -170,7 +170,7 @@
                   <span v-if="detalle.precio > 0">
                     Bs {{ detalle.precio.toFixed(2) }}
                     <span class="text-blue" v-if="$store.user.role === 'Admin'">
-                      {{detalle.precio - detalle.precio_compra > 0 ? `(+${(detalle.precio - detalle.precio_compra).toFixed(2)})` : ''}}
+                      {{detalle.precio - detalle.precio_compra > 0 ? `(+${((detalle.precio - detalle.precio_compra)*detalle.cantidad).toFixed(2)})` : ''}}
                     </span>
                   </span>
                   <span v-if="detalle.precio === 0">Gratis</span>

@@ -33,6 +33,7 @@ class CompraController extends Controller{
 
         $query = Compra::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->with('detalles', 'user')
+            ->where('agencia', $user->sucursal)
             ->orderBy('id', 'desc');
         if ($userSelected) {
             $query->where('user_id', $userSelected);

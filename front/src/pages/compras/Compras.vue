@@ -87,7 +87,7 @@
         </div>
 
         <div class="col-12 col-md-3 q-pa-xs">
-          <q-list bordered padding dense>
+          <q-list bordered padding dense v-if="$store.user.sucursal === 'Ayacucho'">
             <q-item clickable v-ripple>
               <q-item-section avatar>
                 <q-avatar color="amber" text-color="white" icon="trending_up" />
@@ -106,7 +106,7 @@
           </q-list>
         </div>
 
-        <div class="col-12 col-md-3 q-pa-xs">
+        <div class="col-12 col-md-3 q-pa-xs" v-if="$store.user.sucursal === 'Oquendo'">
           <q-list bordered padding dense>
             <q-item clickable v-ripple>
               <q-item-section avatar>
@@ -148,14 +148,16 @@
               <q-btn-dropdown v-if="!compra.anulada" color="primary" dense size="10px"
                               label="Acciones" no-caps>
                 <q-list>
-                  <q-item clickable @click="anular(compra.id)" v-if="!compra.anulada" v-close-popup>
-                    <q-item-section avatar>
-                      <q-icon name="cancel" color="negative" />
-                    </q-item-section>
-                    <q-item-section>
-                      Anular
-                    </q-item-section>
-                  </q-item>
+                  <template v-if="moment(compra.fecha).isSame(moment(), 'day')">
+                    <q-item clickable @click="anular(compra.id)" v-if="!compra.anulada" v-close-popup>
+                      <q-item-section avatar>
+                        <q-icon name="cancel" color="negative" />
+                      </q-item-section>
+                      <q-item-section>
+                        Anular
+                      </q-item-section>
+                    </q-item>
+                  </template>
                   <q-item clickable @click="imprimirCompra(compra)" v-close-popup>
                     <q-item-section avatar>
                       <q-icon name="print" color="indigo" />
