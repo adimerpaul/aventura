@@ -9,16 +9,25 @@ class ProductoController extends Controller{
     function index(Request $request){
         $user = $request->user();
         if($user->sucursal == 'Ayacucho'){
-            return Producto::orderBy('nombre')
+            $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
+            $ventaController = new VentaController();
+//            $productos->each(function ($producto) {
+//                $producto->precio_compra =  $ventaController->calcularPrecioCompra($producto);
+//            });
+            $productos->each(function ($producto) use ($ventaController) {
+                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+            });
+            return $productos;
         }
         if($user->sucursal == 'Oquendo'){
-            return Producto::orderBy('nombre')
+            $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
+            return $productos;
         }
 
     }

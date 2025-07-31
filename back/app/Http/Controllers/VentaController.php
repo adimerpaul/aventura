@@ -192,8 +192,7 @@ class VentaController extends Controller{
             return $reservasTotal;
         }
     }
-    function index(Request $request)
-    {
+    function index(Request $request){
         $fechaInicio = $request->fechaInicio;
         $fechaFin = $request->fechaFin;
         $user_id = $request->user_id;
@@ -302,8 +301,17 @@ class VentaController extends Controller{
     function buscarPrecioCompra($productoId){
         $compras = CompraDetalle::where('producto_id', $productoId)
             ->orderBy('id', 'desc')
-            ->where('anulada', 0)
+            ->whereHas('compra', function ($query) {
+                $query->where('anulada', 0);
+            })
             ->first();
+//        $compras = Compra::where('anulada', 0)
+//            ->join('compra_detalles', 'compras.id', '=', 'compra_detalles.compra_id')
+//            ->where('compra_detalles.producto_id', $productoId)
+//            ->orderBy('compras.fecha', 'desc')
+//            ->select('compra_detalles.precio')
+//            ->first();
+        error_log('compras: '.json_encode($compras));
         if ($compras) {
             return $compras->precio;
         } else {
