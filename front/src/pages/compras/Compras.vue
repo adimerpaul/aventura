@@ -23,7 +23,27 @@
                      @click="$router.push('/compras/add')" :loading="loading" />
             </div>
             <div class="col-12 col-md-2">
-              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimirTotal" v-if="$store.user.role === 'Admin'" />
+<!--              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimirTotal" v-if="$store.user.role === 'Admin'" />-->
+              <q-btn-dropdown color="indigo" icon="print" no-caps label="Imprimir" v-if="$store.user.role === 'Admin'">
+                <q-list>
+                  <q-item clickable @click="imprimirTotal" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="print" />
+                    </q-item-section>
+                    <q-item-section>
+                      Imprimir Totales
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="imprimirReporteGanancias" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="bar_chart" />
+                    </q-item-section>
+                    <q-item-section>
+                      Reporte Ganancias por Producto
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </div>
           </div>
         </q-form>
@@ -67,36 +87,40 @@
         </div>
 
         <div class="col-12 col-md-3 q-pa-xs">
-          <q-list bordered padding dense>
-            <q-item>
+          <q-list bordered padding dense v-if="$store.user.sucursal === 'Ayacucho'">
+            <q-item clickable v-ripple>
               <q-item-section avatar>
-                <q-avatar color="red" text-color="white" icon="cancel" />
+                <q-avatar color="amber" text-color="white" icon="trending_up" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>
-            <span class="text-weight-bold">
-              Bs {{ compras.filter(c => c.anulada).reduce((a, c) => a + parseFloat(c.total), 0).toFixed(2) }}
-            </span>
+                <q-item-label lines="1">
+          <span class="text-weight-bold">
+            Bs {{ gananciaAyacucho.toFixed(2)}}
+          </span>
                 </q-item-label>
-                <q-item-label caption>Monto total anulado</q-item-label>
+                <q-item-label caption lines="2">
+                  Ganancia Ayacucho
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
         </div>
 
-        <div class="col-12 col-md-3 q-pa-xs">
+        <div class="col-12 col-md-3 q-pa-xs" v-if="$store.user.sucursal === 'Oquendo'">
           <q-list bordered padding dense>
-            <q-item>
+            <q-item clickable v-ripple>
               <q-item-section avatar>
-                <q-avatar color="blue" text-color="white" icon="check_circle" />
+                <q-avatar color="amber" text-color="white" icon="trending_up" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>
-            <span class="text-weight-bold">
-              {{ compras.filter(c => !c.anulada).length }} válidas
-            </span>
+                <q-item-label lines="1">
+          <span class="text-weight-bold">
+            Bs {{ gananciaOquendo.toFixed(2)}}
+          </span>
                 </q-item-label>
-                <q-item-label caption>Compras no anuladas</q-item-label>
+                <q-item-label caption lines="2">
+                  Ganancia Oquendo
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -124,14 +148,16 @@
               <q-btn-dropdown v-if="!compra.anulada" color="primary" dense size="10px"
                               label="Acciones" no-caps>
                 <q-list>
-                  <q-item clickable @click="anular(compra.id)" v-if="!compra.anulada" v-close-popup>
-                    <q-item-section avatar>
-                      <q-icon name="cancel" color="negative" />
-                    </q-item-section>
-                    <q-item-section>
-                      Anular
-                    </q-item-section>
-                  </q-item>
+                  <template v-if="moment(compra.fecha).isSame(moment(), 'day')">
+                    <q-item clickable @click="anular(compra.id)" v-if="!compra.anulada" v-close-popup>
+                      <q-item-section avatar>
+                        <q-icon name="cancel" color="negative" />
+                      </q-item-section>
+                      <q-item-section>
+                        Anular
+                      </q-item-section>
+                    </q-item>
+                  </template>
                   <q-item clickable @click="imprimirCompra(compra)" v-close-popup>
                     <q-item-section avatar>
                       <q-icon name="print" color="indigo" />
@@ -176,6 +202,10 @@ const compras = ref([]);
 const loading = ref(false);
 const users = ref([]);
 const user = ref('');
+const gananciaOquendo = ref(0);
+const gananciaAyacucho = ref(0);
+const ventasAyacucho = ref([]);
+const ventasOquendo = ref([]);
 
 onMounted(() => {
   getUsers();
@@ -200,7 +230,11 @@ function getCompras() {
       user_id: user.value
     }
   }).then(response => {
-    compras.value = response.data;
+    compras.value = response.data.compras;
+    gananciaOquendo.value = response.data.gananciaOquendo;
+    gananciaAyacucho.value = response.data.gananciaAyacucho;
+    ventasAyacucho.value = response.data.ventasAyacucho;
+    ventasOquendo.value = response.data.ventasOquendo;
   }).finally(() => {
     loading.value = false;
   });
@@ -220,6 +254,16 @@ function anular(id) {
       loading.value = false;
     });
   });
+}
+function imprimirReporteGanancias() {
+  const userFind = users.value.find(u => u.id === user.value)?.name || 'Todos';
+  Impresion.imprimirReporteGananciasPorProducto(
+    ventasAyacucho.value,
+    ventasOquendo.value,
+    fechaInicio.value,
+    fechaFin.value,
+    userFind
+  );
 }
 
 function imprimirTotal() {

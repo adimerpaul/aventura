@@ -8,17 +8,31 @@ use Illuminate\Http\Request;
 class ProductoController extends Controller{
     function index(Request $request){
         $user = $request->user();
+        $ventaController = new VentaController();
         if($user->sucursal == 'Ayacucho'){
-            return Producto::orderBy('nombre')
+            $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
+//            $productos->each(function ($producto) {
+//                $producto->precio_compra =  $ventaController->calcularPrecioCompra($producto);
+//            });
+            $productos->each(function ($producto) use ($ventaController) {
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+            });
+            return $productos;
         }
         if($user->sucursal == 'Oquendo'){
-            return Producto::orderBy('nombre')
+            $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
+            $productos->each(function ($producto) use ($ventaController) {
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+            });
+            return $productos;
         }
 
     }

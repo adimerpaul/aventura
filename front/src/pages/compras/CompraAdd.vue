@@ -12,7 +12,12 @@
               <template v-for="producto in productos" :key="producto.id">
                 <q-item clickable v-ripple @click="agregarAlCarrito(producto)">
                   <q-item-section>
-                    <q-item-label>{{ producto.nombre }}</q-item-label>
+                    <q-item-label>
+                      {{ producto.nombre }}
+                      <span class="text-grey text-caption">
+                        ({{ producto.agencia }})
+                      </span>
+                    </q-item-label>
                     <q-item-label caption>
                       <span v-if="producto.producto_combo.length > 0">
                         <q-chip v-for="combo in producto.producto_combo" :key="combo.id" :label="combo.cantidad+' '+combo.producto_hijo.nombre" dense />

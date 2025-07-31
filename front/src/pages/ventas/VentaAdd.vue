@@ -13,33 +13,20 @@
               <template v-for="producto in productos" :key="producto.id">
                 <q-item  clickable v-ripple @click="agregarAlCarrito(producto)">
                   <q-item-section>
-                    <q-item-label>{{ producto.nombre }}</q-item-label>
+                    <q-item-label>
+                      {{ producto.nombre }}
+                      <span class="text-grey text-caption">
+                        ({{ producto.agencia }})
+                      </span>
+                    </q-item-label>
                     <q-item-label caption>
-<!--                      <pre>{{producto}}</pre>-->
-<!--                      {-->
-<!--                      "id": 36,-->
-<!--                      "nombre": "COMBO CUMPLEAÑERO",-->
-<!--                      "precio": 0,-->
-<!--                      "stock": 2,-->
-<!--                      "producto_combo": [-->
-<!--                      {-->
-<!--                      "id": 6,-->
-<!--                      "cantidad": 1,-->
-<!--                      "producto_padre_id": 36,-->
-<!--                      "producto_hijo_id": 30,-->
-<!--                      "producto_hijo": {-->
-<!--                      "id": 30,-->
-<!--                      "nombre": "FRAPPÉ",-->
-<!--                      "precio": 10,-->
-<!--                      "stock": 99-->
-<!--                      }-->
-<!--                      }-->
-<!--                      ]-->
-<!--                      }-->
                       <span v-if="producto.producto_combo.length > 0">
                         <q-chip v-for="combo in producto.producto_combo" :key="combo.id" :label="combo.cantidad+' '+combo.producto_hijo.nombre" dense />
                       </span>
                       {{ producto.precio }} Bs
+                      <span class="text-blue" v-if="(producto.precio - producto.precio_compra) > 0 && $store.user.role === 'Admin'">
+                        (+{{ (producto.precio-producto.precio_compra).toFixed(2) }} Bs)
+                      </span>
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side>

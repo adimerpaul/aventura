@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Compra;
 use App\Models\CompraDetalle;
 use App\Models\Producto;
+use App\Models\Venta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -32,6 +33,7 @@ class CompraController extends Controller{
 
         $query = Compra::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->with('detalles', 'user')
+            ->where('agencia', $user->sucursal)
             ->orderBy('id', 'desc');
         if ($userSelected) {
             $query->where('user_id', $userSelected);
@@ -39,8 +41,40 @@ class CompraController extends Controller{
         if ($user->role !== 'Admin') {
             $query->where('user_id', $user->id);
         }
+        $gananciasOquendo = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->where('agencia', 'Oquendo')
+            ->where('anulada', false)
+            ->get()
+            ->sum(function ($venta) {
+                return $venta->detalles->sum(function ($detalle) {
+                    return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
+                });
+            });
+        $gananciasAyacucho = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->where('agencia', 'Ayacucho')
+            ->where('anulada', false)
+            ->get()
+            ->sum(function ($venta) {
+                return $venta->detalles->sum(function ($detalle) {
+                    return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
+                });
+            });
 
-        return $query->get();
+        $res = [
+            'compras' => $query->get(),
+            'gananciaOquendo' => $gananciasOquendo,
+            'ventasOquendo' => Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->where('agencia', 'Oquendo')
+                ->where('anulada', false)
+                ->get(),
+            'gananciaAyacucho' => $gananciasAyacucho,
+            'ventasAyacucho' => Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->where('agencia', 'Ayacucho')
+                ->where('anulada', false)
+                ->get(),
+        ];
+
+        return response()->json($res);
     }
 
     public function store(Request $request)
