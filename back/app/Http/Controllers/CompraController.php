@@ -40,14 +40,6 @@ class CompraController extends Controller{
         if ($user->role !== 'Admin') {
             $query->where('user_id', $user->id);
         }
-//        $ventas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
-//            ->orderBy('id', 'desc')
-//            ->get();
-//        $ganancias = $ventas->sum(function ($venta) {
-//            return $venta->detalles->sum(function ($detalle) {
-//                return ($detalle->precio - $detalle->precio_compra) * $detalle->cantidad;
-//            });
-//        });
         $gananciasOquendo = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->where('agencia', 'Oquendo')
             ->where('anulada', false)
@@ -70,7 +62,15 @@ class CompraController extends Controller{
         $res = [
             'compras' => $query->get(),
             'gananciaOquendo' => $gananciasOquendo,
+            'ventasOquendo' => Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->where('agencia', 'Oquendo')
+                ->where('anulada', false)
+                ->get(),
             'gananciaAyacucho' => $gananciasAyacucho,
+            'ventasAyacucho' => Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+                ->where('agencia', 'Ayacucho')
+                ->where('anulada', false)
+                ->get(),
         ];
 
         return response()->json($res);
