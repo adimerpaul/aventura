@@ -23,7 +23,27 @@
                      @click="$router.push('/compras/add')" :loading="loading" />
             </div>
             <div class="col-12 col-md-2">
-              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimirTotal" v-if="$store.user.role === 'Admin'" />
+<!--              <q-btn label="Imprimir" color="indigo" icon="print" no-caps @click="imprimirTotal" v-if="$store.user.role === 'Admin'" />-->
+              <q-btn-dropdown color="indigo" icon="print" no-caps label="Imprimir" v-if="$store.user.role === 'Admin'">
+                <q-list>
+                  <q-item clickable @click="imprimirTotal" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="print" />
+                    </q-item-section>
+                    <q-item-section>
+                      Imprimir Totales
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="imprimirReporteGanancias" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="bar_chart" />
+                    </q-item-section>
+                    <q-item-section>
+                      Reporte Ganancias por Producto
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </div>
           </div>
         </q-form>
@@ -182,6 +202,8 @@ const users = ref([]);
 const user = ref('');
 const gananciaOquendo = ref(0);
 const gananciaAyacucho = ref(0);
+const ventasAyacucho = ref([]);
+const ventasOquendo = ref([]);
 
 onMounted(() => {
   getUsers();
@@ -209,6 +231,8 @@ function getCompras() {
     compras.value = response.data.compras;
     gananciaOquendo.value = response.data.gananciaOquendo;
     gananciaAyacucho.value = response.data.gananciaAyacucho;
+    ventasAyacucho.value = response.data.ventasAyacucho;
+    ventasOquendo.value = response.data.ventasOquendo;
   }).finally(() => {
     loading.value = false;
   });
@@ -228,6 +252,16 @@ function anular(id) {
       loading.value = false;
     });
   });
+}
+function imprimirReporteGanancias() {
+  const userFind = users.value.find(u => u.id === user.value)?.name || 'Todos';
+  Impresion.imprimirReporteGananciasPorProducto(
+    ventasAyacucho.value,
+    ventasOquendo.value,
+    fechaInicio.value,
+    fechaFin.value,
+    userFind
+  );
 }
 
 function imprimirTotal() {

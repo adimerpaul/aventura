@@ -502,6 +502,105 @@ export class Impresion {
     const d = new Printd();
     d.print(document.getElementById('myElement'));
   }
+  static imprimirReporteGananciasPorProducto(ventasAyacucho, ventasOquendo, fechaInicio, fechaFin, usuario) {
+    const agruparVentas = (ventas) => {
+      const resumen = {};
+
+      ventas.forEach(venta => {
+        venta.detalles.forEach(detalle => {
+          const clave = detalle.producto;
+          if (!resumen[clave]) {
+            resumen[clave] = {
+              producto: clave,
+              cantidad: 0,
+              totalVenta: 0,
+              totalCompra: 0,
+              ganancia: 0,
+              precioVenta: detalle.precio,
+              precioCompra: detalle.precio_compra
+            };
+          }
+          resumen[clave].cantidad += detalle.cantidad;
+          resumen[clave].totalVenta += detalle.cantidad * detalle.precio;
+          resumen[clave].totalCompra += detalle.cantidad * detalle.precio_compra;
+          resumen[clave].ganancia += (detalle.precio - detalle.precio_compra) * detalle.cantidad;
+        });
+      });
+
+      return Object.values(resumen);
+    };
+
+    const renderTabla = (productos, titulo) => {
+      let tabla = `
+      <h5 style="margin-top: 20px">${titulo}</h5>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="text-right">Cant.</th>
+            <th class="text-right">Venta Bs</th>
+            <th class="text-right">Compra Bs</th>
+            <th class="text-right">Ganancia Bs</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+      let totalVenta = 0, totalCompra = 0, totalGanancia = 0;
+      productos.forEach(p => {
+        totalVenta += p.totalVenta;
+        totalCompra += p.totalCompra;
+        totalGanancia += p.ganancia;
+
+        tabla += `
+        <tr>
+          <td>${p.producto}</td>
+          <td class="text-right">${p.cantidad}</td>
+          <td class="text-right">${p.totalVenta.toFixed(2)}</td>
+          <td class="text-right">${p.totalCompra.toFixed(2)}</td>
+          <td class="text-right">${p.ganancia.toFixed(2)}</td>
+        </tr>
+      `;
+      });
+
+      tabla += `
+      <tr>
+        <td colspan="2" class="text-right text-bold">TOTALES</td>
+        <td class="text-right text-bold">${totalVenta.toFixed(2)}</td>
+        <td class="text-right text-bold">${totalCompra.toFixed(2)}</td>
+        <td class="text-right text-bold">${totalGanancia.toFixed(2)}</td>
+      </tr>
+    `;
+
+      tabla += `</tbody></table>`;
+      return tabla;
+    };
+
+    const productosAyacucho = agruparVentas(ventasAyacucho);
+    const productosOquendo = agruparVentas(ventasOquendo);
+
+    const contenido = `
+    <style>
+      .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      .table, .table td, .table th { border: 1px solid #000; padding: 4px; font-size: 11px; }
+      .text-right { text-align: right; }
+      .text-bold { font-weight: bold; }
+      h5 { margin: 10px 0; }
+    </style>
+    <div>
+      <div class="text-right text-h6">Impreso: ${moment().format('DD/MM/YYYY HH:mm:ss')}</div>
+      <div class="text-h6">Usuario: ${usuario}</div>
+      <div class="text-h6">Rango: ${moment(fechaInicio).format('DD/MM/YYYY')} - ${moment(fechaFin).format('DD/MM/YYYY')}</div>
+      <div class="text-h5 text-center text-bold">REPORTE DE GANANCIAS POR PRODUCTO</div>
+      ${renderTabla(productosAyacucho, 'Sucursal Ayacucho')}
+      ${renderTabla(productosOquendo, 'Sucursal Oquendo')}
+    </div>
+  `;
+
+    document.getElementById('myElement').innerHTML = contenido;
+    const d = new Printd();
+    d.print(document.getElementById('myElement'));
+  }
 
   static imprimirCompraUnica(compra, usuario) {
     let tabla = `

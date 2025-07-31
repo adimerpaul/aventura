@@ -19,8 +19,7 @@
                         <q-chip v-for="combo in producto.producto_combo" :key="combo.id" :label="combo.cantidad+' '+combo.producto_hijo.nombre" dense />
                       </span>
                       {{ producto.precio }} Bs
-<!--                      {{producto.precio_compra}}-->
-                      <span class="text-blue" v-if="(producto.precio - producto.precio_compra) > 0">
+                      <span class="text-blue" v-if="(producto.precio - producto.precio_compra) > 0 && $store.user.role === 'Admin'">
                         (+{{ (producto.precio-producto.precio_compra).toFixed(2) }} Bs)
                       </span>
                     </q-item-label>
