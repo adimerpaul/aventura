@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //})->middleware('auth:sanctum');
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
+Route::get('/productos', [App\Http\Controllers\ProductoController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [App\Http\Controllers\UserController::class, 'logout']);
     Route::get('/me', [App\Http\Controllers\UserController::class, 'me']);
@@ -27,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservasConfirmar', [App\Http\Controllers\ReservaController::class, 'confirmar']);
 
 
-    Route::get('/productos', [App\Http\Controllers\ProductoController::class, 'index']);
+//    Route::get('/productos', [App\Http\Controllers\ProductoController::class, 'index']);
     Route::post('/productos', [App\Http\Controllers\ProductoController::class, 'store']);
     Route::put('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'update']);
     Route::delete('/productos/{producto}', [App\Http\Controllers\ProductoController::class, 'destroy']);
