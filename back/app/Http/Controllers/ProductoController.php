@@ -14,29 +14,29 @@ class ProductoController extends Controller{
         }
         $ventaController = new VentaController();
         if($user->sucursal == 'Ayacucho'){
-            $productos = Producto::orderBy('nombre')
-                ->with('productoCombo')
-                ->where('agencia', $user->sucursal)
-                ->get();
-//            $productos->each(function ($producto) {
-//                $producto->precio_compra =  $ventaController->calcularPrecioCompra($producto);
+//            $productos = Producto::orderBy('nombre')
+//                ->with('productoCombo')
+//                ->where('agencia', $user->sucursal)
+//                ->get();
+////            $productos->each(function ($producto) {
+////                $producto->precio_compra =  $ventaController->calcularPrecioCompra($producto);
+////            });
+//            $productos->each(function ($producto) use ($ventaController) {
+//                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
 //            });
-            $productos->each(function ($producto) use ($ventaController) {
-                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-            });
-            return $productos;
+//            return $productos;
         }
         if($user->sucursal == 'Oquendo'){
-            $productos = Producto::orderBy('nombre')
-                ->with('productoCombo')
-                ->where('agencia', $user->sucursal)
-                ->get();
-            $productos->each(function ($producto) use ($ventaController) {
-                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-            });
-            return $productos;
+//            $productos = Producto::orderBy('nombre')
+//                ->with('productoCombo')
+//                ->where('agencia', $user->sucursal)
+//                ->get();
+//            $productos->each(function ($producto) use ($ventaController) {
+//                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+//            });
+//            return $productos;
         }
 
     }
