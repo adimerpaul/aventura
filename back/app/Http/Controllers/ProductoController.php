@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller{
     function index(Request $request){
         $user = $request->user();
+        if ($user == null) {
+            $user = User::find(1); // Fallback to a default user if not authenticated
+        }
         $ventaController = new VentaController();
         if($user->sucursal == 'Ayacucho'){
             $productos = Producto::orderBy('nombre')
