@@ -24,12 +24,9 @@ class ProductoController extends Controller{
 //                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
 //            });
             for($index = 0; $index < count($productos); $index++){
-                $producto = $productos[$index];
-                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-//                if($producto->precio_compra > 0){
-//                    $productoRes[] = $producto;
-//                }
+                error_log('Calculando precio de compra para el producto: ' . $productos[$index]->id);
+//                $productos[$index]->precio_compra = $ventaController->buscarPrecioCompra($productos[$index]->id);
+                $productoRes[] = $productos[$index];
             }
             return $productoRes;
         }
