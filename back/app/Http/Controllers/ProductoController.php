@@ -26,10 +26,10 @@ class ProductoController extends Controller{
             for($index = 0; $index < count($productos); $index++){
                 $producto = $productos[$index];
                 error_log('Calculando precio de compra para el producto: ' . $producto->id);
-                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-                if($producto->precio_compra > 0){
-                    $productoRes[] = $producto;
-                }
+//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+//                if($producto->precio_compra > 0){
+//                    $productoRes[] = $producto;
+//                }
             }
             return $productoRes;
         }
