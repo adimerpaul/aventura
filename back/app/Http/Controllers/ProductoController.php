@@ -18,25 +18,31 @@ class ProductoController extends Controller{
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
-//            $productos->each(function ($producto) {
-//                $producto->precio_compra =  $ventaController->calcularPrecioCompra($producto);
-//            });
+            $productoRes = [];
 //            $productos->each(function ($producto) use ($ventaController) {
 //                error_log('Calculando precio de compra para el producto: ' . $producto->id);
 //                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
 //            });
-            return $productos;
+            for($index = 0; $index < count($productos); $index++){
+                $producto = $productos[$index];
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+                if($producto->precio_compra > 0){
+                    $productoRes[] = $producto;
+                }
+            }
+            return $productoRes;
         }
         if($user->sucursal == 'Oquendo'){
-//            $productos = Producto::orderBy('nombre')
-//                ->with('productoCombo')
-//                ->where('agencia', $user->sucursal)
-//                ->get();
-//            $productos->each(function ($producto) use ($ventaController) {
-//                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-//            });
-//            return $productos;
+            $productos = Producto::orderBy('nombre')
+                ->with('productoCombo')
+                ->where('agencia', $user->sucursal)
+                ->get();
+            $productos->each(function ($producto) use ($ventaController) {
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+            });
+            return $productos;
         }
 
     }
