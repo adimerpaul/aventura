@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompraDetalle;
 use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,36 +13,51 @@ class ProductoController extends Controller{
         if ($user == null) {
             $user = User::find(1); // Fallback to a default user if not authenticated
         }
-        $ventaController = new VentaController();
+//        $ventaController = new VentaController();
         if($user->sucursal == 'Ayacucho'){
             $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
-            $productoRes = [];
-//            $productos->each(function ($producto) use ($ventaController) {
-//                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-//            });
-            for($index = 0; $index < count($productos); $index++){
-                error_log('Calculando precio de compra para el producto: ' . $productos[$index]->id);
-//                $productos[$index]->precio_compra = $ventaController->buscarPrecioCompra($productos[$index]->id);
-                $productoRes[] = $productos[$index];
+            $productos->each(function ($producto) {
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $this->buscarPrecioCompra($producto->id);
             }
-            return $productoRes;
+            return $productos;
         }
         if($user->sucursal == 'Oquendo'){
             $productos = Producto::orderBy('nombre')
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
-            $productos->each(function ($producto) use ($ventaController) {
-                error_log('Calculando precio de compra para el producto: ' . $producto->id);
-                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
-            });
+//            $productos->each(function ($producto) use ($ventaController) {
+//                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+//                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
+//            });
             return $productos;
         }
 
+    }
+    function buscarPrecioCompra($productoId){
+        $compras = CompraDetalle::where('producto_id', $productoId)
+            ->orderBy('id', 'desc')
+            ->whereHas('compra', function ($query) {
+                $query->where('anulada', 0);
+            })
+            ->first();
+//        $compras = Compra::where('anulada', 0)
+//            ->join('compra_detalles', 'compras.id', '=', 'compra_detalles.compra_id')
+//            ->where('compra_detalles.producto_id', $productoId)
+//            ->orderBy('compras.fecha', 'desc')
+//            ->select('compra_detalles.precio')
+//            ->first();
+        error_log('compras: '.json_encode($compras));
+        if ($compras) {
+            return $compras->precio;
+        } else {
+            $producto = Producto::find($productoId);
+            return $producto->precio;
+        }
     }
     function store(Request $request){
         $producto = new Producto();
