@@ -19,7 +19,7 @@ class ProductoController extends Controller{
                 ->with('productoCombo')
                 ->where('agencia', $user->sucursal)
                 ->get();
-            $productos->each(function ($producto) {
+            foreach ($productos as $producto) {
                 error_log('Calculando precio de compra para el producto: ' . $producto->id);
                 $producto->precio_compra = $this->buscarPrecioCompra($producto->id);
             }
