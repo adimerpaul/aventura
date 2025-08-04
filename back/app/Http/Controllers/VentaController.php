@@ -301,9 +301,9 @@ class VentaController extends Controller{
     function buscarPrecioCompra($productoId){
         $compras = CompraDetalle::where('producto_id', $productoId)
             ->orderBy('id', 'desc')
-            ->whereHas('compra', function ($query) {
-                $query->where('anulada', 0);
-            })
+//            ->whereHas('compra', function ($query) {
+//                $query->where('anulada', 0);
+//            })
             ->first();
 //        $compras = Compra::where('anulada', 0)
 //            ->join('compra_detalles', 'compras.id', '=', 'compra_detalles.compra_id')

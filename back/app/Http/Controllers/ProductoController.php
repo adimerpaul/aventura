@@ -21,7 +21,7 @@ class ProductoController extends Controller{
                 ->get();
             foreach ($productos as $producto) {
                 error_log('Calculando precio de compra para el producto: ' . $producto->id);
-//                $producto->precio_compra = $this->buscarPrecioCompra($producto->id);
+                $producto->precio_compra = $this->buscarPrecioCompra($producto->id);
             }
             return $productos;
         }
@@ -34,6 +34,10 @@ class ProductoController extends Controller{
 //                error_log('Calculando precio de compra para el producto: ' . $producto->id);
 //                $producto->precio_compra = $ventaController->buscarPrecioCompra($producto->id);
 //            });
+            foreach ($productos as $producto) {
+                error_log('Calculando precio de compra para el producto: ' . $producto->id);
+                $producto->precio_compra = $this->buscarPrecioCompra($producto->id);
+            }
             return $productos;
         }
 
