@@ -58,10 +58,14 @@ class ProductoController extends Controller{
         }
     }
     function store(Request $request){
+
+        $user = $request->user();
+
         $producto = new Producto();
         $producto->nombre = $request->nombre;
         $producto->precio = $request->precio;
         $producto->stock = $request->stock;
+        $producto->agencia = $user->sucursal;
         $producto->save();
         return $producto;
     }
