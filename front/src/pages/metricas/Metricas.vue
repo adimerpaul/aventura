@@ -40,7 +40,7 @@
             <td>{{ m.monto_total }}</td>
             <td>
               <div v-for="caja in m.cajas" :key="caja.id">
-                {{ caja.user.name }} - {{ caja.monto_real }} Bs
+                {{ caja.user?.name }} - {{ caja.monto_real }} Bs
               </div>
             </td>
           </tr>
@@ -87,9 +87,10 @@ onMounted(() => {
 });
 
 function getMetricas() {
-  proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk((data) => {
-    console.log(data)
-    if (data === 'aventura') {
+  // proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk((data) => {
+  //   console.log(data)
+  //   if (data === 'aventura') {
+
       proxy.$axios.get("/metricas", { params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value } })
         .then(response => {
           console.log("Datos recibidos:", response.data);
@@ -103,7 +104,7 @@ function getMetricas() {
           const usuariosUnicos = new Set();
           metricas.value.forEach(d => {
             d.cajas.forEach(caja => {
-              usuariosUnicos.add(caja.user.name);
+              usuariosUnicos.add(caja.user?.name);
             });
           });
 
@@ -116,7 +117,7 @@ function getMetricas() {
           // Llenar los montos en la posición correcta de la fecha
           metricas.value.forEach((d, index) => {
             d.cajas.forEach(caja => {
-              userMontos[caja.user.name][index] = parseFloat(caja.monto_real); // Aseguramos que sean números
+              userMontos[caja.user?.name][index] = parseFloat(caja.monto_real); // Aseguramos que sean números
             });
           });
 
@@ -137,12 +138,12 @@ function getMetricas() {
         .catch(error => {
           console.error("Error al obtener métricas:", error);
         });
-    } else {
-      proxy.$alert.error('Contraseña incorrecta', 'Error');
-    }
-  }).onCancel(() => {
-    // console.log('Cancel')
-  });
+  //   } else {
+  //     proxy.$alert.error('Contraseña incorrecta', 'Error');
+  //   }
+  // }).onCancel(() => {
+  //   // console.log('Cancel')
+  // });
 
 
 }
