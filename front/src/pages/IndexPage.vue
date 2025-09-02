@@ -270,7 +270,7 @@ export default {
       return instance
     },
     async loadAll () {
-      proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk(async (data) => {
+      this.$alert.dialogPromptPassword('Ingrese Codigo').onOk(async (data) => {
         // console.log(data)
         if (data === 'aventura') {
           this.loading = true
