@@ -245,7 +245,7 @@ export default {
   },
   created () {
     this.initDates()
-    this.loadAll()
+    // this.loadAll()
   },
   methods: {
     // ---------- UI helpers ----------
@@ -270,20 +270,25 @@ export default {
       return instance
     },
     async loadAll () {
-      this.loading = true
-      try {
-        await Promise.all([
-          this.fetchMetricas(),
-          this.fetchReservasAll(),
-          this.fetchVentas()
-        ])
-        this.recalcularResumen()
-        this.prepareTables()
-      } catch (e) {
-        this.$q.notify({ type: 'negative', message: 'Error cargando datos', caption: e?.message || '' })
-      } finally {
-        this.loading = false
-      }
+      proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk(async (data) => {
+        // console.log(data)
+        if (data === 'aventura') {
+          this.loading = true
+          try {
+            await Promise.all([
+              this.fetchMetricas(),
+              this.fetchReservasAll(),
+              this.fetchVentas()
+            ])
+            this.recalcularResumen()
+            this.prepareTables()
+          } catch (e) {
+            this.$q.notify({type: 'negative', message: 'Error cargando datos', caption: e?.message || ''})
+          } finally {
+            this.loading = false
+          }
+        }
+      })
     },
     async fetchMetricas () {
       const { fechaInicio, fechaFin } = this.filters

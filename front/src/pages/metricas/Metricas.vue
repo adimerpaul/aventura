@@ -87,9 +87,9 @@ onMounted(() => {
 });
 
 function getMetricas() {
-  // proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk((data) => {
-  //   console.log(data)
-  //   if (data === 'aventura') {
+  proxy.$alert.dialogPromptPassword('Ingrese Codigo').onOk((data) => {
+    // console.log(data)
+    if (data === 'aventura') {
 
       proxy.$axios.get("/metricas", { params: { fechaInicio: fechaInicio.value, fechaFin: fechaFin.value } })
         .then(response => {
@@ -138,12 +138,12 @@ function getMetricas() {
         .catch(error => {
           console.error("Error al obtener métricas:", error);
         });
-  //   } else {
-  //     proxy.$alert.error('Contraseña incorrecta', 'Error');
-  //   }
-  // }).onCancel(() => {
-  //   // console.log('Cancel')
-  // });
+    } else {
+      proxy.$alert.error('Contraseña incorrecta', 'Error');
+    }
+  }).onCancel(() => {
+    // console.log('Cancel')
+  });
 
 
 }
