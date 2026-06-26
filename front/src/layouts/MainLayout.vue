@@ -128,6 +128,7 @@ onMounted(() => {
     { title: 'Metricas', icon: 'analytics', link: '/metricas', can: 'Admin' },
     { title: 'Nueva Compra', icon: 'add_circle_outline', link: '/compras/add', can: 'Admin' },
     { title: 'Compras', icon: 'shopping_basket', link: '/compras', can: 'Admin' },
+    { title: 'Tipo Consola', icon: 'sports_esports', link: '/tipo-consolas', can: 'Admin' },
   ]
 
   const sucursalLinks = {

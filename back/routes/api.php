@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/reservas', [App\Http\Controllers\ReservaController::class, 'index']);
     Route::post('/reservas', [App\Http\Controllers\ReservaController::class, 'store']);
+    Route::get('/reservas/{reserva}', [App\Http\Controllers\ReservaController::class, 'show']);
+    Route::put('/reservas/{reserva}', [App\Http\Controllers\ReservaController::class, 'update']);
     Route::get('/reservasAll', [App\Http\Controllers\ReservaController::class, 'reservasAll']);
     Route::post('/reservasAnular', [App\Http\Controllers\ReservaController::class, 'anular']);
     Route::post('/reservasConfirmar', [App\Http\Controllers\ReservaController::class, 'confirmar']);
@@ -49,4 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/metricas', [App\Http\Controllers\CajaController::class, 'metricas']);
+
+    Route::get('/tipoConsolas', [App\Http\Controllers\TipoConsolaController::class, 'index']);
+    Route::post('/tipoConsolas', [App\Http\Controllers\TipoConsolaController::class, 'store']);
+    Route::put('/tipoConsolas/{tipoConsola}', [App\Http\Controllers\TipoConsolaController::class, 'update']);
+    Route::delete('/tipoConsolas/{tipoConsola}', [App\Http\Controllers\TipoConsolaController::class, 'destroy']);
 });
