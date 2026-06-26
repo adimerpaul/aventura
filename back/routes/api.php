@@ -49,4 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/metricas', [App\Http\Controllers\CajaController::class, 'metricas']);
+
+    Route::get('/tipoConsolas', [App\Http\Controllers\TipoConsolaController::class, 'index']);
+    Route::post('/tipoConsolas', [App\Http\Controllers\TipoConsolaController::class, 'store']);
+    Route::put('/tipoConsolas/{tipoConsola}', [App\Http\Controllers\TipoConsolaController::class, 'update']);
+    Route::delete('/tipoConsolas/{tipoConsola}', [App\Http\Controllers\TipoConsolaController::class, 'destroy']);
 });

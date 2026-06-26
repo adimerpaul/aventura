@@ -29,7 +29,8 @@ class Reserva extends Model{
         'user_id',
         'user_cancelado_id',
         'user_confirmado_id',
-        'agencia'
+        'agencia',
+        'tipo_consola_id'
     ];
     function user(){
         return $this->belongsTo(User::class);
@@ -39,6 +40,9 @@ class Reserva extends Model{
     }
     function user_cancelado(){
         return $this->belongsTo(User::class);
+    }
+    function tipoConsola(){
+        return $this->belongsTo(TipoConsola::class);
     }
     protected $appends = ['color'];
     function getColorAttribute(){

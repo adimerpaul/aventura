@@ -133,6 +133,7 @@ class ReservaController extends Controller{
         $reserva->fecha_creacion = date('Y-m-d H:i:s');
         $reserva->directo = $request->directo;
         $reserva->agencia = $request->agencia;
+        $reserva->tipo_consola_id = $request->tipo_consola_id;
         $reserva->user_id = $user->id;
         $reserva->save();
         if ($request->directo) {

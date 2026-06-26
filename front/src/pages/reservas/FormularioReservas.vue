@@ -94,6 +94,19 @@
           <q-form @submit.prevent="confirmarReserva">
             <q-input v-model="nombre" label="Nombre" dense outlined class="" :rules="[val => !!val || 'Por favor, ingresa un nombre.']" />
             <q-input v-model.number="personas" type="number" label="Número de Personas" dense outlined class="" :rules="[val => val > 0 || 'Por favor, ingresa un número válido.']" />
+            <q-select
+              v-if="agencia === 'Ayacucho'"
+              v-model="tipoConsola"
+              :options="tiposConsola.filter(c => c.precio_1 > 0).map(c => ({ ...c, label: `${c.nombre} (${c.precio_1})` }))"
+              option-label="label"
+              option-value="id"
+              label="Tipo de Consola"
+              dense outlined
+              emit-value
+              map-options
+              class=""
+              :rules="[val => !!val || 'Por favor, selecciona un tipo de consola.']"
+            />
             <q-input v-model.number="adelanto" type="number" label="Adelanto" dense outlined class="" :rules="[val => val >= 0 || 'Por favor, ingresa un número válido.']" />
             <q-input v-model="observacion" label="Observación" dense outlined type="textarea" />
             <q-toggle v-model="directo" :label="directo ? 'Venta Directa' : 'Reserva'"
@@ -162,6 +175,8 @@ export default {
       observacion: "",
       loading: false,
       directo: false,
+      tiposConsola: [],
+      tipoConsola: null,
     };
   },
   computed: {
@@ -176,7 +191,13 @@ export default {
       return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}`;
     },
     montoTotal() {
-      return (this.totalMinutos / 30) * 5 * (this.personas || 1);
+      if (this.agencia !== 'Ayacucho') {
+        return (this.totalMinutos / 30) * 5 * (this.personas || 1);
+      }
+      if (!this.tipoConsola) return 0;
+      const consola = this.tiposConsola.find(c => c.id === this.tipoConsola);
+      if (!consola) return 0;
+      return (this.personas || 1) * consola.precio_1;
     },
     horaMinima() {
       if (Object.keys(this.seleccionadas).length === 0) return "-";
@@ -238,6 +259,7 @@ export default {
       this.personas = 1;
       this.adelanto = 0;
       this.observacion = "";
+      this.tipoConsola = null;
     },
     clickReserva() {
       if (this.totalMinutos === 0) {
@@ -250,6 +272,7 @@ export default {
       this.adelanto = 0;
       this.observacion = "";
       this.directo = false;
+      this.tipoConsola = null;
     },
     shouldShowCell(horaIndex, salaIndex) {
       const key = `${horaIndex}-${salaIndex}`;
@@ -320,6 +343,7 @@ export default {
         fecha: this.fecha,
         directo: this.directo,
         agencia: this.agencia,
+        tipo_consola_id: this.tipoConsola,
       }).then(() => {
         this.$alert.success("Reserva confirmada", "Reserva");
         this.limpiar();
@@ -352,7 +376,12 @@ export default {
       this.horarios.push({ hora: `${horaInicio}-${horaFin}` });
     }
     this.calcularTotalMinutos();
-    this.getReservas(this.fecha,this.agencia)
+    this.getReservas(this.fecha,this.agencia);
+    if (this.agencia === 'Ayacucho') {
+      this.$axios.get('/tipoConsolas').then(res => {
+        this.tiposConsola = res.data;
+      });
+    }
     // socketReservas
     let cm = this;
     if (!this.$store.socketReservas) {
