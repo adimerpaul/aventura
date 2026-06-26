@@ -85,6 +85,7 @@ class ReservaController extends Controller{
             $data = json_decode($reserva->json, true); // Convertir JSON a array asociativo
             foreach ($data as $key => $value) {
                 $jsonReservas[$key] = [
+                    'id' => $reserva->id,
                     'nombre' => $reserva->nombre,
                     'color' => $reserva->color,
                     'fecha_confirmacion' => $reserva->fecha_confirmacion,
@@ -93,6 +94,27 @@ class ReservaController extends Controller{
         }
 
         return response()->json($jsonReservas);
+    }
+
+    function show(Reserva $reserva) {
+        return response()->json($reserva->load('tipoConsola'));
+    }
+
+    function update(Request $request, Reserva $reserva) {
+        $reserva->nombre = $request->nombre;
+        $reserva->numero_personas = $request->numero_personas;
+        $reserva->observaciones = $request->observaciones;
+        $reserva->adelanto = $request->adelanto;
+        $reserva->total = $request->total;
+        $reserva->saldo = $request->total - $request->adelanto;
+        $reserva->tipo_consola_id = $request->tipo_consola_id;
+        if ($request->json) {
+            $reserva->json = $request->json;
+            $reserva->tiempo = $request->tiempo;
+            $reserva->horario = $request->horario;
+        }
+        $reserva->save();
+        return response()->json($reserva);
     }
 
     function store(Request $request) {

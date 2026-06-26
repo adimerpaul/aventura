@@ -143,6 +143,56 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <!-- Diálogo editar reserva (solo Ayacucho) -->
+    <q-dialog v-model="dialogoEditar">
+      <q-card style="min-width: 280px">
+        <q-card-section class="q-pb-none row items-center">
+          <div class="text-subtitle2 text-bold">
+            Modificar Reserva
+            <div class="text-red">{{ reservaEditar.sala }}</div>
+          </div>
+          <q-space />
+          <q-btn flat dense round icon="close" @click="dialogoEditar = false" />
+        </q-card-section>
+        <q-card-section>
+          <q-form @submit.prevent="guardarEditar">
+            <q-input v-model="reservaEditar.nombre" label="Nombre" dense outlined class="q-mb-xs" required />
+            <q-input v-model.number="reservaEditar.numero_personas" type="number" label="N° Personas" dense outlined class="q-mb-xs" required />
+            <q-select
+              v-model="reservaEditar.tipo_consola_id"
+              :options="tiposConsola.filter(c => c.precio_1 > 0).map(c => ({ ...c, label: `${c.nombre} (${c.precio_1})` }))"
+              option-label="label"
+              option-value="id"
+              label="Tipo de Consola"
+              dense outlined emit-value map-options
+              class="q-mb-xs"
+            />
+            <q-input v-model.number="reservaEditar.adelanto" type="number" label="Adelanto" dense outlined class="q-mb-xs" />
+            <q-input v-model="reservaEditar.observaciones" label="Observación" dense outlined type="textarea" class="q-mb-xs" />
+
+            <div class="text-bold text-blue bg-grey-3 q-pa-xs q-mb-xs">
+              {{ reservaEditar.horario }} | {{ reservaEditar.tiempo }}
+            </div>
+
+            <div class="row q-gutter-xs q-mb-xs">
+              <q-btn icon="remove" color="orange" dense no-caps size="sm" label="-30 min"
+                @click="cambiarTiempo(-1)" :disable="editHoraIndices.length <= 1" :loading="loading" />
+              <q-btn icon="add" color="teal" dense no-caps size="sm" label="+30 min"
+                @click="cambiarTiempo(1)" :loading="loading" />
+            </div>
+
+            <div class="text-bold">Total: {{ montoTotalEditar }} Bs</div>
+            <div class="text-red text-bold q-mb-sm">Saldo: {{ montoTotalEditar - (reservaEditar.adelanto || 0) }} Bs</div>
+
+            <div class="row justify-between">
+              <q-btn flat label="Eliminar" color="negative" no-caps icon="delete"
+                @click="cancelarReservaEditar" :loading="loading" />
+              <q-btn color="primary" label="Guardar" no-caps type="submit" :loading="loading" />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 <!--  </q-page>-->
 </template>
 <script>
@@ -177,6 +227,10 @@ export default {
       directo: false,
       tiposConsola: [],
       tipoConsola: null,
+      dialogoEditar: false,
+      reservaEditar: {},
+      editSalaIndex: null,
+      editHoraIndices: [],
     };
   },
   computed: {
@@ -197,7 +251,7 @@ export default {
       if (!this.tipoConsola) return 0;
       const consola = this.tiposConsola.find(c => c.id === this.tipoConsola);
       if (!consola) return 0;
-      return (this.personas || 1) * consola.precio_1;
+      return (this.totalMinutos / 60) * consola.precio_1 * (this.personas || 1);
     },
     horaMinima() {
       if (Object.keys(this.seleccionadas).length === 0) return "-";
@@ -205,6 +259,15 @@ export default {
         .map(h => moment(h, "H:mm"))
         .sort((a, b) => a.diff(b));
       return horasSeleccionadas[0].format("H:mm");
+    },
+    montoTotalEditar() {
+      if (!this.reservaEditar || !this.editHoraIndices.length) return 0;
+      const horas = (this.editHoraIndices.length * 30) / 60;
+      if (this.reservaEditar.tipo_consola_id) {
+        const consola = this.tiposConsola.find(c => c.id === this.reservaEditar.tipo_consola_id);
+        if (consola) return horas * consola.precio_1 * (this.reservaEditar.numero_personas || 1);
+      }
+      return this.editHoraIndices.length * 5 * (this.reservaEditar.numero_personas || 1);
     },
     horaMaxima() {
       if (Object.keys(this.seleccionadas).length === 0) return "-";
@@ -285,7 +348,12 @@ export default {
     },
     toggleSeleccion(horaIndex, salaIndex, hora) {
       const key = `${horaIndex}-${salaIndex}`;
-      if (this.$store.reservas[key]) return;
+      if (this.$store.reservas[key]) {
+        if (this.agencia === 'Ayacucho' && this.$store.reservas[key].color === 'yellow') {
+          this.abrirEditar(this.$store.reservas[key].id, salaIndex);
+        }
+        return;
+      }
       if (Object.keys(this.seleccionadas).length === 0) {
         this.seleccionadas[key] = hora;
         this.calcularTotalMinutos();
@@ -317,6 +385,86 @@ export default {
     },
     calcularTotalMinutos() {
       this.totalMinutos = Object.keys(this.seleccionadas).length * 30;
+    },
+    abrirEditar(id, salaIndex) {
+      this.$axios.get(`/reservas/${id}`).then(res => {
+        this.reservaEditar = { ...res.data };
+        this.editSalaIndex = salaIndex;
+        const json = JSON.parse(res.data.json || '{}');
+        this.editHoraIndices = Object.keys(json)
+          .map(k => parseInt(k.split('-')[0]))
+          .sort((a, b) => a - b);
+        this.dialogoEditar = true;
+      });
+    },
+    cambiarTiempo(delta) {
+      const json = JSON.parse(this.reservaEditar.json || '{}');
+      if (delta === 1) {
+        const maxIndex = Math.max(...this.editHoraIndices);
+        const nextIndex = maxIndex + 1;
+        const nextKey = `${nextIndex}-${this.editSalaIndex}`;
+        if (this.$store.reservas[nextKey]) {
+          this.$alert.error("El siguiente horario ya está ocupado");
+          return;
+        }
+        if (nextIndex >= this.horarios.length) {
+          this.$alert.error("No hay más horarios disponibles");
+          return;
+        }
+        json[nextKey] = this.horarios[nextIndex].hora.split('-')[0].trim();
+        this.editHoraIndices.push(nextIndex);
+        this.editHoraIndices.sort((a, b) => a - b);
+      } else {
+        if (this.editHoraIndices.length <= 1) return;
+        const maxIndex = Math.max(...this.editHoraIndices);
+        delete json[`${maxIndex}-${this.editSalaIndex}`];
+        this.editHoraIndices = this.editHoraIndices.filter(i => i !== maxIndex);
+      }
+      this.reservaEditar.json = JSON.stringify(json);
+      const totalMin = this.editHoraIndices.length * 30;
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      this.reservaEditar.tiempo = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      const minH = this.horarios[Math.min(...this.editHoraIndices)].hora.split('-')[0].trim();
+      const maxH = this.horarios[Math.max(...this.editHoraIndices)].hora.split('-')[1].trim();
+      this.reservaEditar.horario = `${minH} - ${maxH}`;
+    },
+    guardarEditar() {
+      this.loading = true;
+      const total = this.montoTotalEditar;
+      this.$axios.put(`/reservas/${this.reservaEditar.id}`, {
+        ...this.reservaEditar,
+        total,
+        saldo: total - (this.reservaEditar.adelanto || 0),
+      }).then(() => {
+        this.$alert.success("Reserva actualizada");
+        this.dialogoEditar = false;
+        this.getReservas(this.fecha, this.agencia);
+        this.$socket.emit(`reservas-${this.agencia}`);
+      }).catch(err => {
+        this.$alert.error(err.response?.data?.message || "Error al actualizar", "Error");
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+    cancelarReservaEditar() {
+      this.$alert.dialog('¿Está seguro de eliminar esta reserva?')
+        .onOk(() => {
+          this.loading = true;
+          this.$axios.post('/reservasAnular', {
+            id: this.reservaEditar.id,
+            motivo: 'Cancelado manualmente'
+          }).then(() => {
+            this.$alert.success("Reserva eliminada");
+            this.dialogoEditar = false;
+            this.getReservas(this.fecha, this.agencia);
+            this.$socket.emit(`reservas-${this.agencia}`);
+          }).catch(err => {
+            this.$alert.error(err.response?.data?.message || "Error", "Error");
+          }).finally(() => {
+            this.loading = false;
+          });
+        });
     },
     confirmarReserva() {
       Object.keys(this.seleccionadas).forEach(key => {
