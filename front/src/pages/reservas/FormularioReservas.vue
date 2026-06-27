@@ -60,6 +60,7 @@
 
                     <template v-if="esPrimeraCeldaReserva(horaIndex, salaIndex)">
                       {{ $store.reservas[`${horaIndex}-${salaIndex}`].nombre }}
+                      <div style="font-size:10px;opacity:0.85;">{{ hora.hora.split('-')[0].trim() }}</div>
                       <div v-if="$store.reservas[`${horaIndex}-${salaIndex}`] && $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion">
                         {{ $store.reservas[`${horaIndex}-${salaIndex}`].fecha_confirmacion.substring(11, 16) }}
                       </div>

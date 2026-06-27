@@ -33,3 +33,5 @@ yarn-error.log*
 .env.local*
 CLAUDE.md
 AGENTS.md
+/.claude
+/.playwright-cli
