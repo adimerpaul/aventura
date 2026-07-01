@@ -510,9 +510,9 @@ export default {
     console.log('agencia '+ this.agencia)
     console.log('color '+ this.color)
     let cantidad = 20;
-    if (this.agencia === "Ayacucho") {
-      cantidad = 20;
-    }
+    // if (this.agencia === "Ayacucho") {
+    //   cantidad = 20;
+    // }
     for (let i = 0; i < cantidad; i++) {
       const numero = i + 1;
       const nombre = (this.agencia === "Ayacucho" && numero <= 10) ? "Play " + numero : "Sala " + (numero - 10);
