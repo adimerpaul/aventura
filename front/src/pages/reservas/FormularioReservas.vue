@@ -515,7 +515,9 @@ export default {
     // }
     for (let i = 0; i < cantidad; i++) {
       const numero = i + 1;
-      const nombre = (this.agencia === "Ayacucho" && numero <= 10) ? "Play " + numero : "Sala " + (numero - 10);
+      const nombre = (this.agencia === "Ayacucho")
+        ? (numero <= 10 ? "Play " + numero : "Sala " + (numero - 10))
+        : "Sala " + numero;
       this.salas.push({ sala: nombre });
     }
     for (let i = 8; i < 23; i++) {
