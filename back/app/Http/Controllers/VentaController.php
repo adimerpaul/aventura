@@ -247,6 +247,7 @@ class VentaController extends Controller{
             $venta->fecha = now();
             $venta->total = 0;
             $venta->nombre = $request->nombre;
+            $venta->comentario = $request->comentario;
             $venta->user_id = $user->id;
             $venta->agencia = $user->sucursal;
             $venta->save();

@@ -11,6 +11,7 @@ class Venta extends Model{
         'fecha',
         'total',
         'nombre',
+        'comentario',
         'anulada',
         'user_id',
         'agencia',

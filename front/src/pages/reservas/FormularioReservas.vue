@@ -80,7 +80,7 @@
 
 
     <q-dialog v-model="dialogoReservar">
-      <q-card style="min-width: 250px;">
+      <q-card style="min-width: 340px; max-width: 95vw;">
         <q-card-section class="q-pb-none row items-center">
           <div class="text-subtitle2 text-bold">
             {{fechaText}}
@@ -91,8 +91,17 @@
           <q-space />
           <q-btn flat dense round icon="close" class="q-ml-auto" @click="dialogoReservar = false" />
         </q-card-section>
+        <q-tabs v-model="tabReserva" dense no-caps inline-label narrow-indicator align="justify" class="text-grey tabs-reserva" active-color="primary" indicator-color="primary">
+          <q-tab name="reserva" icon="event" label="Reserva" class="q-px-sm" />
+          <q-tab name="productos" icon="shopping_cart" label="Productos" class="q-px-sm">
+            <q-badge color="red" floating v-if="carrito.length > 0">{{ carrito.length }}</q-badge>
+          </q-tab>
+        </q-tabs>
+        <q-separator />
         <q-card-section>
           <q-form @submit.prevent="confirmarReserva">
+            <q-tab-panels v-model="tabReserva" animated keep-alive class="q-pa-none">
+              <q-tab-panel name="reserva" class="q-pa-none">
             <q-input v-model="nombre" label="Nombre" dense outlined class="" :rules="[val => !!val || 'Por favor, ingresa un nombre.']" />
             <q-input v-model.number="personas" type="number" label="Número de Personas" dense outlined class="" :rules="[val => val > 0 || 'Por favor, ingresa un número válido.']" />
             <q-select
@@ -130,11 +139,67 @@
             <div class="text-bold q-mt-md text-blue bg-grey-3">
               Tiempo Total: {{ tiempoSeleccionado }}
             </div>
+              </q-tab-panel>
+              <q-tab-panel name="productos" class="q-pa-none">
+                <q-input v-model="buscarProducto" label="Buscar producto" outlined dense debounce="300"
+                         @update:modelValue="buscarProductos" :loading="loadingProductos">
+                  <template v-slot:prepend><q-icon name="search" /></template>
+                </q-input>
+                <q-list bordered dense separator style="max-height: 180px; overflow-y: auto" class="q-mt-xs">
+                  <q-item v-for="producto in productos" :key="producto.id" clickable v-ripple @click="agregarAlCarrito(producto)">
+                    <q-item-section>
+                      <q-item-label>{{ producto.nombre }}</q-item-label>
+                      <q-item-label caption>{{ producto.precio }} Bs</q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-item-label caption>Cant<br>{{ producto.stock }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item v-if="productos.length === 0">
+                    <q-item-section class="text-grey text-center">Sin productos</q-item-section>
+                  </q-item>
+                </q-list>
+                <div class="row items-center q-mt-sm">
+                  <div class="text-bold">Carrito</div>
+                  <q-space />
+                  <q-btn icon="delete" color="red" dense size="10px" label="Limpiar" no-caps
+                         @click="carrito = []" v-if="carrito.length > 0" />
+                </div>
+                <q-markup-table wrap-cells dense flat bordered>
+                  <thead>
+                  <tr class="bg-primary text-white">
+                    <th>Producto</th>
+                    <th>Cant</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(item, index) in carrito" :key="index">
+                    <td>{{ item.nombre }}</td>
+                    <td style="width: 80px">
+                      <q-input v-model.number="item.cantidadVenta" type="number" dense outlined />
+                    </td>
+                    <td>{{ (item.cantidadVenta * item.precioVenta).toFixed(2) }} Bs</td>
+                    <td>
+                      <q-btn icon="delete" color="red" dense size="10px" @click="eliminarDelCarrito(index)" />
+                    </td>
+                  </tr>
+                  <tr v-if="carrito.length === 0">
+                    <td colspan="4" class="text-center text-grey">Sin productos agregados</td>
+                  </tr>
+                  </tbody>
+                </q-markup-table>
+              </q-tab-panel>
+            </q-tab-panels>
             <div class="text-bold">
               Monto Total: {{ montoTotal }} Bs
             </div>
             <div class="text-red text-bold">
               Saldo: {{ montoTotal - adelanto }} Bs
+            </div>
+            <div class="text-bold text-teal" v-if="carrito.length > 0">
+              Productos: {{ totalCarrito }} Bs ({{ carrito.length }})
             </div>
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" v-close-popup no-caps :loading="loading" />
@@ -232,6 +297,13 @@ export default {
       reservaEditar: {},
       editSalaIndex: null,
       editHoraIndices: [],
+      tabReserva: "reserva",
+      productos: [],
+      productosAll: [],
+      buscarProducto: "",
+      carrito: [],
+      productosCargados: false,
+      loadingProductos: false,
     };
   },
   computed: {
@@ -244,6 +316,9 @@ export default {
       const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
       const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
       return `${dias[moment(this.fecha).day()]} ${moment(this.fecha).date()} de ${meses[moment(this.fecha).month()]} de ${moment(this.fecha).year()}`;
+    },
+    totalCarrito() {
+      return this.carrito.reduce((acc, item) => acc + (item.cantidadVenta * item.precioVenta), 0).toFixed(2);
     },
     tiempoSeleccionado() {
       const horas = Math.floor(this.totalMinutos / 60);
@@ -342,6 +417,49 @@ export default {
       this.adelanto = 0;
       this.observacion = "";
       this.tipoConsola = null;
+      this.carrito = [];
+      this.tabReserva = "reserva";
+      this.buscarProducto = "";
+      this.productos = this.productosAll;
+    },
+    getProductos() {
+      if (this.productosCargados) return;
+      this.loadingProductos = true;
+      this.$axios.get("/productos").then(res => {
+        this.productos = res.data;
+        this.productosAll = res.data;
+        this.productosCargados = true;
+      }).catch(() => {
+        this.$alert.error("Error al obtener productos");
+      }).finally(() => {
+        this.loadingProductos = false;
+      });
+    },
+    buscarProductos() {
+      this.productos = this.productosAll.filter(p => p.nombre.toLowerCase().includes(this.buscarProducto.toLowerCase()));
+    },
+    agregarAlCarrito(producto) {
+      const item = this.carrito.find(p => p.id === producto.id);
+      if (item) {
+        item.cantidadVenta++;
+      } else {
+        this.carrito.push({ ...producto, cantidadVenta: 1, precioVenta: producto.precio });
+      }
+    },
+    eliminarDelCarrito(index) {
+      this.carrito.splice(index, 1);
+    },
+    registrarVentaProductos(carrito, sala) {
+      return this.$axios.post("/ventas", {
+        nombre: this.nombre,
+        comentario: `Reserva ${sala} ${this.horaMinima} - ${this.horaMaxima} (${this.fecha})`,
+        total: carrito.reduce((acc, item) => acc + (item.cantidadVenta * item.precioVenta), 0).toFixed(2),
+        productos: carrito,
+      }).then(() => {
+        this.$alert.success("Venta de productos registrada", "Venta");
+      }).catch(error => {
+        this.$alert.error(error.response?.data?.message || "Error al registrar la venta de productos", "Error");
+      });
     },
     clickReserva() {
       if (this.totalMinutos === 0) {
@@ -355,6 +473,11 @@ export default {
       this.observacion = "";
       this.directo = false;
       this.tipoConsola = this.consolaPorDefecto();
+      this.carrito = [];
+      this.tabReserva = "reserva";
+      this.buscarProducto = "";
+      this.productos = this.productosAll;
+      this.getProductos();
     },
     shouldShowCell(horaIndex, salaIndex) {
       const key = `${horaIndex}-${salaIndex}`;
@@ -486,6 +609,16 @@ export default {
         });
     },
     confirmarReserva() {
+      if (!this.nombre) {
+        this.tabReserva = "reserva";
+        this.$alert.error("Por favor, ingresa un nombre.");
+        return;
+      }
+      if (this.agencia === "Ayacucho" && !this.tipoConsola) {
+        this.tabReserva = "reserva";
+        this.$alert.error("Por favor, selecciona un tipo de consola.");
+        return;
+      }
       Object.keys(this.seleccionadas).forEach(key => {
         this.$store.reservas[key] = {
           nombre: this.nombre,
@@ -511,14 +644,18 @@ export default {
         directo: this.directo,
         agencia: this.agencia,
         tipo_consola_id: this.tipoConsola,
-      }).then(() => {
+      }).then(async () => {
+        const carritoVenta = [...this.carrito];
+        if (carritoVenta.length > 0) {
+          await this.registrarVentaProductos(carritoVenta, sala);
+        }
         this.$alert.success("Reserva confirmada", "Reserva");
         this.limpiar();
         this.getReservas(this.fecha,this.agencia);
         this.dialogoReservar = false;
         this.$socket.emit(`reservas-${this.agencia}`)
       }).catch(error => {
-        this.$alert.error(error.response.data.message, "Error al confirmar reserva");
+        this.$alert.error(error.response?.data?.message || "Error al confirmar reserva", "Error al confirmar reserva");
       }).finally(() => {
         this.loading = false;
       });
@@ -569,6 +706,16 @@ export default {
 };
 </script>
 <style>
+.tabs-reserva .q-tab {
+  min-height: 28px;
+  font-size: 11px;
+}
+.tabs-reserva .q-tab__icon {
+  font-size: 16px;
+}
+.tabs-reserva .q-tab__label {
+  font-size: 11px;
+}
 .tabla-reservas {
   max-height: 500px; /* Ajusta según sea necesario */
   overflow-y: auto;

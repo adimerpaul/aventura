@@ -139,6 +139,7 @@
             <th>Fecha</th>
             <th>Total</th>
             <th>Nombre Cliente</th>
+            <th>Comentario</th>
             <th>Usuario</th>
             <th>Detalle</th>
             <th>Agencia</th>
@@ -158,6 +159,9 @@
             <td>{{ venta.fecha }}</td>
             <td>{{ venta.total }}</td>
             <td>{{ venta.nombre }}</td>
+            <td>
+              <div style="max-width: 200px;white-space: pre-wrap">{{ venta.comentario }}</div>
+            </td>
             <td>{{ venta.user?.name }}</td>
             <td>
 <!--              <div style="max-width: 200px;wrap-option: wrap">-->

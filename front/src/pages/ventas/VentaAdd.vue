@@ -106,6 +106,7 @@
         <q-card-section>
           <q-form @submit.prevent="realizarVentaPost">
             <q-input v-model="venta.nombre" label="Nombre Cliente" outlined dense :rules="[val => !!val || 'Campo requerido']" />
+            <q-input v-model="venta.comentario" label="Comentario" type="textarea" autogrow outlined dense class="q-mt-sm" />
 <!--            <q-input v-model="venta.fecha" label="Fecha" type="date" outlined dense />-->
 <!--            <q-input v-model="venta.total" label="Total" outlined dense />-->
 <!--            <q-input v-model="venta.productos" label="Productos" outlined dense />-->
@@ -124,7 +125,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const { proxy } = getCurrentInstance();
-const venta = ref({ nombre: "", fecha: new Date().toISOString().slice(0, 10) });
+const venta = ref({ nombre: "", comentario: "", fecha: new Date().toISOString().slice(0, 10) });
 const productos = ref([]);
 const productosAll = ref([]);
 const carrito = ref([]);
@@ -178,7 +179,7 @@ function realizarVenta() {
     return;
   }
   dialogVenta.value = true;
-  venta.value = { nombre: "SN", };
+  venta.value = { nombre: "SN", comentario: "" };
 }
 function realizarVentaPost() {
   if (carrito.value.length === 0) {
@@ -188,7 +189,7 @@ function realizarVentaPost() {
   loading.value = true;
   proxy.$axios.post("/ventas", { ...venta.value, total: totalVenta.value, productos: carrito.value }).then(async () => {
     carrito.value = [];
-    venta.value = {nombre: "", fecha: new Date().toISOString().slice(0, 10)};
+    venta.value = {nombre: "", comentario: "", fecha: new Date().toISOString().slice(0, 10)};
     dialogVenta.value = false;
     proxy.$alert.success("Venta realizada con éxito", "Éxito");
     router.push("/ventas");
