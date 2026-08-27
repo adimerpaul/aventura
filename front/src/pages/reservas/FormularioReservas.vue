@@ -98,7 +98,7 @@
             <q-select
               v-if="agencia === 'Ayacucho'"
               v-model="tipoConsola"
-              :options="tiposConsola.filter(c => c.precio_1 > 0).map(c => ({ ...c, label: `${c.nombre} (${c.precio_1})` }))"
+              :options="opcionesConsola"
               option-label="label"
               option-value="id"
               label="Tipo de Consola"
@@ -161,7 +161,7 @@
             <q-input v-model.number="reservaEditar.numero_personas" type="number" label="N° Personas" dense outlined class="q-mb-xs" required />
             <q-select
               v-model="reservaEditar.tipo_consola_id"
-              :options="tiposConsola.filter(c => c.precio_1 > 0).map(c => ({ ...c, label: `${c.nombre} (${c.precio_1})` }))"
+              :options="opcionesConsola"
               option-label="label"
               option-value="id"
               label="Tipo de Consola"
@@ -235,6 +235,11 @@ export default {
     };
   },
   computed: {
+    opcionesConsola() {
+      return this.tiposConsola
+        .filter(c => c.precio_1 > 0)
+        .map(c => ({ ...c, label: `${c.nombre} (${c.precio_1})` }));
+    },
     fechaText(){
       const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
       const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -316,6 +321,19 @@ export default {
           this.loading = false;
         });
     },
+    esSalaPlay() {
+      const claves = Object.keys(this.seleccionadas);
+      if (!claves.length) return false;
+      const salaIndex = Number(claves[0].split('-')[1]);
+      return (this.salas[salaIndex]?.sala || '').startsWith('Play ');
+    },
+    consolaPorDefecto() {
+      if (!this.esSalaPlay()) return null;
+      const opciones = this.opcionesConsola;
+      if (!opciones.length) return null;
+      const playstation = opciones.find(c => (c.nombre || '').toLowerCase().includes('playstation'));
+      return (playstation || opciones[0]).id;
+    },
     limpiar() {
       this.seleccionadas = {};
       this.totalMinutos = 0;
@@ -336,7 +354,7 @@ export default {
       this.adelanto = 0;
       this.observacion = "";
       this.directo = false;
-      this.tipoConsola = null;
+      this.tipoConsola = this.consolaPorDefecto();
     },
     shouldShowCell(horaIndex, salaIndex) {
       const key = `${horaIndex}-${salaIndex}`;
