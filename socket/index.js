@@ -3,43 +3,40 @@ const { createServer } = require('http');
 const { join } = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
-
 require('dotenv').config();
 
 const app = express();
 const server = createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
+    cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
 app.use(express.json({ limit: '1mb' }));
+app.use(cors());
 
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const TERMINAL_EVENTS = new Set([
+    'clienteDisplayData',
+    'clienteQrData',
+    'clienteSaleComplete',
+    'clienteDisplayClose'
+]);
 
-function emitEvent(eventName, payload = {}) {
-    const event = String(eventName || '').trim();
+const terminalRoom = (agencia, caja) => {
+    agencia = parseInt(agencia);
+    caja = parseInt(caja);
 
-    if (!event) {
-        throw new Error('El nombre del evento es obligatorio');
-    }
+    if (!agencia || !caja) return null;
 
-    io.emit(event, payload);
+    return `terminal:${agencia}:${caja}`;
+};
 
-    return event;
-}
-
+// Página principal
 app.get('/', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
 });
 
+// Rutas antiguas
 app.get('/send', (req, res) => {
     io.emit('reservas', 'Hola desde el servidor');
     res.send('Mensaje enviado');
@@ -51,110 +48,104 @@ app.get('/silSolicitud', (req, res) => {
 });
 
 app.get('/votacion', (req, res) => {
-    emitEvent('votacion', {
+    io.emit('votacion', {
         title: 'Nuevo dato registrado',
         message: 'Evento manual de votación',
         kind: 'manual'
     });
 
-    res.json({
-        ok: true,
-        event: 'votacion'
-    });
+    res.json({ ok: true });
 });
 
-/**
- * Laravel llama a esta ruta para emitir eventos.
- */
+// Laravel / otros sistemas
 app.post('/notify', (req, res) => {
-    try {
-        const { event, data } = req.body || {};
+    const { event, data = {} } = req.body;
 
-        if (!event || typeof event !== 'string') {
+    if (!event)
+        return res.status(422).json({
+            success: false,
+            message: 'Evento obligatorio'
+        });
+
+    // Evento dirigido a una caja
+    if (TERMINAL_EVENTS.has(event)) {
+        const room = terminalRoom(data.agencia_id, data.caja);
+
+        if (!room)
             return res.status(422).json({
                 success: false,
-                message: 'El campo event es obligatorio'
+                message: 'agencia_id y caja son obligatorios'
             });
-        }
 
-        const emittedEvent = emitEvent(event, data ?? {});
+        io.to(room).emit(event, data);
 
-        console.log(`[NOTIFY] Evento emitido: ${emittedEvent}`, data);
+        console.log(`[TERMINAL] ${room} -> ${event}`);
 
         return res.json({
             success: true,
-            event: emittedEvent
-        });
-    } catch (error) {
-        console.error('[NOTIFY] Error:', error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'No se pudo emitir el evento'
+            room
         });
     }
+
+    // Evento general para cualquier proyecto
+    io.emit(event, data);
+
+    console.log(`[GLOBAL] ${event}`);
+
+    res.json({ success: true });
 });
 
-/**
- * Esta ruta hace lo mismo que /notify.
- * Puedes mantenerla si algún sistema ya la utiliza.
- */
-app.post('/emit', (req, res) => {
-    try {
-        const event = emitEvent(
-            req.body?.event,
-            req.body?.payload ?? {}
-        );
+// Socket
+io.on('connection', socket => {
 
-        return res.json({
-            ok: true,
-            event
+    console.log('Conectado:', socket.id);
+
+    // Registrar pantalla/caja
+    socket.on('register_terminal', (data, callback) => {
+        const room = terminalRoom(data?.agencia_id, data?.caja);
+
+        if (!room) {
+            return callback?.({ success: false });
+        }
+
+        socket.join(room);
+
+        console.log(`${socket.id} registrado en ${room}`);
+
+        callback?.({
+            success: true,
+            room
         });
-    } catch (error) {
-        return res.status(422).json({
-            ok: false,
-            message: error.message
-        });
-    }
+    });
+
+    // Sistemas anteriores
+    socket.on('reservas-Ayacucho', msg =>
+        io.emit('reservas-ayacucho', msg)
+    );
+
+    socket.on('reservas-Oquendo', msg =>
+        io.emit('reservas-oquendo', msg)
+    );
+
+    socket.on('reservas-sucre-aventura', msg =>
+        io.emit('reservas-sucre-aventura', msg)
+    );
+
+    socket.on('silSolicitud', msg =>
+        io.emit('silSolicitud', msg)
+    );
+
+    socket.on('votacion', msg =>
+        io.emit('votacion', msg)
+    );
+
+    socket.on('disconnect', () =>
+        console.log('Desconectado:', socket.id)
+    );
 });
 
-io.on('connection', (socket) => {
-    console.log('Cliente conectado:', socket.id);
+const PORT = process.env.PORT || 3014;
 
-    socket.on('disconnect', (reason) => {
-        console.log('Cliente desconectado:', socket.id, reason);
-    });
-
-    socket.on('reservas-Ayacucho', (msg) => {
-        console.log('reservas-Ayacucho:', msg);
-        io.emit('reservas-ayacucho', msg);
-    });
-
-    socket.on('reservas-Oquendo', (msg) => {
-        console.log('reservas-Oquendo:', msg);
-        io.emit('reservas-oquendo', msg);
-    });
-
-    socket.on('silSolicitud', (msg) => {
-        console.log('silSolicitud:', msg);
-        io.emit('silSolicitud', msg);
-    });
-
-    socket.on('votacion', (msg) => {
-        console.log('votacion:', msg);
-        io.emit('votacion', msg);
-    });
-
-    socket.broadcast.emit('hi');
-
-    socket.on('reservas-sucre-aventura', (msg) => {
-        console.log('reservas-sucre-aventura:', msg);
-        io.emit('reservas-sucre-aventura', msg);
-    });
-});
-
-const port = process.env.PORT || 3014;
-
-server.listen(port, '0.0.0.0', () => {
-    console.log(`Socket funcionando en http://0.0.0.0:${port}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Socket funcionando en puerto ${PORT}`);
 });
