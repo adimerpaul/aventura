@@ -12,8 +12,10 @@ const io = new Server(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '2mb' }));
 app.use(cors());
+
+const publicidad = require('./publicidad')(io);
 
 const TERMINAL_EVENTS = new Set([
     'clienteDisplayData',
@@ -66,6 +68,16 @@ app.post('/notify', (req, res) => {
             success: false,
             message: 'Evento obligatorio'
         });
+
+    // Publicidad sincronizada (solo a las pantallas de esa agencia)
+    if (event === 'ad_schedule') {
+        try {
+            publicidad.publish(data);
+            return res.json({ success: true });
+        } catch (e) {
+            return res.status(422).json({ success: false, message: e.message });
+        }
+    }
 
     // Evento dirigido a una caja
     if (TERMINAL_EVENTS.has(event)) {
